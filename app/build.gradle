@@ -1,0 +1,44 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 10
+
+    defaultConfig {
+        applicationId "com.github.pyzahl.sofimagic"
+        minSdkVersion 10
+        targetSdkVersion 10
+        versionCode 7
+        versionName "1.4.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_6
+        targetCompatibility JavaVersion.VERSION_1_6
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+    }
+}
+
+android.applicationVariants.all { variant ->
+    variant.outputs.all { output ->
+        outputFileName =  "TimeLapse-${output.baseName}-${variant.versionName}.apk"
+    }
+}
+
+repositories {
+    jcenter()
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+    compileOnly 'com.github.ma1co.OpenMemories-Framework:stubs:-SNAPSHOT'
+    implementation 'com.github.ma1co.OpenMemories-Framework:framework:-SNAPSHOT'
+}
