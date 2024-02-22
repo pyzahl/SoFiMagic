@@ -12,6 +12,12 @@ import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
 class Settings {
     private static final String EXTRA_TC1 = "com.github.pyzahl.sofimagic.TC1";
+    private static final String EXTRA_TC2 = "com.github.pyzahl.sofimagic.TC2";
+    private static final String EXTRA_TC3 = "com.github.pyzahl.sofimagic.TC3";
+    private static final String EXTRA_TC4 = "com.github.pyzahl.sofimagic.TC4";
+    private static final String EXTRA_ISOPARTIAL = "com.github.pyzahl.sofimagic.ISOPARTIAL";
+    private static final String EXTRA_ISODIAMOND = "com.github.pyzahl.sofimagic.ISODIAMOND";
+    private static final String EXTRA_ISOTOTAL = "com.github.pyzahl.sofimagic.ISOTOTAL";
     private static final String EXTRA_INTERVAL = "com.github.pyzahl.sofimagic.INTERVAL";
     private static final String EXTRA_SHOTCOUNT = "com.github.pyzahl.sofimagic.SHOTCOUNT";
     private static final String EXTRA_DELAY = "com.github.pyzahl.sofimagic.DELAY";
@@ -20,6 +26,15 @@ class Settings {
     private static final String EXTRA_AEL = "com.github.pyzahl.sofimagic.AEL";
     private static final String EXTRA_BRS = "com.github.pyzahl.sofimagic.BRS";
     private static final String EXTRA_MF = "com.github.pyzahl.sofimagic.MF";
+
+    int tc1;
+    int tc2;
+    int tc3;
+    int tc4;
+
+    int isoPartial;
+    int isoDiamond;
+    int isoTotal;
 
     double interval;
     int delay;
@@ -33,6 +48,16 @@ class Settings {
     boolean mf;
 
     Settings() {
+
+        tc1 = 3600*12;
+        tc2 = tc1+60*60+10;
+        tc3 = tc2+4*60;
+        tc4 = tc3+60*60+10;
+
+        isoPartial = 400;
+        isoDiamond = 800;
+        isoTotal   = 4000;
+
         interval = 1;
         rawInterval = 1;
         delay = 0;
@@ -47,7 +72,16 @@ class Settings {
         mf = true;
     }
 
-    public Settings(double interval, int shotCount, int delay, boolean displayOff, boolean silentShutter, boolean ael, boolean brs, boolean mf) {
+    public Settings(int tc1, int tc2, int tc3, int tc4, int isoPartial, int isoDiamond, int isoTotal, double interval, int shotCount, int delay, boolean displayOff, boolean silentShutter, boolean ael, boolean brs, boolean mf) {
+        this.tc1 = tc1;
+        this.tc2 = tc2;
+        this.tc3 = tc3;
+        this.tc4 = tc4;
+
+        this.isoPartial = isoPartial;
+        this.isoDiamond = isoDiamond;
+        this.isoTotal   = isoTotal;
+
         this.interval = interval;
         this.delay = delay;
         this.shotCount = shotCount;
@@ -59,6 +93,15 @@ class Settings {
     }
 
     void putInIntent(Intent intent) {
+        intent.putExtra(EXTRA_TC1, tc1);
+        intent.putExtra(EXTRA_TC2, tc2);
+        intent.putExtra(EXTRA_TC3, tc3);
+        intent.putExtra(EXTRA_TC4, tc4);
+
+        intent.putExtra(EXTRA_ISOPARTIAL, isoPartial);
+        intent.putExtra(EXTRA_ISODIAMOND, isoDiamond);
+        intent.putExtra(EXTRA_ISOTOTAL, isoTotal);
+
         intent.putExtra(EXTRA_INTERVAL, interval);
         intent.putExtra(EXTRA_SHOTCOUNT, shotCount);
         intent.putExtra(EXTRA_DELAY, delay);
@@ -71,6 +114,13 @@ class Settings {
 
     static Settings getFromIntent(Intent intent) {
         return new Settings(
+                intent.getIntExtra(EXTRA_TC1, 43200),
+                intent.getIntExtra(EXTRA_TC2, 46810),
+                intent.getIntExtra(EXTRA_TC3, 47050),
+                intent.getIntExtra(EXTRA_TC4, 61220),
+                intent.getIntExtra(EXTRA_ISOPARTIAL, 400),
+                intent.getIntExtra(EXTRA_ISODIAMOND, 800),
+                intent.getIntExtra(EXTRA_ISOTOTAL, 4000),
                 intent.getDoubleExtra(EXTRA_INTERVAL, 1),
                 intent.getIntExtra(EXTRA_SHOTCOUNT, 1),
                 intent.getIntExtra(EXTRA_DELAY, 1),

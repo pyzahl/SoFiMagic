@@ -72,7 +72,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
                 android:gravity="center_vertical"
-                android:text="Shots"
+                android:text="PartShots"
                 android:textSize="20sp" />
 
             <TextView
@@ -266,6 +266,110 @@
                 android:layout_toRightOf="@+id/lblDelay"
                 android:gravity="center_vertical" />
         </RelativeLayout>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentBottom="true"
+            android:gravity="bottom">
+
+            <TextView
+                android:id="@+id/lblC1"
+                android:layout_width="25dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:gravity="center_vertical"
+                android:text="C1"
+                android:textSize="20sp" />
+
+            <EditText
+                android:id="@+id/editTextTimeC1"
+                android:layout_width="70dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="1dp"
+                android:layout_marginRight="1dp"
+                android:layout_toRightOf="@+id/lblC1"
+                android:ems="10"
+                android:gravity="center_vertical"
+                android:inputType="time" />
+
+            <TextView
+                android:id="@+id/lblC2"
+                android:layout_width="25dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="1dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginRight="1dp"
+                android:layout_toRightOf="@+id/editTextTimeC1"
+                android:gravity="center_vertical"
+                android:text="C2"
+                android:textSize="20sp" />
+
+            <EditText
+                android:id="@+id/editTextTimeC2"
+                android:layout_width="70dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="1dp"
+                android:layout_marginRight="1dp"
+                android:layout_toRightOf="@+id/lblC2"
+                android:ems="10"
+                android:gravity="center_vertical"
+                android:inputType="time" />
+
+            <TextView
+                android:id="@+id/lblC3"
+                android:layout_width="25dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="1dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginRight="1dp"
+                android:layout_toRightOf="@+id/editTextTimeC2"
+                android:gravity="center_vertical"
+                android:text="C3"
+                android:textSize="20sp" />
+
+            <EditText
+                android:id="@+id/editTextTimeC3"
+                android:layout_width="70dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="1dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginRight="1dp"
+                android:layout_toRightOf="@+id/lblC3"
+                android:gravity="center_vertical"
+                android:ems="10"
+                android:inputType="time" />
+
+            <TextView
+                android:id="@+id/lblC4"
+                android:layout_width="25dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginRight="1dp"
+                android:layout_toRightOf="@+id/editTextTimeC3"
+                android:gravity="center_vertical"
+                android:text="C4"
+                android:textSize="20sp" />
+
+            <EditText
+                android:id="@+id/editTextTimeC4"
+                android:layout_width="70dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="1dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginRight="1dp"
+                android:layout_toRightOf="@+id/lblC4"
+                android:gravity="center_vertical"
+                android:ems="10"
+                android:inputType="time" />
+
+        </RelativeLayout>
+
+
     </LinearLayout>
 
     <RelativeLayout
@@ -277,12 +381,10 @@
 
         <Button
             android:id="@+id/bnClose"
-            android:layout_width="100dp"
+            android:layout_width="98dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
             android:layout_marginLeft="10dp"
-            android:text="Close"
+            android:text="Quit"
             android:textSize="20sp" />
 
         <Button
@@ -296,5 +398,6 @@
             android:textSize="20sp" />
 
     </RelativeLayout>
+
 
 </RelativeLayout>

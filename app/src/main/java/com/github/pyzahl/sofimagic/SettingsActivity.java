@@ -7,6 +7,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TabHost;
@@ -23,6 +24,11 @@ public class SettingsActivity extends BaseActivity
     private TabHost tabHost;
 
     private Button bnStart, bnClose;
+
+    private EditText edTC1;
+    private EditText edTC2;
+    private EditText edTC3;
+    private EditText edTC4;
 
     private AdvancedSeekBar sbInterval;
     private TextView tvIntervalValue, tvIntervalUnit;
@@ -66,6 +72,12 @@ public class SettingsActivity extends BaseActivity
 
         bnClose = (Button) findViewById(R.id.bnClose);
         bnClose.setOnClickListener(bnCloseOnClickListener);
+
+        edTC1 = (EditText) findViewById(R.id.editTextTimeC1);
+        edTC2 = (EditText) findViewById(R.id.editTextTimeC2);
+        edTC3 = (EditText) findViewById(R.id.editTextTimeC3);
+        edTC4 = (EditText) findViewById(R.id.editTextTimeC4);
+
 
         tvIntervalValue = (TextView) findViewById(R.id.tvIntervalValue);
         tvIntervalUnit = (TextView) findViewById(R.id.tvIntervalUnit);
@@ -123,6 +135,11 @@ public class SettingsActivity extends BaseActivity
 
         cbDOFF.setChecked(settings.displayOff);
         cbDOFF.setOnCheckedChangeListener(cbDOFFOnCheckListener);
+
+        edTC1.setText(String.format("%02d:%02d:%02d", settings.tc1 / 3600, (settings.tc1 / 60) % 60, settings.tc1 % 60));
+        edTC2.setText(String.format("%02d:%02d:%02d", settings.tc2 / 3600, (settings.tc2 / 60) % 60, settings.tc2 % 60));
+        edTC3.setText(String.format("%02d:%02d:%02d", settings.tc3 / 3600, (settings.tc3 / 60) % 60, settings.tc3 % 60));
+        edTC4.setText(String.format("%02d:%02d:%02d", settings.tc4 / 3600, (settings.tc4 / 60) % 60, settings.tc4 % 60));
 
         //try {
             //CameraEx cameraEx = CameraEx.open(0, null);
