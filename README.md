@@ -1,4 +1,4 @@
-# SoFiMagic -- WORK IN PROGRESS --
+# SoFiMagic -- WORK IN PROGRESS -- NOT YET READY --
 SoFiMagic (Automated Solar Eclipe Shooting) app for Sony Alpha cameras using the [OpenMemories: Framework](https://github.com/ma1co/OpenMemories-Framework).
 Based in TimeLapse app, based on Focus app.
 
