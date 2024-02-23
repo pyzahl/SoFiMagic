@@ -6,16 +6,25 @@ import android.hardware.Camera;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.format.Time;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
+
+
 import com.github.ma1co.pmcademo.app.BaseActivity;
 
 import com.sony.scalar.hardware.CameraEx;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,7 +35,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
     private int shotCount;
 
-    private TextView tvCount, tvBattery, tvRemaining;
+    private TextView tvCount, tvBattery, tvRemaining, tvTime;
     private LinearLayout llEnd;
 
     private SurfaceView reviewSurfaceView;
@@ -133,6 +142,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         tvBattery = (TextView) findViewById(R.id.tvBattery);
         tvRemaining = (TextView) findViewById(R.id.tvRemaining);
         llEnd = (LinearLayout) findViewById(R.id.llEnd);
+        tvTime = (TextView) findViewById(R.id.textView);
 
         reviewSurfaceView = (SurfaceView) findViewById(R.id.surfaceView);
         reviewSurfaceView.setZOrderOnTop(false);
@@ -235,6 +245,11 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         tvCount.setText(Integer.toString(shotCount)+"/"+Integer.toString(settings.shotCount * getcnt()));
         tvRemaining.setText(getRemainingTime());
         tvBattery.setText(getBatteryPercentage());
+
+        Calendar calendar = getDateTime().getCurrentTime();
+        String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(calendar.getTime());
+        tvTime.setText(date);
+
     }
 
     @Override
@@ -306,6 +321,17 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                 tvCount.setText(Integer.toString(shotCount)+"/"+Integer.toString(settings.shotCount * getcnt()));
                 tvRemaining.setText(getRemainingTime());
                 tvBattery.setText(getBatteryPercentage());
+
+                Calendar calendar = getDateTime().getCurrentTime();
+                String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(calendar.getTime());
+                int timeZoneOffset = calendar.getTimeZone().getRawOffset() / 1000 / 3600;
+                //tvTime.setText(date + " (GMT" + (timeZoneOffset >= 0 ? "+" : "") + timeZoneOffset + ":00)");
+                int tz=calendar.get(Calendar.ZONE_OFFSET)/1000/3600;
+                int h=calendar.get(Calendar.HOUR_OF_DAY)-tz;
+                int m=calendar.get(Calendar.MINUTE);
+                int s=calendar.get(Calendar.SECOND);
+                tvTime.setText(date + String.format("{%02d:%02d:%02d => %d s}",h,m,s, getSecondsOfDay()));
+
             }
         });
     }

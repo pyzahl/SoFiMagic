@@ -7,6 +7,10 @@ import android.view.KeyEvent;
 import com.sony.scalar.hardware.avio.DisplayManager;
 import com.sony.scalar.sysutil.ScalarInput;
 import com.sony.scalar.sysutil.didep.Gpelibrary;
+import com.github.ma1co.openmemories.framework.DateTime;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class BaseActivity extends Activity {
     public static final String NOTIFICATION_DISPLAY_CHANGED = "NOTIFICATION_DISPLAY_CHANGED";
@@ -244,4 +248,19 @@ public class BaseActivity extends Activity {
     public boolean isInTest() {
         return Build.MODEL.equals("Android SDK built for x86");
     }
+
+    public DateTime getDateTime() {
+        return DateTime.getInstance();
+    }
+
+    public int getSecondsOfDay() {
+        Calendar calendar = DateTime.getInstance().getCurrentTime();
+        int tz = calendar.get(Calendar.ZONE_OFFSET) / 1000 / 3600;
+        int h = calendar.get(Calendar.HOUR_OF_DAY) - tz;
+        int m = calendar.get(Calendar.MINUTE);
+        int s = calendar.get(Calendar.SECOND);
+        //int ms = calendar.get(Calendar.MILLISECOND);
+        return h*3600+m*60+s;
+    }
+
 }
