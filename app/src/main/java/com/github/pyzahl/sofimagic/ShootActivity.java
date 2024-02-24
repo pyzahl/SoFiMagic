@@ -305,11 +305,40 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         catch (IOException e) {}
     }
 
+    private void setIso(int iso)
+    {
+        log("setIso: " + String.valueOf(iso) + "\n");
+        //m_curIso = iso;
+        //m_tvISO.setText(String.format("\uE488 %s", (iso == 0 ? "AUTO" : String.valueOf(iso))));
+        Camera.Parameters params = cameraEx.createEmptyParameters();
+        cameraEx.createParametersModifier(params).setISOSensitivity(iso);
+        cameraEx.getNormalCamera().setParameters(params);
+    }
+
+    private void setShutterSpeed(int sec, int frac)
+    {
+        log("setShutterSpeed: " + String.valueOf(sec) + "/" + String.valueOf(frac) + "\n");
+        cameraEx.adjustShutterSpeed(CameraUtilShutterSpeed.getShutterValueIndex(sec, frac));
+    }
+
     private void shoot() {
         if(takingPicture)
             return;
 
+        int iso = 800;
+        int shutter_s = 1;
+        int shutter_f = 1000;
+
+        if (shotCount > 3) {
+            shutter_f = 2000;
+            iso = 400;
+        }
+
+        setIso(iso);
+        setShutterSpeed(shutter_s,shutter_f);
+
         shootTime = System.currentTimeMillis();
+        logshot("Shoot Photo @millis=" + shootTime + " #" + shotCount + " ISO=" + String.valueOf(iso) + " Shutter=" + String.valueOf(shutter_s) +"/" + String.valueOf(shutter_f));
 
         cameraEx.burstableTakePicture();
 
@@ -471,6 +500,9 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
     private void log(String s) {
         Logger.info(s);
+    }
+    private void logshot(String s) {
+        Logger.shootdata(s);
     }
 
     private void dumpList(List list, String name) {
