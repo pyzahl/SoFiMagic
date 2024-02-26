@@ -86,6 +86,20 @@ public class CameraUtilShutterSpeed
         return -1;
     }
 
+    public static int getShutterValue(int n, int d)
+    {
+        for (int i = 0; i < SHUTTER_SPEEDS.length; ++i)
+        {
+            if (SHUTTER_SPEEDS[i][0] == n &&
+                    SHUTTER_SPEEDS[i][1] == d)
+            {
+                return MIN_SHUTTER_VALUES[i];
+            }
+        }
+        return -1;
+    }
+
+
     public static String formatShutterSpeed(int n, int d)
     {
         if (n == 1 && d != 2 && d != 1)

@@ -263,4 +263,28 @@ public class BaseActivity extends Activity {
         return h*3600+m*60+s;
     }
 
+    public long getMilliSecondsOfDay() {
+        Calendar calendar = DateTime.getInstance().getCurrentTime();
+        int tz = calendar.get(Calendar.ZONE_OFFSET) / 1000 / 3600;
+        int h = calendar.get(Calendar.HOUR_OF_DAY) - tz;
+        int m = calendar.get(Calendar.MINUTE);
+        int s = calendar.get(Calendar.SECOND);
+        int ms = calendar.get(Calendar.MILLISECOND);
+        return Math.round((h*3600.0+m*60.0+s)*1000.0 + ms);
+    }
+
+    public String getHMSfromMS(long ms) {
+        long tmp = Math.abs(ms);
+        long HH = tmp / 1000 / 3600;
+        tmp -= HH * 1000 * 3600;
+        long MM = tmp / 1000 / 60;
+        tmp -= MM * 1000 * 60;
+        long SS = tmp / 1000;
+        tmp -= SS * 1000;
+        long MS = tmp;
+        if (ms >= 0)
+            return String.format("%02d:%02d:%02d.%03d", HH, MM, SS, MS);
+        else
+            return String.format("-%02d:%02d:%02d.%03d", HH, MM, SS, MS);
+    }
 }

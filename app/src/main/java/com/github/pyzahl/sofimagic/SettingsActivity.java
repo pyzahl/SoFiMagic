@@ -61,7 +61,7 @@ public class SettingsActivity extends BaseActivity
         if (!(Thread.getDefaultUncaughtExceptionHandler() instanceof CustomExceptionHandler))
             Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler());
 
-        Logger.info("SiFiMagic startup: Hello Eclipse");
+        Logger.info("SoFiMagic startup: Hello Eclipse");
 
         settings = new Settings();
         settings.load(this);

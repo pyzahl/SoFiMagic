@@ -18,6 +18,7 @@ import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.util.Pair;
 
 import com.github.ma1co.pmcademo.app.BaseActivity;
 
@@ -33,9 +34,17 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 {
     private Settings settings;
 
-    private int shotCount;
+    private int MagicPhase=0;
+    private int shotCount=0;
+    private int exposureCount = 0;
+    private int repeatCount = 0;
+    private long delay_to_next_burst = 0;
 
-    private TextView tvCount, tvBattery, tvRemaining, tvTime;
+    private long remainingTimeToContactPhase = 0;
+    private long remainingTimeThisPhase = 0;
+    private long remainingTimeNextBurst = 0;
+
+    private TextView tvCount, tvBattery, tvRemaining, tvNextShot, tvNextCT;
     private LinearLayout llEnd;
 
     private SurfaceView reviewSurfaceView;
@@ -64,23 +73,102 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
     }
 
     private Handler shootRunnableHandler = new Handler();
-    private final Runnable shootRunnable = new Runnable()
-    {
+    private final Runnable shootRunnable = new Runnable() {
         @Override
-        public void run()
-        {
-            if(stopPicturePreview) {
+        public void run() {
+            if (stopPicturePreview) {
                 stopPicturePreview = false;
                 camera.stopPreview();
                 reviewSurfaceView.setVisibility(View.GONE);
-                if(settings.displayOff)
+                if (settings.displayOff)
                     display.off();
             }
 
-            if(burstShooting) {
-                shoot();
+            long now = getMilliSecondsOfDay();
+            log("shootRunnable " + getHMSfromMS(now));
+            do {
+                remainingTimeToContactPhase = Math.round(settings.magic_program[MagicPhase].start_time * 1000.0 - now); // Milli Sec
+                remainingTimeThisPhase = Math.round(settings.magic_program[MagicPhase].end_time * 1000.0 - now); // Milli Sec
+                log("shootRunnable: remaining time to MagicPhase " + settings.magic_program[MagicPhase].name + " @"+getHMSfromMS((long)settings.magic_program[MagicPhase].start_time*1000) +" #" + Integer.toString(MagicPhase) + " start in: " + getHMSfromMS(remainingTimeToContactPhase));
+                if (remainingTimeThisPhase <= 0) { // this time is up!
+                    if (settings.magic_program[MagicPhase].number_shots != 0) {
+                        MagicPhase++;
+                        shotCount = 0; // reset shoot count for phase
+                        exposureCount = 0;
+                        repeatCount = 0;
+                    }
+                }
+            }while (remainingTimeThisPhase <= 0);
+
+            if (remainingTimeToContactPhase <= 150) { // 300ms is vaguely the time this postDelayed is to slow
+                log("shootRunnable: set go shot!");
+                long remainingTimeToNextContactPhase = settings.magic_program[MagicPhase + 1].start_time - now; // Milli Sec
+                if (remainingTimeToNextContactPhase <= 150) {
+                    if (settings.magic_program[MagicPhase + 1].number_shots != 0) { // make sure not at end
+                        MagicPhase++;
+                        log("shootRunnable: Entering Next MagicPhase " + settings.magic_program[MagicPhase].name + " #" + Integer.toString(MagicPhase));
+                    }
+                    shotCount = 0; // reset shoot count for phase
+                    exposureCount = 0;
+                    repeatCount = 0;
+                }
+
+                //display.off();
+                if (settings.magic_program[MagicPhase].number_shots != 0) {
+                    shoot(settings.magic_program[MagicPhase].ISOs[exposureCount], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount]);
+                    log("shootRunnable: shoot fired, next exposure");
+                    exposureCount++;
+                }
+
+                if (settings.magic_program[MagicPhase].ISOs[exposureCount] == 0 || exposureCount > 15) { // done with exposure block
+                    log("shootRunnable: Exposure Set Completed.");
+                    exposureCount = 0; // reset exposure count for phase and repeat exposure block
+                    repeatCount++;
+                }
             }
-            else if(shotCount < settings.shotCount * getcnt()) {
+            //else
+            //    shootRunnableHandler.postDelayed(this, 1000);
+
+            log("shootRunnable: Check Next");
+            if (settings.magic_program[MagicPhase].number_shots > 0 && settings.magic_program[MagicPhase].ISOs[exposureCount] == 0) { // end of exposure list and distributed shots -- else keep going and repeat exposure block
+                int time_of_next_burst = settings.magic_program[MagicPhase].start_time + Math.round(repeatCount * (settings.magic_program[MagicPhase].end_time - settings.magic_program[MagicPhase].start_time) / settings.magic_program[MagicPhase].number_shots);
+                now = getMilliSecondsOfDay();
+                remainingTimeNextBurst = Math.round(time_of_next_burst * 1000 - now);
+                log("shootRunnable: remaining millis to next Exposure Series in " + settings.magic_program[MagicPhase].name + " ##" + Integer.toString(repeatCount) + " next in: " + getHMSfromMS(remainingTimeNextBurst));
+                display.on();
+                //long update_next_ms = Math.min(remainingTimeNextBurst-150, 1000);
+                //shootRunnableHandler.postDelayed(this, update_next_ms);
+                shootRunnableHandler.postDelayed(this, remainingTimeNextBurst-150);
+            }
+
+            // END?
+            if(settings.magic_program[MagicPhase].number_shots == 0) {
+                display.on();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (SHOW_END_SCREEN) {
+                            tvCount.setText("End Of Eclipse.");
+                            tvBattery.setVisibility(View.INVISIBLE);
+                            tvRemaining.setVisibility(View.INVISIBLE);
+                            llEnd.setVisibility(View.VISIBLE);
+                        } else {
+                            onBackPressed();
+                        }
+                    }
+                });
+            }
+        }
+    };
+
+
+
+/*
+            if(burstShooting) {
+                if (settings.magic_program[3].ISOs [shotCount] > 0)
+                    shoot(settings.magic_program[3].ISOs[shotCount], settings.magic_program[3].ShutterSpeeds[shotCount]);
+            }
+            else if(shotCount < settings.shotCount * getcnt() && settings.magic_program[3].ISOs [shotCount] > 0) {
                 long remainingTime = Math.round(shootTime + settings.interval * 1000 - System.currentTimeMillis());
                 if(brck.get()>0){
                     remainingTime = -1;
@@ -90,7 +178,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
                 if (remainingTime <= 150) { // 300ms is vaguely the time this postDelayed is to slow
                     brck.getAndDecrement();
-                    shoot();
+                    shoot(settings.magic_program[3].ISOs[shotCount], settings.magic_program[3].ShutterSpeeds[shotCount]);
                     display.on();
                 } else {
                     shootRunnableHandler.postDelayed(this, remainingTime-150);
@@ -102,7 +190,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                     @Override
                     public void run() {
                         if(SHOW_END_SCREEN) {
-                            tvCount.setText("Thanks for using this app!");
+                            tvCount.setText("Thank for using this app.");
                             tvBattery.setVisibility(View.INVISIBLE);
                             tvRemaining.setVisibility(View.INVISIBLE);
                             llEnd.setVisibility(View.VISIBLE);
@@ -112,9 +200,9 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                         }
                     }
                 });
-            }
         }
     };
+*/
 
     private Handler manualShutterCallbackCallRunnableHandler = new Handler();
     private final Runnable manualShutterCallbackCallRunnable = new Runnable() {
@@ -134,7 +222,13 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         Intent intent = getIntent();
         settings = Settings.getFromIntent(intent);
 
+        MagicPhase=0;
+        delay_to_next_burst = 0;
+
+        exposureCount = 0;
         shotCount = 0;
+        repeatCount = 0;
+
         takingPicture = false;
         burstShooting = settings.interval == 0;
 
@@ -142,7 +236,8 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         tvBattery = (TextView) findViewById(R.id.tvBattery);
         tvRemaining = (TextView) findViewById(R.id.tvRemaining);
         llEnd = (LinearLayout) findViewById(R.id.llEnd);
-        tvTime = (TextView) findViewById(R.id.textView);
+        tvNextShot = (TextView) findViewById(R.id.tvNextShot);
+        tvNextCT = (TextView) findViewById(R.id.tvNextCT);
 
         reviewSurfaceView = (SurfaceView) findViewById(R.id.surfaceView);
         reviewSurfaceView.setZOrderOnTop(false);
@@ -227,8 +322,9 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
 
         shotCount = 0;
-        shootRunnableHandler.postDelayed(shootRunnable, (long) settings.delay * 1000 * 60);
-        shootStartTime = System.currentTimeMillis() + settings.delay * 1000 * 60;
+        shootRunnableHandler.postDelayed(shootRunnable, 500);
+        //shootRunnableHandler.postDelayed(shootRunnable, (long) settings.delay * 1000 * 60);
+        //shootStartTime = System.currentTimeMillis() + settings.delay * 1000 * 60;
 
         if(burstShooting) {
             manualShutterCallbackCallRunnableHandler.postDelayed(manualShutterCallbackCallRunnable, 500);
@@ -242,13 +338,18 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
         setAutoPowerOffMode(false);
 
-        tvCount.setText(Integer.toString(shotCount)+"/"+Integer.toString(settings.shotCount * getcnt()));
+        tvCount.setText(Integer.toString(shotCount)+":"+Integer.toString(repeatCount)+"/"+Integer.toString(settings.magic_program[MagicPhase].number_shots));
         tvRemaining.setText(getRemainingTime());
         tvBattery.setText(getBatteryPercentage());
 
-        Calendar calendar = getDateTime().getCurrentTime();
-        String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(calendar.getTime());
-        tvTime.setText(date);
+        int time_of_next_burst = settings.magic_program[MagicPhase].start_time + Math.round(repeatCount * (settings.magic_program[MagicPhase].end_time - settings.magic_program[MagicPhase].start_time) / settings.magic_program[MagicPhase].number_shots);
+        long now = getMilliSecondsOfDay();
+        remainingTimeNextBurst = Math.round(time_of_next_burst * 1000 - now);
+        tvNextCT.setText(getHMSfromMS(remainingTimeToContactPhase));
+        tvNextShot.setText(getHMSfromMS(remainingTimeNextBurst));
+
+        //Calendar calendar = getDateTime().getCurrentTime();
+        //String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(calendar.getTime());
 
     }
 
@@ -307,9 +408,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
     private void setIso(int iso)
     {
-        log("setIso: " + String.valueOf(iso) + "\n");
-        //m_curIso = iso;
-        //m_tvISO.setText(String.format("\uE488 %s", (iso == 0 ? "AUTO" : String.valueOf(iso))));
+        log("set ISO " + String.valueOf(iso));
         Camera.Parameters params = cameraEx.createEmptyParameters();
         cameraEx.createParametersModifier(params).setISOSensitivity(iso);
         cameraEx.getNormalCamera().setParameters(params);
@@ -317,28 +416,39 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
     private void setShutterSpeed(int sec, int frac)
     {
-        log("setShutterSpeed: " + String.valueOf(sec) + "/" + String.valueOf(frac) + "\n");
-        cameraEx.adjustShutterSpeed(CameraUtilShutterSpeed.getShutterValueIndex(sec, frac));
+        int sv = CameraUtilShutterSpeed.getShutterValue(sec, frac);
+        int indexSet = CameraUtilShutterSpeed.getShutterValueIndex(sec, frac);
+        log("set ShutterSpeed " + String.valueOf(sec) + "/" + String.valueOf(frac) + "s" + "to [i:" + String.valueOf(indexSet) + ", sv:" + String.valueOf(sv) + "] current si: " + String.valueOf(CameraUtilShutterSpeed.getShutterValueIndex(getCurrentShutterSpeed())));
+
+        //cameraEx.adjustShutterSpeed(indexSet);
+        //cameraEx.adjustShutterSpeed(sv); // this seams NOT to work or do anything :(
+
+        while (indexSet > CameraUtilShutterSpeed.getShutterValueIndex(getCurrentShutterSpeed())) {
+            cameraEx.decrementShutterSpeed();
+            log("ShutterSpeed-- " + String.valueOf(CameraUtilShutterSpeed.getShutterValueIndex(getCurrentShutterSpeed())));
+        }
+        while (indexSet < CameraUtilShutterSpeed.getShutterValueIndex(getCurrentShutterSpeed())) {
+            cameraEx.incrementShutterSpeed();
+            log("ShutterSpeed++ " + String.valueOf(CameraUtilShutterSpeed.getShutterValueIndex(getCurrentShutterSpeed())));
+        }
     }
 
-    private void shoot() {
+    private Pair<Integer, Integer> getCurrentShutterSpeed()
+    {
+        final Camera.Parameters params = cameraEx.getNormalCamera().getParameters();
+        final CameraEx.ParametersModifier paramsModifier = cameraEx.createParametersModifier(params);
+        return paramsModifier.getShutterSpeed();
+    }
+
+    private void shoot(int iso, int[] shutterSpeed) {
         if(takingPicture)
             return;
 
-        int iso = 800;
-        int shutter_s = 1;
-        int shutter_f = 1000;
-
-        if (shotCount > 3) {
-            shutter_f = 2000;
-            iso = 400;
-        }
-
         setIso(iso);
-        setShutterSpeed(shutter_s,shutter_f);
+        setShutterSpeed(shutterSpeed[0],shutterSpeed[1]);
 
         shootTime = System.currentTimeMillis();
-        logshot("Shoot Photo @millis=" + shootTime + " #" + shotCount + " ISO=" + String.valueOf(iso) + " Shutter=" + String.valueOf(shutter_s) +"/" + String.valueOf(shutter_f));
+        logshot("Shoot Photo @millis=" + shootTime + " #" + shotCount + " t=" +  String.valueOf(shutterSpeed[0]) +"/" + String.valueOf(shutterSpeed[1]) + "s @ISO" + String.valueOf(iso));
 
         cameraEx.burstableTakePicture();
 
@@ -347,19 +457,15 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                tvCount.setText(Integer.toString(shotCount)+"/"+Integer.toString(settings.shotCount * getcnt()));
+                tvCount.setText(Integer.toString(shotCount)+"*"+Integer.toString(repeatCount)+"/"+Integer.toString(settings.magic_program[MagicPhase].number_shots));
                 tvRemaining.setText(getRemainingTime());
                 tvBattery.setText(getBatteryPercentage());
 
-                Calendar calendar = getDateTime().getCurrentTime();
-                String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(calendar.getTime());
-                int timeZoneOffset = calendar.getTimeZone().getRawOffset() / 1000 / 3600;
-                //tvTime.setText(date + " (GMT" + (timeZoneOffset >= 0 ? "+" : "") + timeZoneOffset + ":00)");
-                int tz=calendar.get(Calendar.ZONE_OFFSET)/1000/3600;
-                int h=calendar.get(Calendar.HOUR_OF_DAY)-tz;
-                int m=calendar.get(Calendar.MINUTE);
-                int s=calendar.get(Calendar.SECOND);
-                tvTime.setText(date + String.format("{%02d:%02d:%02d => %d s}",h,m,s, getSecondsOfDay()));
+                int time_of_next_burst = settings.magic_program[MagicPhase].start_time + Math.round(repeatCount * (settings.magic_program[MagicPhase].end_time - settings.magic_program[MagicPhase].start_time) / settings.magic_program[MagicPhase].number_shots);
+                long now = getMilliSecondsOfDay();
+                remainingTimeNextBurst = Math.round(time_of_next_burst * 1000 - now);
+                tvNextCT.setText(getHMSfromMS(remainingTimeToContactPhase));
+                tvNextShot.setText(getHMSfromMS(remainingTimeNextBurst));
 
             }
         });
@@ -391,7 +497,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
             });
 
             // just keep shooting until we have all shots
-            if (System.currentTimeMillis() >= shootStartTime + settings.shotCount * 1000) {
+            if (false){ //System.currentTimeMillis() >= shootStartTime + settings.shotCount * 1000) {
                 this.cameraEx.cancelTakePicture();
                 stopPicturePreview = true;
                 display.on();
@@ -420,7 +526,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
             //camera.startPreview();
 
-            if (shotCount < settings.shotCount * getcnt()) {
+            if (true) { //shotCount < settings.shotCount * getcnt()) {
 
                 // remaining time to the next shot
                 double remainingTime = shootTime + settings.interval * 1000 - System.currentTimeMillis();
@@ -473,10 +579,15 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
     }
 
     private String getRemainingTime() {
+        int time_of_next_burst = settings.magic_program[MagicPhase].start_time + Math.round(repeatCount * (settings.magic_program[MagicPhase].end_time - settings.magic_program[MagicPhase].start_time) / settings.magic_program[MagicPhase].number_shots);
+        long now = getMilliSecondsOfDay();
+        return "" + Math.round((time_of_next_burst * 1000 - now)/1000) + "s";
+        /*
         if(burstShooting)
             return "" + Math.round((settings.shotCount * 1000 - System.currentTimeMillis() + shootStartTime) / 1000) + "s";
         else
             return "" + Math.round((settings.shotCount * getcnt() - shotCount) * settings.interval / 60) + "min";
+         */
     }
 
     @Override
