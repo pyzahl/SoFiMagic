@@ -120,7 +120,7 @@ class Settings {
         magic_program = new shoot_program[8]; // Partial1, Contact2, TotalA, TotalMax, TotalB, Contact3, Partial2, END
 
         // Default Contact Times
-        tc1 = 3600*(20)+(58)*60;
+        tc1 = 3600*12;
         tc2 = tc1+60*60+10;
         tc3 = tc2+4*60;
         tc4 = tc3+60*60+10;

@@ -46,11 +46,9 @@ public class SoFiProgramXML {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(getXMLFile());
-            Logger.log("XMLPRG: parsed");
-
             doc.getDocumentElement().normalize();
 
-            Logger.log("XML Root element: " + doc.getDocumentElement().getNodeName());
+            Logger.log("XMLPRG: Root element: " + doc.getDocumentElement().getNodeName());
             Logger.log("XMLPRG: reading XML");
 
             NodeList nListCheck = doc.getElementsByTagName("VALID_SOFI_PROGRAM");
@@ -63,7 +61,6 @@ public class SoFiProgramXML {
                     if (node.getNodeType() == Node.ELEMENT_NODE) {
                         Element phase = (Element) node;
                         String time_c1 = getValue("C1", phase);
-                        Logger.log("XMLPRG: TC1=" + time_c1);
                         String time_c2 = getValue("C2", phase);
                         String time_c3 = getValue("C3", phase);
                         String time_c4 = getValue("C4", phase);
