@@ -85,7 +85,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
             }
 
             long now = getMilliSecondsOfDay();
-            log("shootRunnable " + getHMSfromMS(now) + " MagicPhase[" + Integer.toString(MagicPhase) + "]" + settings.magic_program[MagicPhase].name + " SC:" + Integer.toString(shotCount) + " EC:" + Integer.toString(exposureCount) + " RC:" + Integer.toString(repeatCount) );
+            log("shootRunnable " + getHMSfromMS(now) + " MagicPhase[" + Integer.toString(MagicPhase) + "]" + settings.magic_program[MagicPhase].name + " SC:" + Integer.toString(shotCount) + " EC:" + Integer.toString(exposureCount) + " RC:" + Integer.toString(repeatCount) + " ** " + Integer.toString(settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][0]) + "/" + Integer.toString(settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][1]) + " @ISO " + Integer.toString(settings.magic_program[MagicPhase].ISOs[exposureCount]) );
             // if aborted, it will continue at the right phase automatically and skips forward as required!
             do {
                 remainingTimeToContactPhase = settings.magic_program[MagicPhase].get_remainingTimeToStart(now);
@@ -125,13 +125,33 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
                 // check if exposure set completed
                 if ((settings.magic_program[MagicPhase].ISOs[exposureCount] == 0 || exposureCount > 15) && settings.magic_program[MagicPhase].number_shots != 0) { // done with exposure block
-                    log("shootRunnable: Exposure Set Completed.");
+                    log("shootRunnable: exposure set completed.");
                     exposureCount = 0; // reset exposure count for phase and repeat exposure block
                     repeatCount++;
                 }
+            } else {
+                log("shootRunnable: waiting...");
+                if (remainingTimeToContactPhase > 1500) {
+                    display.on();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            tvCount.setText(Integer.toString(shotCount) + "*" + Integer.toString(repeatCount) + "/" + Integer.toString(settings.magic_program[MagicPhase].number_shots));
+                            tvRemaining.setText(getRemainingTime());
+                            tvBattery.setText(getBatteryPercentage());
+                            int time_of_next_burst = settings.magic_program[MagicPhase].get_TimeOfNext(repeatCount);
+                            long now = getMilliSecondsOfDay();
+                            remainingTimeNextBurst = settings.magic_program[MagicPhase].get_remainingTimeToNext(repeatCount, now);
+                            tvNextCT.setText(getHMSfromMS(remainingTimeToContactPhase));
+                            tvNextShot.setText(getHMSfromMS(remainingTimeNextBurst));
+                        }
+                    });
+                    shootRunnableHandler.postDelayed(this, 1000); // wait a second and check again
+                } else
+                    shootRunnableHandler.postDelayed(this, remainingTimeToContactPhase-150); // wait a second and check again
             }
 
-            if (settings.magic_program[MagicPhase].number_shots > 0) { // end of exposure list and distributed shots -- else keep going and repeat exposure block
+            if (settings.magic_program[MagicPhase].number_shots > 0 && settings.magic_program[MagicPhase].ISOs[exposureCount] == 0 ) { // end of exposure list and distributed shots -- else keep going and repeat exposure block
                 log("shootRunnable: exposure list completed, repeating.");
                 exposureCount = 0; // reset exposure count for phase and repeat exposure block
                 int time_of_next_burst = settings.magic_program[MagicPhase].get_TimeOfNext(repeatCount);
@@ -155,8 +175,8 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                         }
                     });
                 } else { // keep shooting!
-                    log("shootRunnable: postDelay 200, keep shooting repeating exposure list, minimal delay.");
-                    shootRunnableHandler.postDelayed(this, 200); // wait a second and check again
+                    log("shootRunnable: postDelay 500, keep shooting repeating exposure list, minimal delay.");
+                    shootRunnableHandler.postDelayed(this, 500); // wait a second and check again
                 }
 
                 //long update_next_ms = Math.min(remainingTimeNextBurst-150, 1000);
