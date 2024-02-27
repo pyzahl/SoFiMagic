@@ -21,6 +21,8 @@ public class SettingsActivity extends BaseActivity
 
     private Settings settings;
 
+    private SoFiProgramXML soFiProgramXML;
+
     private TabHost tabHost;
 
     private Button bnStart, bnClose;
@@ -64,6 +66,10 @@ public class SettingsActivity extends BaseActivity
         Logger.info("SoFiMagic startup: Hello Eclipse");
 
         settings = new Settings();
+
+        soFiProgramXML = new SoFiProgramXML(); // check/create XML for default program updates
+        //soFiProgramXML.SoFiProgramStoreXML();
+
         settings.load(this);
         fps = 24;
 

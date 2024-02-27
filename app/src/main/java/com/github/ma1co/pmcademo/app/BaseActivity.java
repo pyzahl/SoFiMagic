@@ -287,4 +287,7 @@ public class BaseActivity extends Activity {
         else
             return String.format("-%02d:%02d:%02d.%03d", HH, MM, SS, MS);
     }
+
+
+
 }
