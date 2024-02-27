@@ -81,6 +81,18 @@ class Settings {
             return get_TC(ref_contact_end) + end_time;
         }
 
+        public long get_remainingTimeToStart(long as_of_ms) {
+            return Math.round((long)get_start_time() * 1000.0 - as_of_ms); // Milli Sec
+        }
+        public long get_remainingTime(long as_of_ms) {
+            return Math.round((long)get_end_time() * 1000.0 - as_of_ms); // Milli Sec
+        }
+        public int get_TimeOfNext(int count) {
+            return get_start_time() + count*(get_end_time()-get_start_time())/number_shots; // time in Sec
+        }
+        public long get_remainingTimeToNext(int count, long as_of_ms) {
+            return Math.round((long)get_TimeOfNext(count) * 1000.0 - as_of_ms); // Milli Sec
+        }
     }
 
     static public int get_TC(int i) {
@@ -140,7 +152,6 @@ class Settings {
             magic_program[phase].ShutterSpeeds[i][0] = P1PartialShutterSpeeds[i][0];
             magic_program[phase].ShutterSpeeds[i][1] = P1PartialShutterSpeeds[i][1];
         }
-        Logger.log(magic_program[phase].name);
         phase++;
 
         // C2 Shooting Parameters
@@ -156,7 +167,6 @@ class Settings {
             magic_program[phase].ShutterSpeeds[i][0] = C2ShootingShutterSpeeds[i][0];
             magic_program[phase].ShutterSpeeds[i][1] = C2ShootingShutterSpeeds[i][1];
         }
-        Logger.log(magic_program[phase].name);
         phase++;
 
         // Totality C2..C3 parameters in three sections.
@@ -172,7 +182,6 @@ class Settings {
             magic_program[phase].ShutterSpeeds[i][0] = TotalityAShutterSpeeds[i][0];
             magic_program[phase].ShutterSpeeds[i][1] = TotalityAShutterSpeeds[i][1];
         }
-        Logger.log(magic_program[phase].name);
         phase++;
 
         // Totality Max..C3
@@ -187,7 +196,6 @@ class Settings {
             magic_program[phase].ShutterSpeeds[i][0] = MaxTotalityShutterSpeeds[i][0];
             magic_program[phase].ShutterSpeeds[i][1] = MaxTotalityShutterSpeeds[i][1];
         }
-        Logger.log(magic_program[phase].name);
         phase++;
 
         // Totality Max..C3
@@ -202,7 +210,6 @@ class Settings {
             magic_program[phase].ShutterSpeeds[i][0] = TotalityBShutterSpeeds[i][0];
             magic_program[phase].ShutterSpeeds[i][1] = TotalityBShutterSpeeds[i][1];
         }
-        Logger.log(magic_program[phase].name);
         phase++;
 
         // C3 Shooting Parameters
@@ -218,7 +225,6 @@ class Settings {
             magic_program[phase].ShutterSpeeds[i][0] = C3ShootingShutterSpeeds[i][0];
             magic_program[phase].ShutterSpeeds[i][1] = C3ShootingShutterSpeeds[i][1];
         }
-        Logger.log(magic_program[phase].name);
         phase++;
 
         // C3..C4 Partial2 Shooting
@@ -233,13 +239,10 @@ class Settings {
             magic_program[phase].ShutterSpeeds[i][0] = P2PartialShutterSpeeds[i][0];
             magic_program[phase].ShutterSpeeds[i][1] = P2PartialShutterSpeeds[i][1];
         }
-        Logger.log(magic_program[phase].name);
         phase++;
 
         // END BLOCK
         magic_program[phase] = new shoot_program("END", 4,4, +30, +30, 0, "S0,B0,C0");
-        Logger.log(magic_program[phase].name);
-
 
         isoPartial = 400;
         isoDiamond = 800;

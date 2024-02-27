@@ -74,6 +74,7 @@ public class SoFiProgramXML {
                     if (node.getNodeType() == Node.ELEMENT_NODE) {
                         Element phase = (Element) node;
                         Settings.magic_program[i].name = getValue("NAME", phase);
+                        Logger.log("XMLPRG: reading magic phase settings for: " + Settings.magic_program[i].name);
                         Settings.magic_program[i].ref_contact_start = Integer.parseInt(getValue("REF_CONTACT_START", phase));
                         Settings.magic_program[i].start_time = Integer.parseInt(getValue("START", phase));
                         Settings.magic_program[i].ref_contact_end = Integer.parseInt(getValue("REF_CONTACT_END", phase));
@@ -134,6 +135,7 @@ public class SoFiProgramXML {
             root.appendChild(elementTC);
 
             for (int i = 0; Settings.magic_program[i].number_shots != 0; i++) {
+                Logger.log("XMLPRG: creating magic phase settings for: " + Settings.magic_program[i].name);
                 Element elementPH = doc.createElement("PHASE");
                 appendElement(elementPH, "NAME", Settings.magic_program[i].name);
                 appendElement(elementPH, "REF_CONTACT_START", Integer.toString(Settings.magic_program[i].ref_contact_start));
