@@ -82,13 +82,16 @@ public class SoFiProgramXML {
                         Settings.magic_program[i].number_shots = Integer.parseInt(getValue("NUMBER_SHOTS", phase));
                         Settings.magic_program[i].CameraFlags = getValue("CAMERA_FLAGS", phase);
                         String[] iso_list = getValue("ISO_LIST", phase).split(",");
-                        for (int k=0; k<iso_list.length; k++)
+                        int k;
+                        for (k=0; k<iso_list.length; k++)
                             Settings.magic_program[i].ISOs[k]=Integer.parseInt(iso_list[k]);
+                        for (; k < Settings.magic_program[i].ISOs.length; k++)
+                            Settings.magic_program[i].ISOs[k]=0; // this will terminate no need to clear the other lists.
                         String[] f_list = getValue("F_LIST", phase).split(",");
-                        for (int k=0; k<f_list.length; k++)
+                        for (k=0; k<f_list.length; k++)
                             Settings.magic_program[i].Fs[k]=Integer.parseInt(f_list[k]);
                         String[] ss_list = getValue("SHUTTER_SPEED_LIST", phase).split(",");
-                        for (int k=0; k<ss_list.length; k++) {
+                        for (k=0; k<ss_list.length; k++) {
                             String[] ss = ss_list[k].split("/");
                             Settings.magic_program[i].ShutterSpeeds[k][0]=Integer.parseInt(ss[0]);
                             Settings.magic_program[i].ShutterSpeeds[k][1]=Integer.parseInt(ss[1]);

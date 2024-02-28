@@ -88,7 +88,10 @@ class Settings {
             return Math.round((long)get_end_time() * 1000.0 - as_of_ms); // Milli Sec
         }
         public int get_TimeOfNext(int count) {
-            return get_start_time() + count*(get_end_time()-get_start_time())/number_shots; // time in Sec
+            if (number_shots > 1)
+                return get_start_time() + count*(get_end_time()-get_start_time())/(number_shots-1); // time in Sec
+            else
+                return get_start_time();
         }
         public long get_remainingTimeToNext(int count, long as_of_ms) {
             return Math.round((long)get_TimeOfNext(count) * 1000.0 - as_of_ms); // Milli Sec

@@ -273,7 +273,7 @@ public class BaseActivity extends Activity {
         return Math.round((h*3600.0+m*60.0+s)*1000.0 + ms);
     }
 
-    public String getHMSfromMS(long ms) {
+    public String getHMSMSfromMS(long ms) {
         long tmp = Math.abs(ms);
         long HH = tmp / 1000 / 3600;
         tmp -= HH * 1000 * 3600;
@@ -286,6 +286,19 @@ public class BaseActivity extends Activity {
             return String.format("%02d:%02d:%02d.%03d", HH, MM, SS, MS);
         else
             return String.format("-%02d:%02d:%02d.%03d", HH, MM, SS, MS);
+    }
+
+    public String getHMSfromMS(long ms) {
+        long tmp = Math.abs(ms);
+        long HH = tmp / 1000 / 3600;
+        tmp -= HH * 1000 * 3600;
+        long MM = tmp / 1000 / 60;
+        tmp -= MM * 1000 * 60;
+        long SS = tmp / 1000;
+        if (ms >= 0)
+            return String.format("%02d:%02d:%02d", HH, MM, SS);
+        else
+            return String.format("-%02d:%02d:%02d", HH, MM, SS);
     }
 
 
