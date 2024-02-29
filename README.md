@@ -1,4 +1,4 @@
-# SoFiMagic -- WORK IN PROGRESS -- NOT YET READY --
+# SoFiMagic -- WORK IN PROGRESS -- ALPHA PHASE -- TESTING --
 SoFiMagic (Automated Solar Eclipe Shooting) app for Sony Alpha cameras using the [OpenMemories: Framework](https://github.com/ma1co/OpenMemories-Framework).
 Based in TimeLapse app, based on Focus app.
 
@@ -10,11 +10,12 @@ Use [Sony-PMCA-RE](https://github.com/ma1co/Sony-PMCA-RE) or install through [so
 Thanks to [ma1co](https://github.com/ma1co) for creating this amazing framework and [obs1dium](https://github.com/obs1dium), I used FocusBracket as a code base.
 And final thanks to [jonasjuffinger](https://github.com/jonasjuffinger/TimeLapse) for creating TimeLapse I used as template to start SoFiMagic. 
 
+## Building ##
+Load project into Android Studio...
+
 ## Usage ##
-The app is easy to use. It doesn't have any controls for shutter speed, aperture, ISO, picture quality etc. Adjust all this settings before starting the app, it will use them. If you don't want the camera to focus before each shot, set the camera to manual mode.
-
-Then start the app set the shoot interval and the amount of pictures it should take. Below the seek bars you can see how long it will take to shoot all the photos and how long the video will be. The fps setting only changes the calculation of the video length, the app doesn't produce a video.
-
+Start App, configure. Review XML file on CF card in SOFIGAGI folder created by App itself at first start. Edit XML file... see below for example. (On Camera GUI is pending completion).
+Start App again.
 Finally click the start button and wait.
 
 You can stop by clicking the MENU button on the camera.
@@ -25,16 +26,16 @@ The silent shutter option is functionless on cameras without silent shutter mode
 ## MF (Manual Focus) ##
 This sets focus mode to manual. Be sure to have focused before starting the app!
 
-## AEL (Auto Exposure Lock) ##
-This locks the exposure to the exposure of the first shot.
-
 ## BRC3 ##
+EXPERIMENTAL/TESTING -- DO NOT SELECT.
 The app supports exposure bracketing. Set the mode to three-image exposure bracketing outside of the app and check BRC3 checkbox in the app. The app will always take three pictures. Keep in mind that the interval time must be large enough to take all three pictures.
 
 ## DOFF (Display Off) ##
+EXPERIMENTAL/TETSING -- DO NOT SELECT.
 Turn the display off between each shot. This doesn't change the battery consumption but it can be healthy for the display when taking very long time lapses.
 
 ## Burst mode ##
+EXPERIMENTAL -- DO NOT SELECT.
 When selecting the lowest interval the camera is in burst mode. In this mode it takes pictures as fast as it can write to the SD card for the duration set by the second slider.
 
 ## Known Issues ##
