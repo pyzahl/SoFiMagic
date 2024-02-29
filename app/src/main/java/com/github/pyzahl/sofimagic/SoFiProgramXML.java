@@ -81,21 +81,9 @@ public class SoFiProgramXML {
                         Settings.magic_program[i].end_time = Integer.parseInt(getValue("END", phase));
                         Settings.magic_program[i].number_shots = Integer.parseInt(getValue("NUMBER_SHOTS", phase));
                         Settings.magic_program[i].CameraFlags = getValue("CAMERA_FLAGS", phase);
-                        String[] iso_list = getValue("ISO_LIST", phase).split(",");
-                        int k;
-                        for (k=0; k<iso_list.length; k++)
-                            Settings.magic_program[i].ISOs[k]=Integer.parseInt(iso_list[k]);
-                        for (; k < Settings.magic_program[i].ISOs.length; k++)
-                            Settings.magic_program[i].ISOs[k]=0; // this will terminate no need to clear the other lists.
-                        String[] f_list = getValue("F_LIST", phase).split(",");
-                        for (k=0; k<f_list.length; k++)
-                            Settings.magic_program[i].Fs[k]=Integer.parseInt(f_list[k]);
-                        String[] ss_list = getValue("SHUTTER_SPEED_LIST", phase).split(",");
-                        for (k=0; k<ss_list.length; k++) {
-                            String[] ss = ss_list[k].split("/");
-                            Settings.magic_program[i].ShutterSpeeds[k][0]=Integer.parseInt(ss[0]);
-                            Settings.magic_program[i].ShutterSpeeds[k][1]=Integer.parseInt(ss[1]);
-                        }
+                        Settings.magic_program[i].set_ISOs_list(getValue("ISO_LIST", phase));
+                        Settings.magic_program[i].set_F_list(getValue("F_LIST", phase));
+                        Settings.magic_program[i].set_SHUTTER_SPEEDS_list(getValue("SHUTTER_SPEED_LIST", phase));
                     }
                 }
             } else { // create default template
@@ -147,18 +135,11 @@ public class SoFiProgramXML {
                 appendElement(elementPH, "END", Integer.toString(Settings.magic_program[i].end_time));
                 appendElement(elementPH, "NUMBER_SHOTS", Integer.toString(Settings.magic_program[i].number_shots));
                 appendElement(elementPH, "CAMERA_FLAGS", Settings.magic_program[i].CameraFlags);
-                String ISO_list="";
-                String F_list="";
-                String SHUTTER_list="";
-                for (int k=0; k<Settings.magic_program.length; ++k){
-                    if (Settings.magic_program[i].ISOs[k] > 0) {
-                        ISO_list = ISO_list + Integer.toString(Settings.magic_program[i].ISOs[k]) + ",";
-                        F_list = F_list + Integer.toString(Settings.magic_program[i].Fs[k]) + ",";
-                        SHUTTER_list = SHUTTER_list + Integer.toString(Settings.magic_program[i].ShutterSpeeds[k][0]) + "/" + Integer.toString(Settings.magic_program[i].ShutterSpeeds[k][1]) + ",";
-                    }
-                }
+                String ISO_list=Settings.magic_program[i].get_ISOs_list();
                 appendElement(elementPH, "ISO_LIST", ISO_list);
+                String F_list=Settings.magic_program[i].get_Fs_list();
                 appendElement(elementPH, "F_LIST", F_list);
+                String SHUTTER_list=Settings.magic_program[i].get_ShutterSpeeds_list();
                 appendElement(elementPH, "SHUTTER_SPEED_LIST", SHUTTER_list);
                 root.appendChild(elementPH);
             }

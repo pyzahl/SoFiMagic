@@ -12,6 +12,9 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.view.KeyEvent;
+import android.widget.ImageView;
+import android.widget.TableLayout;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -45,6 +48,46 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
     private TextView tvCount, tvBattery, tvRemaining, tvNextShot, tvNextCT;
     private LinearLayout llEnd;
+
+    private PreviewNavView m_previewNavView;
+
+    private TextView m_tvShutter;
+    private TextView m_tvAperture;
+    private TextView m_tvISO;
+    private TextView m_tvExposureCompensation;
+    private LinearLayout m_lExposure;
+    private TextView m_tvExposure;
+    private TextView m_tvLog;
+    private TextView m_tvMagnification;
+    private TextView m_tvMsg;
+    private HistogramView m_vHist;
+    private TableLayout m_lInfoBottom;
+    private ImageView m_ivDriveMode;
+    private ImageView m_ivMode;
+    private ImageView m_ivTimelapse;
+    private ImageView m_ivBracket;
+    private GridView m_vGrid;
+    private TextView m_tvHint;
+    //private FocusScaleView  m_focusScaleView;
+    private View m_lFocusScale;
+
+
+    // Bracketing
+    private int m_bracketStep;  // in 1/3 stops
+    private int m_bracketMaxPicCount;
+    private int m_bracketPicCount;
+    private int m_bracketShutterDelta;
+    private boolean m_bracketActive;
+    private Pair<Integer, Integer> m_bracketNextShutterSpeed;
+    private int m_bracketNeutralShutterIndex;
+
+    // Timelapse
+    private int m_autoPowerOffTimeBackup;
+    private boolean m_timelapseActive;
+    private int m_timelapseInterval;    // ms
+    private int m_timelapsePicCount;
+    private int m_timelapsePicsTaken;
+
 
     private SurfaceView reviewSurfaceView;
     private SurfaceHolder cameraSurfaceHolder;
@@ -106,6 +149,17 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                 }
             } while (remainingTimeThisPhase <= 0 && settings.magic_program[MagicPhase].number_shots != 0); // skip forward if past this phase
 
+            // check if we need to skip forward (in timed series)
+            if (settings.magic_program[MagicPhase].number_shots > 0) {
+                do {
+                    remainingTimeNextBurst = settings.magic_program[MagicPhase].get_remainingTimeToNext(repeatCount, now);
+                    if (remainingTimeNextBurst < 0) { // past that shot?
+                        log("shootRunnable: skipping to repeat count " + Integer.toString(repeatCount));
+                        repeatCount++; // skip
+                    }
+                } while (remainingTimeNextBurst < 0 && settings.magic_program[MagicPhase].ISOs[exposureCount] != 0);
+            }
+
             // CHECK FOR NOT END OF ECLIPSE TO PROCEED
             if (settings.magic_program[MagicPhase].number_shots != 0) {
 
@@ -124,7 +178,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                     remainingTimeNextBurst = settings.magic_program[MagicPhase].get_remainingTimeToNext(repeatCount, now);
                     log("shootRunnable: remaining time to next Exposure Series in " + settings.magic_program[MagicPhase].name + " ##" + Integer.toString(repeatCount) + " next in: " + getHMSMSfromMS(remainingTimeNextBurst));
 
-                    if (remainingTimeNextBurst < 150){
+                    if (remainingTimeNextBurst < 150) {
                         shoot(settings.magic_program[MagicPhase].ISOs[exposureCount], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount]);
                         exposureCount++;
                     } else {
@@ -218,9 +272,9 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         tvRemaining.setText(getHMSfromMS(remainingTimeNextBurst));
         tvBattery.setText(getBatteryPercentage());
         if (remainingTimeToContactPhase > 0)
-            tvNextShot.setText(getHMSfromMS(remainingTimeToContactPhase)+" until "+settings.magic_program[MagicPhase].name);
+            tvNextShot.setText(getHMSfromMS(remainingTimeToContactPhase) + " until " + settings.magic_program[MagicPhase].name);
         else
-            tvNextShot.setText(getHMSfromMS(remainingTimeThisPhase)+" left for "+settings.magic_program[MagicPhase].name);
+            tvNextShot.setText(getHMSfromMS(remainingTimeThisPhase) + " left for " + settings.magic_program[MagicPhase].name);
         //tvNextCT.setText("next"getHMSfromMS(remainingTimeNextBurst));
         //Calendar calendar = getDateTime().getCurrentTime();
         //String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(calendar.getTime());
@@ -244,7 +298,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         Intent intent = getIntent();
         settings = Settings.getFromIntent(intent);
 
-        MagicPhase=0;
+        MagicPhase = 0;
         delay_to_next_burst = 0;
 
         exposureCount = 0;
@@ -252,7 +306,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         repeatCount = 0;
 
         takingPicture = false;
-        burstShooting = settings.interval == 0;
+        burstShooting = false;
 
         tvCount = (TextView) findViewById(R.id.tvCount);
         tvBattery = (TextView) findViewById(R.id.tvBattery);
@@ -265,6 +319,72 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         reviewSurfaceView.setZOrderOnTop(false);
         cameraSurfaceHolder = reviewSurfaceView.getHolder();
         cameraSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+
+
+        m_tvMsg = (TextView) findViewById(R.id.tvMsg);
+
+        m_tvAperture = (TextView) findViewById(R.id.tvAperture);
+        //m_tvAperture.setOnTouchListener(new ApertureSwipeTouchListener(this));
+
+        m_tvShutter = (TextView) findViewById(R.id.tvShutter);
+        //m_tvShutter.setOnTouchListener(new ShutterSwipeTouchListener(this));
+
+        m_tvISO = (TextView) findViewById(R.id.tvISO);
+        //m_tvISO.setOnTouchListener(new IsoSwipeTouchListener(this));
+
+        m_tvExposureCompensation = (TextView) findViewById(R.id.tvExposureCompensation);
+        //m_tvExposureCompensation.setOnTouchListener(new ExposureSwipeTouchListener(this));
+        m_lExposure = (LinearLayout) findViewById(R.id.lExposure);
+
+        m_tvExposure = (TextView) findViewById(R.id.tvExposure);
+        //noinspection ResourceType
+        m_tvExposure.setCompoundDrawablesWithIntrinsicBounds(SonyDrawables.p_meteredmanualicon, 0, 0, 0);
+
+
+        m_vHist = (HistogramView) findViewById(R.id.vHist);
+
+        m_tvMagnification = (TextView) findViewById(R.id.tvMagnification);
+
+        m_lInfoBottom = (TableLayout) findViewById(R.id.lInfoBottom);
+
+        m_previewNavView = (PreviewNavView) findViewById(R.id.vPreviewNav);
+        m_previewNavView.setVisibility(View.GONE);
+
+/*
+        m_ivDriveMode = (ImageView)findViewById(R.id.ivDriveMode);
+        m_ivDriveMode.setOnClickListener(this);
+
+        m_ivMode = (ImageView)findViewById(R.id.ivMode);
+        m_ivMode.setOnClickListener(this);
+
+        m_ivTimelapse = (ImageView)findViewById(R.id.ivTimelapse);
+        //noinspection ResourceType
+        m_ivTimelapse.setImageResource(SonyDrawables.p_16_dd_parts_43_shoot_icon_setting_drivemode_invalid);
+        m_ivTimelapse.setOnClickListener(this);
+
+        m_ivBracket = (ImageView)findViewById(R.id.ivBracket);
+        //noinspection ResourceType
+        m_ivBracket.setImageResource(SonyDrawables.p_16_dd_parts_contshot);
+        m_ivBracket.setOnClickListener(this);
+
+        m_vGrid = (GridView)findViewById(R.id.vGrid);
+
+        m_tvHint = (TextView)findViewById(R.id.tvHint);
+        m_tvHint.setVisibility(View.GONE);
+
+        m_focusScaleView = (FocusScaleView)findViewById(R.id.vFocusScale);
+        m_lFocusScale = findViewById(R.id.lFocusScale);
+        m_lFocusScale.setVisibility(View.GONE);
+
+        //noinspection ResourceType
+        ((ImageView)findViewById(R.id.ivFocusRight)).setImageResource(SonyDrawables.p_16_dd_parts_rec_focuscontrol_far);
+        //noinspection ResourceType
+        ((ImageView)findViewById(R.id.ivFocusLeft)).setImageResource(SonyDrawables.p_16_dd_parts_rec_focuscontrol_near);
+
+        setDialMode(DialMode.shutter);
+*/
+
+
     }
 
 
@@ -283,18 +403,17 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         final Camera.Parameters params = cameraEx.getNormalCamera().getParameters();
 
         try {
-            if(settings.mf)
+            if (settings.mf)
                 params.setFocusMode(CameraEx.ParametersModifier.FOCUS_MODE_MANUAL);
             else
                 params.setFocusMode("auto");
+        } catch (Exception ignored) {
         }
-        catch(Exception ignored)
-        {}
 
 
         final CameraEx.ParametersModifier modifier = cameraEx.createParametersModifier(params);
 
-        if(burstShooting) {
+        if (burstShooting) {
             try {
                 modifier.setDriveMode(CameraEx.ParametersModifier.DRIVE_MODE_BURST);
                 List driveSpeeds = modifier.getSupportedBurstDriveSpeeds();
@@ -302,37 +421,33 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                 modifier.setBurstDriveButtonReleaseBehave(CameraEx.ParametersModifier.BURST_DRIVE_BUTTON_RELEASE_BEHAVE_CONTINUE);
             } catch (Exception ignored) {
             }
-        }
-        else {
+        } else {
             modifier.setDriveMode(CameraEx.ParametersModifier.DRIVE_MODE_SINGLE);
         }
 
         // setSilentShutterMode doesn't exist on all cameras
         try {
             modifier.setSilentShutterMode(settings.silentShutter);
+        } catch (NoSuchMethodError ignored) {
         }
-        catch(NoSuchMethodError ignored)
-        {}
 
-        try{
+        try {
             //add also AEL if set
-            if(settings.ael) {
-                modifier.setAutoExposureLock(CameraEx.ParametersModifier.AE_LOCK_ON);
-            }
-        }
-        catch (Exception e){
+            //if (settings.ael) {
+                //modifier.setAutoExposureLock(CameraEx.ParametersModifier.AE_LOCK_ON);
+            //}
+        } catch (Exception e) {
             //do nothing
         }
 
-        if(settings.brs){
-            try{
+        if (settings.brs) {
+            try {
                 modifier.setDriveMode(CameraEx.ParametersModifier.DRIVE_MODE_BRACKET);
                 modifier.setBracketMode(CameraEx.ParametersModifier.BRACKET_MODE_EXPOSURE);
                 modifier.setExposureBracketMode(CameraEx.ParametersModifier.EXPOSURE_BRACKET_MODE_SINGLE);
                 modifier.setExposureBracketPeriod(30);
                 modifier.setNumOfBracketPicture(3);
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 //do nothing
             }
         }
@@ -348,13 +463,13 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         //shootRunnableHandler.postDelayed(shootRunnable, (long) settings.delay * 1000 * 60);
         //shootStartTime = System.currentTimeMillis() + settings.delay * 1000 * 60;
 
-        if(burstShooting) {
+        if (burstShooting) {
             manualShutterCallbackCallRunnableHandler.postDelayed(manualShutterCallbackCallRunnable, 500);
         }
 
         display = new Display(getDisplayManager());
 
-        if(settings.displayOff) {
+        if (settings.displayOff) {
             display.turnAutoOff(5000);
         }
 
@@ -381,7 +496,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
         shootRunnableHandler.removeCallbacks(shootRunnable);
 
-        if(cameraSurfaceHolder == null)
+        if (cameraSurfaceHolder == null)
             log("cameraSurfaceHolder == null");
         else {
             cameraSurfaceHolder.removeCallback(this);
@@ -389,14 +504,14 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
         autoReviewControl = null;
 
-        if(camera == null)
+        if (camera == null)
             log("camera == null");
         else {
             camera.stopPreview();
             camera = null;
         }
 
-        if(cameraEx == null)
+        if (cameraEx == null)
             log("cameraEx == null");
         else {
             cameraEx.setAutoPictureReviewControl(null);
@@ -413,26 +528,37 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         try {
             camera = cameraEx.getNormalCamera();
             camera.setPreviewDisplay(holder);
+        } catch (IOException e) {
         }
-        catch (IOException e) {}
     }
 
-    private void setIso(int iso)
-    {
+
+    private void setIso(int iso) {
         //log("set ISO " + String.valueOf(iso));
         Camera.Parameters params = cameraEx.createEmptyParameters();
         cameraEx.createParametersModifier(params).setISOSensitivity(iso);
         cameraEx.getNormalCamera().setParameters(params);
+
+        m_tvISO.setText(String.format("\uE488 %d", iso));
+        setAp(0); // dummy, just update diusplay
     }
 
+    private void setAp(int ap) {
+        final Camera.Parameters params = cameraEx.getNormalCamera().getParameters();
+        final CameraEx.ParametersModifier paramsModifier = cameraEx.createParametersModifier(params);
+        m_tvAperture.setText(String.format("f%.1f", (float) paramsModifier.getAperture() / 100.0f));
+    }
 
     private void setShutterSpeed(int sec, int frac)
     {
         final int shutterIndex = CameraUtilShutterSpeed.getShutterValueIndex(sec,frac);
         final int shutterDiff = shutterIndex - CameraUtilShutterSpeed.getShutterValueIndex(getCurrentShutterSpeed());
         //log("set ShutterSpeed " + String.valueOf(sec) + "/" + String.valueOf(frac) + "s" + " shutterIndexDiff:" + String.valueOf(shutterDiff));
-        if (shutterDiff != 0)
+        if (shutterDiff != 0) {
             cameraEx.adjustShutterSpeed(-shutterDiff);
+            final String text = CameraUtilShutterSpeed.formatShutterSpeed(sec, frac);
+            m_tvShutter.setText(text);
+        }
    }
 
     private Pair<Integer, Integer> getCurrentShutterSpeed()

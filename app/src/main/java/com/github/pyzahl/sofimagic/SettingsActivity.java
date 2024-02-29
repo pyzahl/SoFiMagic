@@ -32,24 +32,14 @@ public class SettingsActivity extends BaseActivity
     private EditText edTC3;
     private EditText edTC4;
 
-    private AdvancedSeekBar sbInterval;
-    private TextView tvIntervalValue, tvIntervalUnit;
 
-    private AdvancedSeekBar sbShots;
-    private TextView tvShotsValue;
-    private TextView lblShots;
+    private TextView tvPhaseName, tvPhaseRStart, tvPhaseStart, tvPhaseREnd, tvREnd, tvNumShots, tvCFlags, tvISOs, tvFs, tvShutterSpeeds;
 
-    private TextView tvDurationValue, tvDurationUnit;
-    private TextView tvVideoTimeValue, tvVideoTimeUnit;
-
-    private AdvancedSeekBar sbDelay;
-    private TextView tvDelayValue, tvDelayUnit;
-
-    private int fps;
-    private Spinner spnFps;
+    private AdvancedSeekBar sbPhase;
+    private int phase_index=0;
+    private TextView tvPhaseIndex;
 
     private CheckBox cbSilentShutter;
-    private CheckBox cbAEL;
     private CheckBox cbBRS;
     private CheckBox cbMF;
     private CheckBox cbDOFF;
@@ -71,7 +61,6 @@ public class SettingsActivity extends BaseActivity
         //soFiProgramXML.SoFiProgramStoreXML();
 
         settings.load(this);
-        fps = 24;
 
         bnStart = (Button) findViewById(R.id.bnStart);
         bnStart.setOnClickListener(bnStartOnClickListener);
@@ -84,54 +73,31 @@ public class SettingsActivity extends BaseActivity
         edTC3 = (EditText) findViewById(R.id.editTextTimeC3);
         edTC4 = (EditText) findViewById(R.id.editTextTimeC4);
 
+        sbPhase = (AdvancedSeekBar) findViewById(R.id.sbPhase);
+        tvPhaseIndex = (TextView) findViewById(R.id.tvPhaseId);
 
-        tvIntervalValue = (TextView) findViewById(R.id.tvIntervalValue);
-        tvIntervalUnit = (TextView) findViewById(R.id.tvIntervalUnit);
 
-        tvDurationValue = (TextView) findViewById(R.id.tvDurationValue);
-        tvDurationUnit = (TextView) findViewById(R.id.tvDurationUnit);
-        tvVideoTimeValue = (TextView) findViewById(R.id.tvVideoTimeValue);
-        tvVideoTimeUnit = (TextView) findViewById(R.id.tvVideoTimeUnit);
-        sbInterval = (AdvancedSeekBar) findViewById(R.id.sbInterval);
-        tvShotsValue = (TextView) findViewById(R.id.tvShotsValue);
-        sbShots = (AdvancedSeekBar) findViewById(R.id.sbShots);
-        lblShots = (TextView) findViewById(R.id.lblShots);
-        spnFps = (Spinner) findViewById(R.id.spnFps);
+        tvPhaseName = (TextView) findViewById(R.id.tvPhase);
+        tvPhaseRStart = (TextView) findViewById(R.id.tvStartRef);
+        tvPhaseStart = (TextView) findViewById(R.id.tvStart);
+        tvPhaseREnd = (TextView) findViewById(R.id.tvEndRef);
+        tvREnd = (TextView) findViewById(R.id.tvEnd);
+        tvNumShots = (TextView) findViewById(R.id.tvNumberShots);
+        tvCFlags = (TextView) findViewById(R.id.tvFlagList);
+        tvISOs = (TextView) findViewById(R.id.tvISOList);
+        tvFs = (TextView) findViewById(R.id.tvFList);
+        tvShutterSpeeds = (TextView) findViewById(R.id.tvShutterSpeedList);
 
-        sbDelay = (AdvancedSeekBar) findViewById(R.id.sbDelay);
-        tvDelayValue = (TextView) findViewById(R.id.tvDelayValue);
-        tvDelayUnit = (TextView) findViewById(R.id.tvDelayUnit);
 
         cbSilentShutter = (CheckBox) findViewById(R.id.cbSilentShutter);
-        cbAEL  = (CheckBox) findViewById(R.id.cbAEL);
         cbBRS  = (CheckBox) findViewById(R.id.cbBRC);
         cbMF   = (CheckBox) findViewById(R.id.cbMF);
         cbDOFF = (CheckBox) findViewById(R.id.cbDOFF);
 
-        sbInterval.setMax(119);
-        sbInterval.setOnSeekBarChangeListener(sbIntervalOnSeekBarChangeListener);
-        sbInterval.setProgress(settings.rawInterval);
-        sbIntervalOnSeekBarChangeListener.onProgressChanged(sbInterval, settings.rawInterval, false);
-
-        sbShots.setMax(130);
-        sbShots.setOnSeekBarChangeListener(sbShotsOnSeekBarChangeListener);
-        sbShots.setProgress(settings.rawShotCount);
-        sbShotsOnSeekBarChangeListener.onProgressChanged(sbShots, settings.rawShotCount, false);
-
-        sbDelay.setMax(39);
-        sbDelay.setOnSeekBarChangeListener(sbDelayOnSeekBarChangeListener);
-        sbDelay.setProgress(settings.rawDelay);
-        sbDelayOnSeekBarChangeListener.onProgressChanged(sbDelay, settings.rawDelay, false);
-
-        spnFps.setSelection(settings.fps);
-        spnFps.setOnItemSelectedListener(spnFpsOnItemSelectedListener);
 
         cbSilentShutter.setChecked(settings.silentShutter);
         cbSilentShutter.setOnCheckedChangeListener(cbSilentShutterOnCheckListener);
         //cbSilentShutter.setVisibility(View.INVISIBLE);
-
-        cbAEL.setChecked(settings.ael);
-        cbAEL.setOnCheckedChangeListener(cbAELOnCheckListener);
 
         cbBRS.setChecked(settings.brs);
         cbBRS.setOnCheckedChangeListener(cbBRSOnCheckListener);
@@ -146,6 +112,13 @@ public class SettingsActivity extends BaseActivity
         edTC2.setText(String.format("%02d:%02d:%02d", settings.tc2 / 3600, (settings.tc2 / 60) % 60, settings.tc2 % 60));
         edTC3.setText(String.format("%02d:%02d:%02d", settings.tc3 / 3600, (settings.tc3 / 60) % 60, settings.tc3 % 60));
         edTC4.setText(String.format("%02d:%02d:%02d", settings.tc4 / 3600, (settings.tc4 / 60) % 60, settings.tc4 % 60));
+
+        sbPhase.setMax(16);
+        sbPhase.setOnSeekBarChangeListener(sbPhaseOnSeekBarChangeListener);
+        sbPhase.setProgress(0);
+        sbPhaseOnSeekBarChangeListener.onProgressChanged(sbPhase, 0, false);
+
+        //updatePhase(0);
 
         //try {
             //CameraEx cameraEx = CameraEx.open(0, null);
@@ -174,132 +147,14 @@ public class SettingsActivity extends BaseActivity
         }
     };
 
-    SeekBar.OnSeekBarChangeListener sbIntervalOnSeekBarChangeListener
+    SeekBar.OnSeekBarChangeListener sbPhaseOnSeekBarChangeListener
             = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int i, boolean fromUser) {
-            String intervalTextValue = "";
-            String intervalUnit = "";
-
-            settings.rawInterval = i;
-
-            i++;
-
-            if (i == 1) {
-                settings.interval = 0;
-                intervalTextValue = "burst";
-                intervalUnit = "";
-            }
-            else if(i < 41) {
-                settings.interval = i * 0.5;
-                intervalTextValue = Double.toString(settings.interval);
-                intervalUnit = "s";
-
-            }
-            else if(i < 60) {
-                settings.interval = (i-40) + 20;
-                intervalTextValue = Double.toString(settings.interval);
-                intervalUnit = "s";
-            }
-            else if(i < 76) {
-                settings.interval = (i-60) * 5 + 40;
-                intervalTextValue = Double.toString(settings.interval);
-                intervalUnit = "s";
-            }
-            else if(i < 93) {
-                settings.interval = (i-76) * 30 + 120;
-                intervalTextValue = Double.toString((i-76) * 0.5 + 2);
-                intervalUnit = "min";
-            }
-            else {
-                settings.interval = (i-93) * 60 + 660;
-                intervalTextValue = Integer.toString(i-93+11);
-                intervalUnit = "min";
-            }
-            tvIntervalValue.setText(intervalTextValue);
-            tvIntervalUnit.setText(intervalUnit);
-
-            if(settings.interval == 0)
-                lblShots.setText("Dur. (s)");
-            else
-                lblShots.setText("Shots");
-
-            updateTimes();
-        }
-
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {}
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {}
-    },
-    sbShotsOnSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
-        @Override
-        public void onProgressChanged(SeekBar seekBar, int i, boolean fromUser) {
-            String shotsText;
-
-            settings.rawShotCount = i;
-
-            i++;
-
-            if(i <= 20)
-                settings.shotCount = i;
-
-            else if(i <= 36)
-                settings.shotCount = (i-20) * 5 + 20;
-
-            else if(i <= 81)
-                settings.shotCount = (i-36) * 20 + 100;
-
-            else if(i <= 100)
-                settings.shotCount = (i-81) * 50 + 1000;
-
-            else if(i <= 130)
-                settings.shotCount = (i-100) * 100 + 2000;
-
-            shotsText = Integer.toString(settings.shotCount);
-
-            if(i == 131) {
-                settings.shotCount = Integer.MAX_VALUE;
-                shotsText = "inf";
-            }
-
-            tvShotsValue.setText(shotsText);
-            updateTimes();
-        }
-
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {}
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {}
-    },
-    sbDelayOnSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
-        @Override
-        public void onProgressChanged(SeekBar seekBar, int i, boolean fromUser) {
-            String delayTextValue = "";
-            String delayUnit = "";
-
-            settings.rawDelay = i;
-
-            if(i < 6) {
-                settings.delay = i;
-                delayTextValue = Double.toString(settings.delay);
-                delayUnit = "min";
-
-            }
-            else if(i < 16) {
-                settings.delay = (i-5)*5 + 5;
-                delayTextValue = Double.toString(settings.delay);
-                delayUnit = "min";
-            }
-            else {
-                settings.delay = (i-15) * 60;
-                delayTextValue = Double.toString(i-15);
-                delayUnit = "h";
-            }
-            tvDelayValue.setText(delayTextValue);
-            tvDelayUnit.setText(delayUnit);
-
-            updateTimes();
+            phase_index = i;
+            if (phase_index < 0) phase_index=0;
+            if (phase_index > 16) phase_index=16;
+            updatePhase(phase_index);
         }
 
         @Override
@@ -308,19 +163,7 @@ public class SettingsActivity extends BaseActivity
         public void onStopTrackingTouch(SeekBar seekBar) {}
     };
 
-    AdapterView.OnItemSelectedListener spnFpsOnItemSelectedListener
-            = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-            String sfps = getResources().getStringArray(R.array.fps)[i];
-            fps = Integer.parseInt(sfps);
-            settings.fps = i;
-            updateTimes();
-        }
 
-        @Override
-        public void onNothingSelected(AdapterView<?> adapterView) {}
-    };
 
     CheckBox.OnCheckedChangeListener cbSilentShutterOnCheckListener = new CheckBox.OnCheckedChangeListener() {
         @Override
@@ -329,12 +172,6 @@ public class SettingsActivity extends BaseActivity
         }
     };
 
-    CheckBox.OnCheckedChangeListener cbAELOnCheckListener = new CheckBox.OnCheckedChangeListener() {
-        @Override
-        public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-            settings.ael = b;
-        }
-    };
 
     CheckBox.OnCheckedChangeListener cbBRSOnCheckListener = new CheckBox.OnCheckedChangeListener() {
         @Override
@@ -357,75 +194,39 @@ public class SettingsActivity extends BaseActivity
         }
     };
 
-    void updateTimes() {
-        if(settings.shotCount == Integer.MAX_VALUE)
-        {
-            tvDurationValue.setText("inf");
-            tvDurationUnit.setText("");
-            tvVideoTimeValue.setText("inf");
-            tvVideoTimeUnit.setText("");
-            return;
-        }
-
-        int duration = 0;
-        int videoTime = 0;
-        if(settings.interval == 0) {
-            duration = settings.shotCount;
-            videoTime = -1;
-        }
-        else {
-            duration = (int) Math.round(settings.interval * settings.shotCount);
-            videoTime = settings.shotCount / fps;
-        }
-
-        if(duration < 60) {
-            tvDurationValue.setText("" + duration);
-            tvDurationUnit.setText("s");
-        }
-        else {
-            tvDurationValue.setText("" + (duration / 60));
-            tvDurationUnit.setText("min");
-        }
-
-        if(videoTime == -1) {
-            tvVideoTimeValue.setText("");
-            tvVideoTimeUnit.setText("");
-        }
-        else if(videoTime < 120) {
-            tvVideoTimeValue.setText("" + videoTime);
-            tvVideoTimeUnit.setText("s");
-        }
-        else {
-            tvVideoTimeValue.setText("" + (videoTime / 60));
-            tvVideoTimeUnit.setText("min");
+    void updatePhase(int phase) {
+        tvPhaseIndex.setText(Integer.toString(phase));
+        if (phase >= 0 && phase < settings.magic_program.length) {
+            tvPhaseName.setText(settings.magic_program[phase].name);
+            tvPhaseRStart.setText(Integer.toString(settings.magic_program[phase].ref_contact_start));
+            tvPhaseStart.setText(Integer.toString(settings.magic_program[phase].start_time));
+            tvPhaseREnd.setText(Integer.toString(settings.magic_program[phase].ref_contact_end));
+            tvREnd.setText(Integer.toString(settings.magic_program[phase].end_time));
+            tvNumShots.setText(Integer.toString(settings.magic_program[phase].number_shots));
+            tvCFlags.setText(settings.magic_program[phase].CameraFlags);
+            tvISOs.setText(settings.magic_program[phase].get_ISOs_list());
+            tvFs.setText(settings.magic_program[phase].get_Fs_list());
+            tvShutterSpeeds.setText(settings.magic_program[phase].get_ShutterSpeeds_list());
         }
     }
 
     protected boolean onUpperDialChanged(int value) {
-        sbInterval.dialChanged(value);
-        sbShots.dialChanged(value);
-        sbDelay.dialChanged(value);
+        sbPhase.dialChanged(value);
         return true;
     }
 
     protected boolean onLowerDialChanged(int value) {
-        sbInterval.dialChanged(value);
-        sbShots.dialChanged(value);
-        sbDelay.dialChanged(value);
+        sbPhase.dialChanged(value);
         return true;
     }
 
     protected boolean onThirdDialChanged(int value) {
-        sbInterval.dialChanged(value);
-        sbShots.dialChanged(value);
-        sbDelay.dialChanged(value);
+        sbPhase.dialChanged(value);
         return true;
     }
 
     protected boolean onKuruDialChanged(int value) {
-        sbInterval.dialChanged(value);
-        sbShots.dialChanged(value);
-        sbDelay.dialChanged(value);
+        sbPhase.dialChanged(value);
         return true;
     }
 

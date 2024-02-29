@@ -16,161 +16,350 @@
             android:gravity="center_horizontal"
             android:orientation="vertical">
 
+            <TableLayout
+                android:id="@+id/lContactTimes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true">
+
+                <TableRow>
+
+                    <TextView
+                        android:id="@+id/lblC1"
+                        android:layout_width="25dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center_horizontal"
+                        android:text="CT 1"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/lblC2"
+                        android:layout_width="25dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_toRightOf="@+id/editTextTimeC1"
+                        android:gravity="center_horizontal"
+                        android:text="CT 2"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/lblC3"
+                        android:layout_width="25dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_toRightOf="@+id/editTextTimeC2"
+                        android:gravity="center_horizontal"
+                        android:text="CT 3"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/lblC4"
+                        android:layout_width="25dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_marginRight="1dp"
+                        android:layout_toRightOf="@+id/editTextTimeC3"
+                        android:gravity="center_horizontal"
+                        android:text="CT 4"
+                        android:textSize="18sp" />
+
+                </TableRow>
+                <TableRow>
+
+                    <EditText
+                        android:id="@+id/editTextTimeC1"
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_toRightOf="@+id/lblC1"
+                        android:ems="10"
+                        android:gravity="center_vertical"
+                        android:inputType="time"
+                        android:textSize="20sp"/>
+
+
+                    <EditText
+                        android:id="@+id/editTextTimeC2"
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_toRightOf="@+id/lblC2"
+                        android:ems="10"
+                        android:gravity="center_vertical"
+                        android:inputType="time"
+                        android:textSize="20sp"/>
+
+
+                    <EditText
+                        android:id="@+id/editTextTimeC3"
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_toRightOf="@+id/lblC3"
+                        android:ems="10"
+                        android:gravity="center_vertical"
+                        android:inputType="time"
+                        android:textSize="20sp"/>
+
+                    <EditText
+                        android:id="@+id/editTextTimeC4"
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_toRightOf="@+id/lblC4"
+                        android:ems="10"
+                        android:gravity="center_vertical"
+                        android:inputType="time"
+                        android:textSize="20sp"/>
+                </TableRow>
+            </TableLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/lblPhaseId"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:gravity="center_vertical"
+                android:text="Phase"
+                android:textSize="20sp" />
+
+           <TextView
+                android:id="@+id/tvPhaseId"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="5dp"
+                android:gravity="right|center_vertical"
+                android:text="0"
+                android:textSize="20sp" />
+
+            <view
+                android:id="@+id/sbPhase"
+                class="com.github.pyzahl.sofimagic.AdvancedSeekBar"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginRight="10dp"
+                android:layout_toLeftOf="@+id/tvPhaseId"
+                android:layout_toRightOf="@+id/lblPhaseId"
+                android:gravity="center_vertical" />
+
+            </RelativeLayout>
+        </LinearLayout>
+
+
+            <TableLayout
+                android:id="@+id/lPhase"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true">
+                <TableRow>
+
+                    <TextView
+                        android:id="@+id/tvPhase"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center_vertical"
+                        android:text="PhaseName:"
+                        android:textColor="#00FF00"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/tvStartRef"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center_vertical"
+                        android:text="0s"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/tvStart"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center_vertical"
+                        android:text="0"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/tvTo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center_vertical"
+                        android:text=".."
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/tvEndRef"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center_vertical"
+                        android:text="0"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/tvEnd"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center_vertical"
+                        android:text="0s"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/tvNumberShots"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center_vertical"
+                        android:text="#1"
+                        android:textSize="20sp" />
+                </TableRow>
+            </TableLayout>
+
+            <TableLayout
+                android:id="@+id/lFlagsList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true">
+                <TableRow>
+                    <TextView
+                        android:id="@+id/tvFlags"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center_vertical"
+                        android:text="CFlags:"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/tvFlagList"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center_vertical"
+                        android:text="S0,B0"
+                        android:textSize="20sp" />
+                </TableRow>
+            </TableLayout>
+
+            <TableLayout
+                android:id="@+id/lISOList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true">
+                <TableRow>
+                    <TextView
+                        android:id="@+id/tvISOSs"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center_vertical"
+                        android:text="ISOs:"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/tvISOList"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center_vertical"
+                        android:text="100,"
+                        android:textSize="20sp" />
+                </TableRow>
+            </TableLayout>
+
+            <TableLayout
+                android:id="@+id/lFList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true">
+                <TableRow>
+                    <TextView
+                        android:id="@+id/tvFs"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center_vertical"
+                        android:text="Fs:"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/tvFList"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center_vertical"
+                        android:text="0"
+                        android:textSize="20sp" />
+                </TableRow>
+            </TableLayout>
+
+            <TableLayout
+                android:id="@+id/lShutterSpeedList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true">
+                <TableRow>
+                    <TextView
+                        android:id="@+id/tvShutterSpeeds"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center_vertical"
+                        android:text="ShutterSpeeds:"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/tvShutterSpeedList"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center_vertical"
+                        android:text="1/1000"
+                        android:textSize="20sp" />
+                </TableRow>
+            </TableLayout>
+
+
+
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
                 android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/lblInterval"
-                    android:layout_width="80dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:gravity="center_vertical"
-                    android:text="Interval"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:id="@+id/tvIntervalUnit"
-                    android:layout_width="40dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentRight="true"
-                    android:gravity="center_vertical"
-                    android:text="min"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:id="@+id/tvIntervalValue"
-                    android:layout_width="40dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginRight="5dp"
-                    android:layout_toLeftOf="@+id/tvIntervalUnit"
-                    android:gravity="right|center_vertical"
-                    android:text="10.5"
-                    android:textSize="20sp" />
-
-                <view
-                    android:id="@+id/sbInterval"
-                    class="com.github.pyzahl.sofimagic.AdvancedSeekBar"
-                    android:layout_width="240dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginRight="10dp"
-                    android:layout_toLeftOf="@+id/tvIntervalValue"
-                    android:layout_toRightOf="@+id/lblInterval"
-                    android:gravity="center_vertical" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/lblShots"
-                    android:layout_width="80dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:gravity="center_vertical"
-                    android:text="PartShots"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:id="@+id/tvShotsValue"
-                    android:layout_width="40dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginRight="45dp"
-                    android:gravity="right|center_vertical"
-                    android:text="1"
-                    android:textSize="20sp" />
-
-                <view
-                    android:id="@+id/sbShots"
-                    class="com.github.pyzahl.sofimagic.AdvancedSeekBar"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
-                    android:layout_toLeftOf="@+id/tvShotsValue"
-                    android:layout_toRightOf="@+id/lblShots"
-                    android:gravity="center_vertical" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tvDurationValue"
-                    android:layout_width="50dp"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginRight="10dp"
-                    android:gravity="right"
-                    android:text="0"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:id="@+id/tvDurationUnit"
-                    android:layout_width="35dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_centerVertical="true"
-                    android:layout_toRightOf="@+id/tvDurationValue"
-                    android:text="min"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:id="@+id/tvVideoTimeValue"
-                    android:layout_width="50dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginRight="10dp"
-                    android:layout_toRightOf="@+id/tvDurationUnit"
-                    android:gravity="right"
-                    android:text="0"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:id="@+id/tvVideoTimeUnit"
-                    android:layout_width="35dp"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_toRightOf="@+id/tvVideoTimeValue"
-                    android:text="s"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:id="@+id/lblFps"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginRight="10dp"
-                    android:layout_toLeftOf="@+id/spnFps"
-                    android:text="fps"
-                    android:textSize="20sp" />
-
-                <Spinner
-                    android:id="@+id/spnFps"
-                    style="@android:style/Widget.Spinner"
-                    android:layout_width="80dp"
-                    android:layout_height="40dp"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:entries="@array/fps" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp">
 
                 <CheckBox
                     android:id="@+id/cbSilentShutter"
@@ -193,22 +382,12 @@
                     android:text="MF" />
 
                 <CheckBox
-                    android:id="@+id/cbAEL"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginLeft="10dp"
-                    android:layout_toRightOf="@id/cbMF"
-                    android:checked="false"
-                    android:text="AEL" />
-
-                <CheckBox
                     android:id="@+id/cbBRC"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
                     android:layout_marginLeft="10dp"
-                    android:layout_toRightOf="@id/cbAEL"
+                    android:layout_toRightOf="@id/cbMF"
                     android:checked="false"
                     android:text="BRC3" />
 
@@ -226,184 +405,30 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/lblDelay"
-                    android:layout_width="80dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:gravity="center_vertical"
-                    android:text="Delay"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:id="@+id/tvDelayUnit"
-                    android:layout_width="40dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentRight="true"
-                    android:gravity="center_vertical"
-                    android:text="min"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:id="@+id/tvDelayValue"
-                    android:layout_width="40dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginRight="5dp"
-                    android:layout_toLeftOf="@+id/tvDelayUnit"
-                    android:gravity="right|center_vertical"
-                    android:text="10.5"
-                    android:textSize="20sp" />
-
-                <view
-                    android:id="@+id/sbDelay"
-                    class="com.github.pyzahl.sofimagic.AdvancedSeekBar"
-                    android:layout_width="240dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginRight="10dp"
-                    android:layout_toLeftOf="@+id/tvDelayValue"
-                    android:layout_toRightOf="@+id/lblDelay"
-                    android:gravity="center_vertical" />
-            </RelativeLayout>
-
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentBottom="true"
                 android:gravity="bottom">
 
-                <TextView
-                    android:id="@+id/lblC1"
-                    android:layout_width="25dp"
+                <Button
+                    android:id="@+id/bnClose"
+                    android:layout_width="98dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
-                    android:gravity="center_vertical"
-                    android:text="C1"
+                    android:text="Quit"
                     android:textSize="20sp" />
 
-                <EditText
-                    android:id="@+id/editTextTimeC1"
-                    android:layout_width="70dp"
+                <Button
+                    android:id="@+id/bnStart"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
-                    android:layout_marginLeft="1dp"
-                    android:layout_marginRight="1dp"
-                    android:layout_toRightOf="@+id/lblC1"
-                    android:ems="10"
-                    android:gravity="center_vertical"
-                    android:inputType="time" />
-
-                <TextView
-                    android:id="@+id/lblC2"
-                    android:layout_width="25dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="1dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginRight="1dp"
-                    android:layout_toRightOf="@+id/editTextTimeC1"
-                    android:gravity="center_vertical"
-                    android:text="C2"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="10dp"
+                    android:text="Start"
                     android:textSize="20sp" />
-
-                <EditText
-                    android:id="@+id/editTextTimeC2"
-                    android:layout_width="70dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginLeft="1dp"
-                    android:layout_marginRight="1dp"
-                    android:layout_toRightOf="@+id/lblC2"
-                    android:ems="10"
-                    android:gravity="center_vertical"
-                    android:inputType="time" />
-
-                <TextView
-                    android:id="@+id/lblC3"
-                    android:layout_width="25dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="1dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginRight="1dp"
-                    android:layout_toRightOf="@+id/editTextTimeC2"
-                    android:gravity="center_vertical"
-                    android:text="C3"
-                    android:textSize="20sp" />
-
-                <EditText
-                    android:id="@+id/editTextTimeC3"
-                    android:layout_width="70dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="1dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginRight="1dp"
-                    android:layout_toRightOf="@+id/lblC3"
-                    android:gravity="center_vertical"
-                    android:ems="10"
-                    android:inputType="time" />
-
-                <TextView
-                    android:id="@+id/lblC4"
-                    android:layout_width="25dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginRight="1dp"
-                    android:layout_toRightOf="@+id/editTextTimeC3"
-                    android:gravity="center_vertical"
-                    android:text="C4"
-                    android:textSize="20sp" />
-
-                <EditText
-                    android:id="@+id/editTextTimeC4"
-                    android:layout_width="70dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="1dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginRight="1dp"
-                    android:layout_toRightOf="@+id/lblC4"
-                    android:gravity="center_vertical"
-                    android:ems="10"
-                    android:inputType="time" />
-
             </RelativeLayout>
-
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:gravity="bottom">
-
-            <Button
-                android:id="@+id/bnClose"
-                android:layout_width="98dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:text="Quit"
-                android:textSize="20sp" />
-
-            <Button
-                android:id="@+id/bnStart"
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginRight="10dp"
-                android:text="Start"
-                android:textSize="20sp" />
-
-        </RelativeLayout>
 
         </LinearLayout>
 
     </ScrollView>
-
-
 </RelativeLayout>
