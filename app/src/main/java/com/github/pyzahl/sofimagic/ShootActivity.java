@@ -195,8 +195,12 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                                 }
                             });
                             shootRunnableHandler.postDelayed(this, 1000); // wait a second and check again, update screen
-                        } else
-                            shootRunnableHandler.postDelayed(this, remainingTimeNextBurst - 250); // getting close, wait a little and check again
+                        } else {
+                            if (remainingTimeNextBurst > 250)
+                                shootRunnableHandler.postDelayed(this, remainingTimeNextBurst - 250); // getting close, wait a little and check again
+                            else
+                                shootRunnableHandler.postDelayed(this, 250); // getting close, wait a little and check again
+                        }
                     }
                     return; // DONE
 
@@ -239,9 +243,12 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                                 }
                             });
                             shootRunnableHandler.postDelayed(this, 1000); // wait a second and check again, update screen
-                        } else
-                            shootRunnableHandler.postDelayed(this, remainingTimeToContactPhase - 250); // wait a little and check again
-
+                        } else {
+                            if (remainingTimeToContactPhase > 250)
+                                shootRunnableHandler.postDelayed(this, remainingTimeToContactPhase - 250); // wait a little and check again
+                            else
+                                shootRunnableHandler.postDelayed(this, 250); // wait a little and check again
+                        }
                         return; // DONE
                     }
 
