@@ -13,6 +13,8 @@ import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TextView;
 
+import android.text.TextWatcher;
+
 import com.github.ma1co.pmcademo.app.BaseActivity;
 
 public class SettingsActivity extends BaseActivity
@@ -27,17 +29,24 @@ public class SettingsActivity extends BaseActivity
 
     private Button bnStart, bnClose;
 
-    private EditText edTC1;
-    private EditText edTC2;
-    private EditText edTC3;
-    private EditText edTC4;
-
-
-    private TextView tvPhaseName, tvPhaseRStart, tvPhaseStart, tvPhaseREnd, tvREnd, tvNumShots, tvCFlags, tvISOs, tvFs, tvShutterSpeeds;
+    private HHMMSSEntry edTC1;
+    private HHMMSSEntry edTC2;
+    private HHMMSSEntry edTC3;
+    private HHMMSSEntry edTC4;
 
     private AdvancedSeekBar sbPhase;
     private int phase_index=0;
     private TextView tvPhaseIndex;
+
+    private int phase_loaded=-1;
+
+    private TextView tvPhaseName;
+    private IndexEntry tvPhaseRStart, tvPhaseStart, tvPhaseREnd, tvPhaseEnd, tvNumShots;
+    private TextView tvCFlags;
+    private TextView  tvISOs;
+    private TextView  tvFs;
+    private TextView  tvShutterSpeeds;
+
 
     private CheckBox cbSilentShutter;
     private CheckBox cbBRS;
@@ -47,6 +56,9 @@ public class SettingsActivity extends BaseActivity
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+
+        phase_loaded = -1;
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
@@ -58,7 +70,6 @@ public class SettingsActivity extends BaseActivity
         settings = new Settings();
 
         soFiProgramXML = new SoFiProgramXML(); // check/create XML for default program updates
-        //soFiProgramXML.SoFiProgramStoreXML();
 
         settings.load(this);
 
@@ -68,21 +79,36 @@ public class SettingsActivity extends BaseActivity
         bnClose = (Button) findViewById(R.id.bnClose);
         bnClose.setOnClickListener(bnCloseOnClickListener);
 
-        edTC1 = (EditText) findViewById(R.id.editTextTimeC1);
-        edTC2 = (EditText) findViewById(R.id.editTextTimeC2);
-        edTC3 = (EditText) findViewById(R.id.editTextTimeC3);
-        edTC4 = (EditText) findViewById(R.id.editTextTimeC4);
+        edTC1 = (HHMMSSEntry) findViewById(R.id.editTextTimeC1);
+        edTC2 = (HHMMSSEntry) findViewById(R.id.editTextTimeC2);
+        edTC3 = (HHMMSSEntry) findViewById(R.id.editTextTimeC3);
+        edTC4 = (HHMMSSEntry) findViewById(R.id.editTextTimeC4);
 
-        sbPhase = (AdvancedSeekBar) findViewById(R.id.sbPhase);
-        tvPhaseIndex = (TextView) findViewById(R.id.tvPhaseId);
+        tvPhaseRStart = (IndexEntry) findViewById(R.id.tvStartRef);
+        tvPhaseRStart.setRange(0, 4);
+        tvPhaseRStart.setPrefix("CT");
+        tvPhaseRStart.setUnit("");
 
+        tvPhaseStart = (IndexEntry) findViewById(R.id.tvStart);
+        tvPhaseStart.setRange(-60, 60);
+        tvPhaseStart.setPrefix("");
+        tvPhaseStart.setUnit("s");
 
-        tvPhaseName = (TextView) findViewById(R.id.tvPhase);
-        tvPhaseRStart = (TextView) findViewById(R.id.tvStartRef);
-        tvPhaseStart = (TextView) findViewById(R.id.tvStart);
-        tvPhaseREnd = (TextView) findViewById(R.id.tvEndRef);
-        tvREnd = (TextView) findViewById(R.id.tvEnd);
-        tvNumShots = (TextView) findViewById(R.id.tvNumberShots);
+        tvPhaseREnd = (IndexEntry) findViewById(R.id.tvEndRef);
+        tvPhaseREnd.setRange(0, 4);
+        tvPhaseREnd.setPrefix("CT");
+        tvPhaseREnd.setUnit("");
+
+        tvPhaseEnd = (IndexEntry) findViewById(R.id.tvEnd);
+        tvPhaseEnd.setRange(-60, 60);
+        tvPhaseEnd.setUnit("s");
+        tvPhaseEnd.setPrefix("");
+
+        tvNumShots = (IndexEntry) findViewById(R.id.tvNumberShots);
+        tvNumShots.setRange(-1, 99);
+        tvNumShots.setPrefix("#");
+        tvNumShots.setUnit("");
+
         tvCFlags = (TextView) findViewById(R.id.tvFlagList);
         tvISOs = (TextView) findViewById(R.id.tvISOList);
         tvFs = (TextView) findViewById(R.id.tvFList);
@@ -108,10 +134,24 @@ public class SettingsActivity extends BaseActivity
         cbDOFF.setChecked(settings.displayOff);
         cbDOFF.setOnCheckedChangeListener(cbDOFFOnCheckListener);
 
-        edTC1.setText(String.format("%02d:%02d:%02d", settings.tc1 / 3600, (settings.tc1 / 60) % 60, settings.tc1 % 60));
-        edTC2.setText(String.format("%02d:%02d:%02d", settings.tc2 / 3600, (settings.tc2 / 60) % 60, settings.tc2 % 60));
-        edTC3.setText(String.format("%02d:%02d:%02d", settings.tc3 / 3600, (settings.tc3 / 60) % 60, settings.tc3 % 60));
-        edTC4.setText(String.format("%02d:%02d:%02d", settings.tc4 / 3600, (settings.tc4 / 60) % 60, settings.tc4 % 60));
+        edTC1.setSec(settings.tc1); // SetText(String.format("%02d:%02d:%02d", settings.tc1 / 3600, (settings.tc1 / 60) % 60, settings.tc1 % 60));
+        edTC2.setSec(settings.tc2); // SecText(String.format("%02d:%02d:%02d", settings.tc2 / 3600, (settings.tc2 / 60) % 60, settings.tc2 % 60));
+        edTC3.setSec(settings.tc3); // SetText(String.format("%02d:%02d:%02d", settings.tc3 / 3600, (settings.tc3 / 60) % 60, settings.tc3 % 60));
+        edTC4.setSec(settings.tc4); // SetText(String.format("%02d:%02d:%02d", settings.tc4 / 3600, (settings.tc4 / 60) % 60, settings.tc4 % 60));
+
+        sbPhase = (AdvancedSeekBar) findViewById(R.id.sbPhase);
+        tvPhaseIndex = (TextView) findViewById(R.id.tvPhaseId);
+        tvPhaseName = (TextView) findViewById(R.id.tvPhase);
+
+        /*
+        edTC1.addTextChangedListener(new TextWatcher() {
+             @Override
+             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                 if (s.length() != 0)
+                     settings.tc1 = edTC1.getSec();
+             }
+         });
+        */
 
         sbPhase.setMax(16);
         sbPhase.setOnSeekBarChangeListener(sbPhaseOnSeekBarChangeListener);
@@ -130,9 +170,22 @@ public class SettingsActivity extends BaseActivity
         {}*/
     }
 
+
+    public void update_and_store_xml() {
+        if (phase_loaded >= 0) {
+            settings.tc1 = edTC1.getSec();
+            settings.tc2 = edTC2.getSec();
+            settings.tc3 = edTC3.getSec();
+            settings.tc4 = edTC4.getSec();
+            getPhase(phase_loaded);
+            soFiProgramXML.SoFiProgramStoreXML();
+        }
+    }
+
     View.OnClickListener bnStartOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            update_and_store_xml();
             settings.save(that);
             Intent intent = new Intent(that, ShootActivity.class);
             settings.putInIntent(intent);
@@ -142,6 +195,7 @@ public class SettingsActivity extends BaseActivity
     bnCloseOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            update_and_store_xml();
             settings.save(that);
             finish();
         }
@@ -197,18 +251,47 @@ public class SettingsActivity extends BaseActivity
     void updatePhase(int phase) {
         tvPhaseIndex.setText(Integer.toString(phase));
         if (phase >= 0 && phase < settings.magic_program.length) {
+
+            if (phase_loaded >= 0)
+                getPhase(phase_loaded);
+
             tvPhaseName.setText(settings.magic_program[phase].name);
-            tvPhaseRStart.setText(Integer.toString(settings.magic_program[phase].ref_contact_start));
-            tvPhaseStart.setText(Integer.toString(settings.magic_program[phase].start_time));
-            tvPhaseREnd.setText(Integer.toString(settings.magic_program[phase].ref_contact_end));
-            tvREnd.setText(Integer.toString(settings.magic_program[phase].end_time));
-            tvNumShots.setText(Integer.toString(settings.magic_program[phase].number_shots));
+
+            tvPhaseRStart.setIndex(settings.magic_program[phase].ref_contact_start);
+            tvPhaseStart.setIndex(settings.magic_program[phase].start_time);
+            tvPhaseREnd.setIndex(settings.magic_program[phase].ref_contact_end);
+            tvPhaseEnd.setIndex(settings.magic_program[phase].end_time);
+
+            tvNumShots.setIndex(settings.magic_program[phase].number_shots);
+
             tvCFlags.setText(settings.magic_program[phase].CameraFlags);
             tvISOs.setText(settings.magic_program[phase].get_ISOs_list());
             tvFs.setText(settings.magic_program[phase].get_Fs_list());
             tvShutterSpeeds.setText(settings.magic_program[phase].get_ShutterSpeeds_list());
+
+            phase_loaded = phase;
         }
     }
+
+    void getPhase(int phase) {
+        if (phase >= 0 && phase < settings.magic_program.length) {
+            settings.magic_program[phase].ref_contact_start = tvPhaseRStart.getIndex();
+            settings.magic_program[phase].start_time = tvPhaseStart.getIndex();
+            settings.magic_program[phase].ref_contact_end = tvPhaseREnd.getIndex();
+            settings.magic_program[phase].end_time = tvPhaseEnd.getIndex();
+
+            settings.magic_program[phase].number_shots = tvNumShots.getIndex();
+
+            /*
+            settings.magic_program[phase].CameraFlags = tvCFlags.getText();
+            settings.magic_program[phase].get_ISOs_list()... = tvISOs.getText();
+            settings.magic_program[phase].get_Fs_list()... = tvFs.getText();
+            settings.magic_program[phase].get_ShutterSpeeds_list() = tvShutterSpeeds.getText();
+            */
+        }
+    }
+
+
 
     protected boolean onUpperDialChanged(int value) {
         sbPhase.dialChanged(value);
