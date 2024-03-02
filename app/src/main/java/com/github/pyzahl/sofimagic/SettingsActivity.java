@@ -12,6 +12,8 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TextView;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 
 import android.text.TextWatcher;
 
@@ -42,11 +44,13 @@ public class SettingsActivity extends BaseActivity
 
     private TextView tvPhaseName;
     private IndexEntry tvPhaseRStart, tvPhaseStart, tvPhaseREnd, tvPhaseEnd, tvNumShots;
-    private TextView tvCFlags;
-    private TextView  tvISOs;
-    private TextView  tvFs;
-    private TextView  tvShutterSpeeds;
 
+    private TableLayout exposureParamTable;
+
+    private ListEntry exposureFlags[];
+    private ListEntry exposureISOs[];
+    private ListEntry exposureFs[];
+    private ListEntry exposureShutters[];
 
     private CheckBox cbSilentShutter;
     private CheckBox cbBRS;
@@ -87,33 +91,54 @@ public class SettingsActivity extends BaseActivity
         tvPhaseRStart = (IndexEntry) findViewById(R.id.tvStartRef);
         tvPhaseRStart.setRange(0, 4);
         tvPhaseRStart.setPrefix("CT");
-        tvPhaseRStart.setUnit("");
 
         tvPhaseStart = (IndexEntry) findViewById(R.id.tvStart);
         tvPhaseStart.setRange(-60, 60);
-        tvPhaseStart.setPrefix("");
         tvPhaseStart.setUnit("s");
 
         tvPhaseREnd = (IndexEntry) findViewById(R.id.tvEndRef);
         tvPhaseREnd.setRange(0, 4);
         tvPhaseREnd.setPrefix("CT");
-        tvPhaseREnd.setUnit("");
 
         tvPhaseEnd = (IndexEntry) findViewById(R.id.tvEnd);
         tvPhaseEnd.setRange(-60, 60);
         tvPhaseEnd.setUnit("s");
-        tvPhaseEnd.setPrefix("");
 
         tvNumShots = (IndexEntry) findViewById(R.id.tvNumberShots);
         tvNumShots.setRange(-1, 99);
         tvNumShots.setPrefix("#");
-        tvNumShots.setUnit("");
 
-        tvCFlags = (TextView) findViewById(R.id.tvFlagList);
-        tvISOs = (TextView) findViewById(R.id.tvISOList);
-        tvFs = (TextView) findViewById(R.id.tvFList);
-        tvShutterSpeeds = (TextView) findViewById(R.id.tvShutterSpeedList);
+        TableRow trFlags = (TableRow)findViewById(R.id.rowFlagsList);
+        TableRow trFs = (TableRow)findViewById(R.id.rowFList);
+        TableRow trISOs = (TableRow)findViewById(R.id.rowISOsList);
+        TableRow trShutters = (TableRow)findViewById(R.id.rowShutterSpeedsList);
 
+        exposureFlags = new ListEntry[Settings.MAX_EXPOSURE_PARAMS];
+        exposureISOs = new ListEntry[Settings.MAX_EXPOSURE_PARAMS];
+        exposureFs = new ListEntry[Settings.MAX_EXPOSURE_PARAMS];
+        exposureShutters = new ListEntry[Settings.MAX_EXPOSURE_PARAMS];
+
+        for (int k=0; k<Settings.MAX_EXPOSURE_PARAMS; ++k){
+            exposureFlags[k] = new ListEntry(getApplicationContext());
+            exposureFlags[k].setMaxIndex(CameraUtilISOs.CFlags.length-1);
+            exposureFlags[k].setLookup(CameraUtilISOs.getCFString.instance);
+            trFlags.addView(exposureFlags[k]);
+
+            exposureISOs[k] = new ListEntry(getApplicationContext());
+            exposureISOs[k].setMaxIndex(CameraUtilISOs.ISOs.length-1);
+            exposureISOs[k].setLookup(CameraUtilISOs.getISOString.instance);
+            trISOs.addView(exposureISOs[k]);
+
+            exposureFs[k] = new ListEntry(getApplicationContext());
+            exposureFs[k].setMaxIndex(CameraUtilISOs.Apertures.length-1);
+            exposureFs[k].setLookup(CameraUtilISOs.getFString.instance);
+            trFs.addView(exposureFs[k]);
+
+            exposureShutters[k] = new ListEntry(getApplicationContext());
+            exposureShutters[k].setMaxIndex(CameraUtilShutterSpeed.SHUTTER_SPEEDS.length-1);
+            exposureShutters[k].setLookup(CameraUtilShutterSpeed.getShutterSpeedString.instance);
+            trShutters.addView(exposureShutters[k]);
+        }
 
         cbSilentShutter = (CheckBox) findViewById(R.id.cbSilentShutter);
         cbBRS  = (CheckBox) findViewById(R.id.cbBRC);
@@ -134,31 +159,20 @@ public class SettingsActivity extends BaseActivity
         cbDOFF.setChecked(settings.displayOff);
         cbDOFF.setOnCheckedChangeListener(cbDOFFOnCheckListener);
 
-        edTC1.setSec(settings.tc1); // SetText(String.format("%02d:%02d:%02d", settings.tc1 / 3600, (settings.tc1 / 60) % 60, settings.tc1 % 60));
-        edTC2.setSec(settings.tc2); // SecText(String.format("%02d:%02d:%02d", settings.tc2 / 3600, (settings.tc2 / 60) % 60, settings.tc2 % 60));
-        edTC3.setSec(settings.tc3); // SetText(String.format("%02d:%02d:%02d", settings.tc3 / 3600, (settings.tc3 / 60) % 60, settings.tc3 % 60));
-        edTC4.setSec(settings.tc4); // SetText(String.format("%02d:%02d:%02d", settings.tc4 / 3600, (settings.tc4 / 60) % 60, settings.tc4 % 60));
+        edTC1.setSec(settings.tc1);
+        edTC2.setSec(settings.tc2);
+        edTC3.setSec(settings.tc3);
+        edTC4.setSec(settings.tc4);
+        // SetText(String.format("%02d:%02d:%02d", settings.tc4 / 3600, (settings.tc4 / 60) % 60, settings.tc4 % 60));
 
         sbPhase = (AdvancedSeekBar) findViewById(R.id.sbPhase);
         tvPhaseIndex = (TextView) findViewById(R.id.tvPhaseId);
         tvPhaseName = (TextView) findViewById(R.id.tvPhase);
 
-        /*
-        edTC1.addTextChangedListener(new TextWatcher() {
-             @Override
-             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                 if (s.length() != 0)
-                     settings.tc1 = edTC1.getSec();
-             }
-         });
-        */
-
-        sbPhase.setMax(16);
+        sbPhase.setMax(settings.magic_program.length-1);
         sbPhase.setOnSeekBarChangeListener(sbPhaseOnSeekBarChangeListener);
         sbPhase.setProgress(0);
         sbPhaseOnSeekBarChangeListener.onProgressChanged(sbPhase, 0, false);
-
-        //updatePhase(0);
 
         //try {
             //CameraEx cameraEx = CameraEx.open(0, null);
@@ -264,11 +278,14 @@ public class SettingsActivity extends BaseActivity
 
             tvNumShots.setIndex(settings.magic_program[phase].number_shots);
 
-            tvCFlags.setText(settings.magic_program[phase].CameraFlags);
-            tvISOs.setText(settings.magic_program[phase].get_ISOs_list());
-            tvFs.setText(settings.magic_program[phase].get_Fs_list());
-            tvShutterSpeeds.setText(settings.magic_program[phase].get_ShutterSpeeds_list());
-
+            for (int k=0; k<settings.magic_program[phase].CameraFlags.length; ++k)
+                exposureFlags[k].setIndex(CameraUtilISOs.getCFlagIndex(settings.magic_program[phase].CameraFlags[k]));
+            for (int k=0; k<settings.magic_program[phase].ISOs.length; ++k)
+                exposureISOs[k].setIndex(CameraUtilISOs.getISOIndex(settings.magic_program[phase].ISOs[k]));
+            for (int k=0; k<settings.magic_program[phase].Fs.length; ++k)
+                exposureFs[k].setIndex(CameraUtilISOs.getFIndex(settings.magic_program[phase].Fs[k]));
+            for (int k=0; k<settings.magic_program[phase].ShutterSpeeds.length; ++k)
+                exposureShutters[k].setIndex(CameraUtilShutterSpeed.getShutterValueIndex(settings.magic_program[phase].ShutterSpeeds[k][0], settings.magic_program[phase].ShutterSpeeds[k][1]));
             phase_loaded = phase;
         }
     }
@@ -282,12 +299,16 @@ public class SettingsActivity extends BaseActivity
 
             settings.magic_program[phase].number_shots = tvNumShots.getIndex();
 
-            /*
-            settings.magic_program[phase].CameraFlags = tvCFlags.getText();
-            settings.magic_program[phase].get_ISOs_list()... = tvISOs.getText();
-            settings.magic_program[phase].get_Fs_list()... = tvFs.getText();
-            settings.magic_program[phase].get_ShutterSpeeds_list() = tvShutterSpeeds.getText();
-            */
+            for (int k=0; k<settings.magic_program[phase].CameraFlags.length; ++k)
+                settings.magic_program[phase].CameraFlags[k] = CameraUtilISOs.CFlags[exposureFlags[k].getIndex()];
+            for (int k=0; k<settings.magic_program[phase].ISOs.length; ++k)
+                settings.magic_program[phase].ISOs[k] = CameraUtilISOs.ISOs[exposureISOs[k].getIndex()];
+            for (int k=0; k<settings.magic_program[phase].Fs.length; ++k)
+                settings.magic_program[phase].Fs[k]   = CameraUtilISOs.Apertures[exposureFs[k].getIndex()];
+            for (int k=0; k<settings.magic_program[phase].ShutterSpeeds.length; ++k) {
+                settings.magic_program[phase].ShutterSpeeds[k][0] = CameraUtilShutterSpeed.SHUTTER_SPEEDS[exposureShutters[k].getIndex()][0];
+                settings.magic_program[phase].ShutterSpeeds[k][1] = CameraUtilShutterSpeed.SHUTTER_SPEEDS[exposureShutters[k].getIndex()][1];
+            }
         }
     }
 

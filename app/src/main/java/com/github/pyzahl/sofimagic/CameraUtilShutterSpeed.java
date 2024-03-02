@@ -68,6 +68,7 @@ public class CameraUtilShutterSpeed
             new int[]{30, 1},
     };
 
+
     public static int getShutterValueIndex(final Pair<Integer,Integer> speed)
     {
         return getShutterValueIndex(speed.first, speed.second);
@@ -114,6 +115,25 @@ public class CameraUtilShutterSpeed
         else
             return String.format("%.1f\"", (float) n / (float) d);
     }
+
+    public static String formatShutterSpeed(int pos) {
+        if (pos >= 0 && pos < SHUTTER_SPEEDS.length)
+            return String.format("%d/%d", SHUTTER_SPEEDS[pos][0], SHUTTER_SPEEDS[pos][1]);
+        else
+            return "AUTO";
+    }
+
+
+    public static class getShutterSpeedString implements ListEntry.LookupFunction<String, Integer> {
+        public static final getShutterSpeedString instance = new getShutterSpeedString();
+        private getShutterSpeedString() {
+        }
+        public String call(Integer i) {
+            return formatShutterSpeed(i);
+        }
+    }
+
+
 }
 
 

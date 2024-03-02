@@ -12,22 +12,25 @@ package com.github.pyzahl.sofimagic;
 public class IndexEntry extends TextView {
 
     public IndexEntry(Context context) {
-        super(context);
+        super(context); index=0; prefix=" "; unit=" "; imin=0; imax=9999;
+        setClickable(true);
     }
     public IndexEntry(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        super(context, attrs); index=0; prefix=" "; unit=" "; imin=0; imax=9999;
+        setClickable(true);
     }
     public IndexEntry(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
+        super(context, attrs, defStyle); index=0; prefix=" "; unit=" "; imin=0; imax=9999;
+        setClickable(true);
     }
 
     private int index;
 
-    private String prefix="";
-    private String unit="";
+    private String prefix;
+    private String unit;
 
-    private int imax = 100;
-    private int imin = 0;
+    private int imax;
+    private int imin;
 
     public void setPrefix(String Prefix){
         prefix=Prefix;
@@ -46,9 +49,10 @@ public class IndexEntry extends TextView {
     }
 
     public void setIndex(int i){
-        if (i>= imax && i <= imax) {
+        if (i>= imin && i <= imax) {
             index = i;
-            setText(prefix + String.format("%d", index) + unit);
+            setText(String.format("%s %s%d %s", prefix, imin<0 && i > 0? "+":"", i, unit));
+            //setText(prefix + Integer.toString(i) + unit);
         }
     }
 

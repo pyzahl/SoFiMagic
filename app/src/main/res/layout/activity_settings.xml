@@ -23,6 +23,8 @@
                 android:layout_alignParentBottom="true">
 
                 <TableRow>
+                    <TextView
+                        android:id="@+id/lblCTdum"/>
 
                     <TextView
                         android:id="@+id/lblC1"
@@ -70,6 +72,16 @@
 
                 </TableRow>
                 <TableRow>
+                    <TextView
+                        android:id="@+id/lblTime"
+                        android:layout_width="50dp"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center_vertical"
+                        android:text="Time"
+                        android:textSize="20sp" />
+
                     <com.github.pyzahl.sofimagic.HHMMSSEntry
                         android:id="@+id/editTextTimeC1"
                         android:textAppearance="?android:attr/textAppearanceMedium"
@@ -164,7 +176,7 @@
 
             <TextView
                 android:id="@+id/lblPhaseId"
-                android:layout_width="80dp"
+                android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
                 android:gravity="center_vertical"
@@ -173,7 +185,7 @@
 
            <TextView
                 android:id="@+id/tvPhaseId"
-                android:layout_width="40dp"
+                android:layout_width="30dp"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentRight="true"
@@ -202,223 +214,183 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true">
-                <TableRow>
+
+                <TableRow android:layout_height="match_parent">
 
                     <TextView
                         android:id="@+id/tvPhase"
-                        android:layout_width="wrap_content"
+                        android:layout_width="90dp"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
-                        android:gravity="center_vertical"
-                        android:text="PhaseName:"
+                        android:gravity="bottom|left"
+                        android:singleLine="true"
+                        android:text="MaxTotality"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="#FFB300"
                         android:textSize="20sp" />
 
 
                     <com.github.pyzahl.sofimagic.IndexEntry
                         android:id="@+id/tvStartRef"
-                        android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:gravity="bottom|center_horizontal"
-                        android:textColor="@android:color/white"
-                        tools:background="#f86d6d"
-                        android:singleLine="true"
-                        android:ellipsize="none"
-                        android:layout_gravity="bottom"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="2dp"
-                        android:layout_marginRight="2dp"
-                        android:ems="10"
-                        android:inputType="time"
-                        android:text="1"
-                        android:textSize="20sp"
                         android:layout_width="30dp"
-                        android:clickable="true"/>
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="0dp"
+                        android:layout_marginRight="10dp"
+                        android:clickable="true"
+                        android:ellipsize="none"
+                        android:ems="10"
+                        android:gravity="bottom|center_horizontal"
+                        android:inputType="time"
+                        android:singleLine="true"
+                        android:text="CT1"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="@android:color/white"
+                        android:textSize="20sp"
+                        tools:background="#f86d6d" />
 
                     <com.github.pyzahl.sofimagic.IndexEntry
                         android:id="@+id/tvStart"
-                        android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:gravity="bottom|center_horizontal"
-                        android:textColor="@android:color/white"
-                        tools:background="#f86d6d"
-                        android:singleLine="true"
-                        android:ellipsize="none"
-                        android:layout_gravity="bottom"
+                        android:layout_width="50dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="0dp"
+                        android:layout_marginRight="10dp"
+                        android:clickable="true"
+                        android:ellipsize="none"
                         android:ems="10"
+                        android:gravity="bottom|center_horizontal"
                         android:inputType="time"
-                        android:text="10"
+                        android:singleLine="true"
+                        android:text="-10s"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="@android:color/white"
                         android:textSize="20sp"
-                        android:layout_width="60dp"
-                        android:clickable="true"/>
+                        tools:background="#f86d6d" />
 
                     <TextView
                         android:id="@+id/tvTo"
-                        android:layout_width="wrap_content"
+                        android:layout_width="20dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
+                        android:layout_marginLeft="0dp"
+                        android:layout_marginRight="10dp"
                         android:gravity="bottom|center_horizontal"
                         android:text="to"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
                         android:textSize="20sp" />
 
                     <com.github.pyzahl.sofimagic.IndexEntry
                         android:id="@+id/tvEndRef"
-                        android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:gravity="bottom|center_horizontal"
-                        android:textColor="@android:color/white"
-                        tools:background="#f86d6d"
-                        android:singleLine="true"
-                        android:ellipsize="none"
-                        android:layout_gravity="bottom"
-                        android:layout_height="wrap_content"
-                        android:ems="10"
-                        android:inputType="time"
-                        android:text="2"
-                        android:textSize="20sp"
                         android:layout_width="30dp"
-                        android:clickable="true"/>
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="0dp"
+                        android:layout_marginRight="10dp"
+                        android:clickable="true"
+                        android:ellipsize="none"
+                        android:ems="10"
+                        android:gravity="bottom|center_horizontal"
+                        android:inputType="time"
+                        android:singleLine="true"
+                        android:text="CT 2"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="@android:color/white"
+                        android:textSize="20sp"
+                        tools:background="#f86d6d" />
 
                     <com.github.pyzahl.sofimagic.IndexEntry
                         android:id="@+id/tvEnd"
-                        android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:gravity="bottom|center_horizontal"
-                        android:textColor="@android:color/white"
-                        tools:background="#f86d6d"
-                        android:singleLine="true"
-                        android:ellipsize="none"
-                        android:layout_gravity="bottom"
+                        android:layout_width="50dp"
                         android:layout_height="wrap_content"
-                        android:ems="10"
-                        android:inputType="time"
-                        android:text="10"
-                        android:textSize="20sp"
-                        android:layout_width="60dp"
+                        android:layout_marginLeft="0dp"
+                        android:layout_marginRight="10dp"
                         android:clickable="true"
-                        />
+                        android:ellipsize="none"
+                        android:ems="10"
+                        android:gravity="bottom|center_horizontal"
+                        android:inputType="time"
+                        android:singleLine="true"
+                        android:text="+10s"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="@android:color/white"
+                        android:textSize="20sp"
+                        tools:background="#f86d6d" />
 
                     <com.github.pyzahl.sofimagic.IndexEntry
                         android:id="@+id/tvNumberShots"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:gravity="bottom|center_horizontal"
-                        android:textColor="@android:color/white"
-                        tools:background="#f86d6d"
-                        android:singleLine="true"
-                        android:ellipsize="none"
-                        android:layout_gravity="bottom"
+                        android:layout_width="50dp"
                         android:layout_height="wrap_content"
+                        android:gravity="bottom|center_horizontal"
+                        android:layout_marginLeft="0dp"
+                        android:layout_marginRight="10dp"
+                        android:clickable="true"
+                        android:ellipsize="none"
                         android:ems="10"
                         android:inputType="time"
-                        android:text="5"
+                        android:singleLine="true"
+                        android:text="$+99"
+                        android:textColor="@android:color/white"
                         android:textSize="20sp"
-                        android:layout_width="40dp"
-                        android:clickable="true"/>
+                        tools:background="#f86d6d" />
                 </TableRow>
             </TableLayout>
 
-            <TableLayout
-                android:id="@+id/lFlagsList"
+            <HorizontalScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true">
-                <TableRow>
-                    <TextView
-                        android:id="@+id/tvFlags"
-                        android:layout_width="wrap_content"
+                android:layout_height="match_parent">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+                    <TableLayout
+                        android:id="@+id/tabExposureList"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:gravity="center_vertical"
-                        android:text="CFlags:"
-                        android:textSize="20sp" />
+                        android:layout_alignParentBottom="true">
+                        <TableRow
+                            android:id="@+id/rowFlagsList"
+                            >
+                            <TextView
+                                android:id="@+id/tvFlags"
+                                android:layout_marginLeft="10dp"
+                                android:layout_marginRight="10dp"
+                                android:gravity="center_vertical"
+                                android:text="CF"
+                                android:textSize="20sp" />
+                        </TableRow>
+                        <TableRow
+                            android:id="@+id/rowISOsList">>
+                            <TextView
+                                android:id="@+id/tvISOSs"
+                                android:layout_marginLeft="10dp"
+                                android:layout_marginRight="10dp"
+                                android:gravity="center_vertical"
+                                android:text="ISO"
+                                android:textSize="20sp" />
+                        </TableRow>
+                        <TableRow
+                            android:id="@+id/rowFList">>
+                            <TextView
+                                android:id="@+id/tvFs"
+                                android:layout_marginLeft="10dp"
+                                android:layout_marginRight="10dp"
+                                android:gravity="center_vertical"
+                                android:text="F"
+                                android:textSize="20sp" />
 
-                    <TextView
-                        android:id="@+id/tvFlagList"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:gravity="center_vertical"
-                        android:text="S0,B0"
-                        android:textSize="20sp" />
-                </TableRow>
-            </TableLayout>
-
-            <TableLayout
-                android:id="@+id/lISOList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true">
-                <TableRow>
-                    <TextView
-                        android:id="@+id/tvISOSs"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:gravity="center_vertical"
-                        android:text="ISOs:"
-                        android:textSize="20sp" />
-
-                    <TextView
-                        android:id="@+id/tvISOList"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:gravity="center_vertical"
-                        android:text="100,"
-                        android:textSize="20sp" />
-                </TableRow>
-            </TableLayout>
-
-            <TableLayout
-                android:id="@+id/lFList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true">
-                <TableRow>
-                    <TextView
-                        android:id="@+id/tvFs"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:gravity="center_vertical"
-                        android:text="Fs:"
-                        android:textSize="20sp" />
-
-                    <TextView
-                        android:id="@+id/tvFList"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:gravity="center_vertical"
-                        android:text="0"
-                        android:textSize="20sp" />
-                </TableRow>
-            </TableLayout>
-
-            <TableLayout
-                android:id="@+id/lShutterSpeedList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true">
-                <TableRow>
-                    <TextView
-                        android:id="@+id/tvShutterSpeeds"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:gravity="center_vertical"
-                        android:text="ShutterSpeeds:"
-                        android:textSize="20sp" />
-
-                    <TextView
-                        android:id="@+id/tvShutterSpeedList"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:gravity="center_vertical"
-                        android:text="1/1000"
-                        android:textSize="20sp" />
-                </TableRow>
-            </TableLayout>
-
-
-
+                        </TableRow>
+                        <TableRow
+                            android:id="@+id/rowShutterSpeedsList">>
+                            <TextView
+                                android:id="@+id/tvShutterSpeeds"
+                                android:layout_marginLeft="10dp"
+                                android:gravity="center_vertical"
+                                android:text="t"
+                                android:textSize="20sp" />
+                        </TableRow>
+                    </TableLayout>
+                </LinearLayout>
+            </HorizontalScrollView>
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -494,6 +466,5 @@
             </RelativeLayout>
 
         </LinearLayout>
-
     </ScrollView>
 </RelativeLayout>
