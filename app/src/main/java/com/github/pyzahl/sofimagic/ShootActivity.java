@@ -101,6 +101,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
     private boolean takingPicture;
 
     private long shootTime;
+    private long shootEndTime;
     private long shootStartTime;
 
     private Display display;
@@ -126,6 +127,12 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                     display.off();
             }
 
+            if (MagicPhase==0 && shotCount == 0) { // start preview while waiting first for first shot
+                camera.startPreview();
+                reviewSurfaceView.setVisibility(View.VISIBLE);
+                stopPicturePreview = false;
+            }
+
             boolean shooting = false;
 
             // Get Time
@@ -142,7 +149,6 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                     log("shootRunnable: skipping to next phase...");
                     if (settings.magic_program[MagicPhase].number_shots != 0) {
                         MagicPhase++;
-                        shotCount = 0; // reset shoot count for phase
                         exposureCount = 0;
                         repeatCount = 0;
                     }
@@ -152,9 +158,10 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
             // check if we need to skip forward (in timed series)
             if (settings.magic_program[MagicPhase].number_shots > 0) {
                 do {
-                    remainingTimeNextBurst = settings.magic_program[MagicPhase].get_remainingTimeToNext(repeatCount, now);
+                    remainingTimeNextBurst = settings.magic_program[MagicPhase].get_remainingTimeToNext(repeatCount+1, now);
                     if (remainingTimeNextBurst < 0) { // past that shot?
                         log("shootRunnable: skipping to repeat count " + Integer.toString(repeatCount));
+                        exposureCount = 0;
                         repeatCount++; // skip
                     }
                 } while (remainingTimeNextBurst < 0 && settings.magic_program[MagicPhase].ISOs[exposureCount] != 0);
@@ -182,8 +189,6 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                         shoot(settings.magic_program[MagicPhase].ISOs[exposureCount], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount]);
                         exposureCount++;
                     } else {
-                        display.on();
-
                         // ...wait for Contact Start Time
                         log("shootRunnable: waiting for next exposue block...");
                         if (remainingTimeNextBurst > 1500) {
@@ -212,7 +217,6 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                                 MagicPhase++;
                                 log("shootRunnable: Entering Next MagicPhase " + settings.magic_program[MagicPhase].name + " #" + Integer.toString(MagicPhase));
                             }
-                            shotCount = 0; // reset shoot count for phase
                             exposureCount = 0;
                             repeatCount = 0;
                         }
@@ -582,11 +586,12 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         setIso(iso);
         setShutterSpeed(shutterSpeed[0],shutterSpeed[1]);
 
-        //shootTime = System.currentTimeMillis(); // " @millis=" + shootTime +
+
         logshot("Shoot Photo " + settings.magic_program[MagicPhase].name + " #" + exposureCount + "#" + repeatCount + " " +  String.valueOf(shutterSpeed[0]) +"/" + String.valueOf(shutterSpeed[1]) + "s ISO " + String.valueOf(iso));
 
+        shootTime = System.currentTimeMillis(); // " @millis=" + shootTime +
         cameraEx.burstableTakePicture();
-
+        shootEndTime = shootTime+Math.round((double)1000*shutterSpeed[0]/shutterSpeed[1])+150;
         shotCount++;
 
         runOnUiThread(new Runnable() {
@@ -604,6 +609,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
     // Therefore we called it every second manually
     @Override
     public void onShutter(int i, CameraEx cameraEx) {
+        log("onShutter -- past Shutter ms: " +  Long.toString( System.currentTimeMillis() - shootEndTime));
 
         if(brck.get()<0){
             brck = new AtomicInteger(0);
@@ -612,74 +618,39 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
             }
         }
 
-        if(burstShooting) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    update_info();
-                }
-            });
+        this.cameraEx.cancelTakePicture();
 
-            // just keep shooting until we have all shots
-            if (false){ //System.currentTimeMillis() >= shootStartTime + settings.shotCount * 1000) {
-                this.cameraEx.cancelTakePicture();
-                stopPicturePreview = true;
-                display.on();
+        if (settings.magic_program[MagicPhase].number_shots > 0 && settings.magic_program[MagicPhase].ISOs[exposureCount] == 0) {
+            log("onShutter: exposure list completed.");
+            int time_of_next_burst = settings.magic_program[MagicPhase].get_TimeOfNext(repeatCount + 1);
+            long now = getMilliSecondsOfDay();
+            // remaining time to the next shot
+            double remainingTime = settings.magic_program[MagicPhase].get_remainingTimeToNext(repeatCount + 1, now);
 
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(SHOW_END_SCREEN) {
-                            tvCount.setText("Thanks for using this app!");
-                            tvBattery.setVisibility(View.INVISIBLE);
-                            tvRemaining.setVisibility(View.INVISIBLE);
-                            llEnd.setVisibility(View.VISIBLE);
-                        }
-                        else {
-                            onBackPressed();
-                        }
-                    }
-                });
+            if (brck.get() > 0) {
+                remainingTime = -1;
             }
+            log("Remaining Time: " + remainingTime);
+
+            // if the remaining time is negative immediately take the next picture
+            if (remainingTime < 1500) {
+                stopPicturePreview = true;
+                shootRunnableHandler.post(shootRunnable);
+            }
+            // show the preview picture for some time
             else {
-                manualShutterCallbackCallRunnableHandler.postDelayed(manualShutterCallbackCallRunnable, 500);
-            }
-        }
-        else {
-            log("onShutter");
-            this.cameraEx.cancelTakePicture();
-
-            if (settings.magic_program[MagicPhase].number_shots > 0 && settings.magic_program[MagicPhase].ISOs[exposureCount] == 0) {
-                log("onShutter: exposure list completed.");
-                int time_of_next_burst = settings.magic_program[MagicPhase].get_TimeOfNext(repeatCount + 1);
-                long now = getMilliSecondsOfDay();
-                // remaining time to the next shot
-                double remainingTime = settings.magic_program[MagicPhase].get_remainingTimeToNext(repeatCount + 1, now);
-
-                if (brck.get() > 0) {
-                    remainingTime = -1;
-                }
-                log("Remaining Time: " + remainingTime);
-
-                // if the remaining time is negative immediately take the next picture
-                if (remainingTime < 1500) {
-                    stopPicturePreview = false;
-                    shootRunnableHandler.post(shootRunnable);
-                }
-                // show the preview picture for some time
-                else {
-                    camera.startPreview();
-                    long previewPictureShowTime = Math.round(Math.min(remainingTime, pictureReviewTime * 1000));
-                    log("  Stop preview in: " + previewPictureShowTime);
-                    reviewSurfaceView.setVisibility(View.VISIBLE);
-                    stopPicturePreview = true;
-                    shootRunnableHandler.postDelayed(shootRunnable, previewPictureShowTime);
-                }
-            } else {
                 log("onShutter Pic Review Time");
-                stopPicturePreview = true;
-                shootRunnableHandler.postDelayed(shootRunnable, pictureReviewTime * 1000);
+                camera.startPreview();
+                long previewPictureShowTime = Math.round(Math.min(remainingTime, pictureReviewTime * 1000));
+                log("  Stop preview in: " + previewPictureShowTime);
+                reviewSurfaceView.setVisibility(View.VISIBLE);
+                stopPicturePreview = false;
+                shootRunnableHandler.postDelayed(shootRunnable, 1000); //previewPictureShowTime);
             }
+        } else {
+            log("onShutter repeat fast");
+            stopPicturePreview = true;
+            shootRunnableHandler.postDelayed(shootRunnable, 500);
         }
     }
 
