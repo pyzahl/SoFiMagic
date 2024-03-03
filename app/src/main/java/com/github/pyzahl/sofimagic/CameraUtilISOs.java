@@ -68,11 +68,11 @@ public class CameraUtilISOs {
             32
     };
 
-
+    // Camera Flags, Drive Mode, ...
     public static final String[] CFlags = new String[]{
-            "S",
-            "BKT",
-            "BRS"
+            "S",  // DriveMode Single
+            "C",  // DriveMode Continuous (Burst)
+            "BKT" // BriveMode Bracketing
     };
 
     public static int getISOIndex(int iso)
@@ -123,10 +123,10 @@ public class CameraUtilISOs {
         }
     }
 
-    public static int getCFlagIndex(String cf)
+    public static int getCFlagIndex(char[] cf)
     {
         for (int i = 0; i < CFlags.length; ++i)
-            if (CFlags[i] == cf) return i;
+            if (CFlags[i].toCharArray()[0] == cf[0]) return i;
         return -1;
     }
 

@@ -53,7 +53,7 @@ class Settings {
             this.start_time = ti;
             this.end_time = tf;
             this.number_shots = number_shots;
-            CameraFlags = new String[MAX_EXPOSURE_PARAMS];
+            CameraFlags = new char[MAX_EXPOSURE_PARAMS][];
             Fs = new double[MAX_EXPOSURE_PARAMS];
             Bursts = new int[MAX_EXPOSURE_PARAMS];  //          = {-1,             0,       0 }; // 0=END, -1, regular (no burst)
             ISOs = new int[MAX_EXPOSURE_PARAMS];    //          = {400,          400,       0 }; // 0=END
@@ -66,7 +66,7 @@ class Settings {
         public int start_time = 0; // Time in Seconds relative to ref_contact
         public int end_time = 0; // Time in Seconds relative tp ref_contact
         public int number_shots = 0; // numbershots/burst to distribute
-        public String[] CameraFlags;
+        public char[][] CameraFlags;
         public int[] Bursts;   //          = {-1,             0,       0 }; // 0=END, -1, regular (no burst)
         public double[] Fs;    //          = {0,          0,       0 }; // 0=do not manage/change
         public int[] ISOs;    //          = {400,          400,       0 }; // 0=END
@@ -75,7 +75,9 @@ class Settings {
         public String get_CFs_list() {
             String cf_list = "";
             for (int k = 0; k < CameraFlags.length; k++)
-                cf_list = cf_list + CameraFlags[k] + ",";
+                if (ISOs[k] > 0)
+                    cf_list = cf_list + String.valueOf(CameraFlags[k]) + ",";
+                else break;
             return cf_list;
         }
         public String get_ISOs_list() {
@@ -101,7 +103,7 @@ class Settings {
             for (int k = 0; k < ShutterSpeeds.length; ++k) {
                 if (ISOs[k] > 0) {
                     SHUTTER_list = SHUTTER_list + Integer.toString(ShutterSpeeds[k][0]) + "/" + Integer.toString(ShutterSpeeds[k][1]) + ",";
-                }
+                } else break;
             }
             return SHUTTER_list;
         }
@@ -110,9 +112,9 @@ class Settings {
             String[] cf_list = CFs_list.split(",");
             int k;
             for (k = 0; k < cf_list.length && k < cf_list.length; k++)
-                CameraFlags[k] = cf_list[k];
+                CameraFlags[k] = cf_list[k].toCharArray();
             for (; k < ISOs.length; k++)
-                CameraFlags[k] = ""; // this will terminate no need to clear the other lists.
+                CameraFlags[k] = "S".toCharArray(); // this will terminate no need to clear the other lists.
         }
 
         public void set_ISOs_list(String ISO_list) {
@@ -203,7 +205,7 @@ class Settings {
         int[] P1PartialISOs            = {400,          400,       0 }; // 0=END
         int[][] P1PartialShutterSpeeds = {{1,1000},    {1, 2000}, {0,0}};
         for (int i=0; P1PartialISOs[i]>0; i++) {
-            magic_program[phase].CameraFlags[i]= "S";
+            magic_program[phase].CameraFlags[i]= "S".toCharArray();
             magic_program[phase].Bursts[i]     = P1PartialBursts[i];
             magic_program[phase].ISOs[i]       = P1PartialISOs[i];
             magic_program[phase].Fs[i]         = 0;
@@ -219,7 +221,7 @@ class Settings {
         int[] C2ShootingISOs            = {100,           0}; // 0=END
         int[][] C2ShootingShutterSpeeds = {{1,4000},    {0,0}};
         for (int i=0; C2ShootingISOs[i]>0; i++) {
-            magic_program[phase].CameraFlags[i]= "S";
+            magic_program[phase].CameraFlags[i]= "S".toCharArray();
             magic_program[phase].Bursts[i]     = C2ShootingBursts[i];
             magic_program[phase].ISOs[i]       = C2ShootingISOs[i];
             magic_program[phase].Fs[i]         = 0;
@@ -235,7 +237,7 @@ class Settings {
         int[] TotalityAISOs            = { 50,       100,      400,      800,      800,      800,      800,      800,      800,      800,      800,         0 }; // 0=END
         int[][] TotalityAShutterSpeeds = { {1,4000}, {1,2000}, {1,1000}, {1,1000}, {1, 500}, {1, 250}, {1, 100}, {1,  50}, {1,  20}, {1,   4}, {1,  1},    {0,0} };
         for (int i=0; TotalityAISOs[i]>0; i++) {
-            magic_program[phase].CameraFlags[i]= "S";
+            magic_program[phase].CameraFlags[i]= "S".toCharArray();
             magic_program[phase].Bursts[i]     = TotalityABursts[i];
             magic_program[phase].ISOs[i]       = TotalityAISOs[i];
             magic_program[phase].Fs[i]         = 0;
@@ -250,7 +252,7 @@ class Settings {
         int[] MaxTotalityISOs            = { 100,      400,      800,      800,      800,      800,      800,      800,      800,      800,      800,      800,          0 }; // 0=END
         int[][] MaxTotalityShutterSpeeds = { {1,1000}, {1,1000}, {1,1000}, {1, 500}, {1,1000}, {1, 500}, {1,1000}, {1, 500}, {1, 100}, {1,  20}, {1,   1}, {2, 1},      {0,0} };
         for (int i=0; MaxTotalityISOs[i]>0; i++) {
-            magic_program[phase].CameraFlags[i]= "S";
+            magic_program[phase].CameraFlags[i]= "S".toCharArray();
             magic_program[phase].Bursts[i]     = MaxTotalityBursts[i];
             magic_program[phase].ISOs[i]       = MaxTotalityISOs[i];
             magic_program[phase].Fs[i]         = 0;
@@ -265,7 +267,7 @@ class Settings {
         int[] TotalityBISOs            = { 50,       100,      400,      800,      800,      800,      800,      800,      800,      800,      800,         0 }; // 0=END
         int[][] TotalityBShutterSpeeds = { {1,4000}, {1,2000}, {1,1000}, {1,1000}, {1, 500}, {1, 250}, {1, 100}, {1,  50}, {1,  20}, {1,   4}, {1,  1},    {0,0} };
         for (int i=0; TotalityBISOs[i]>0; i++) {
-            magic_program[phase].CameraFlags[i]= "S";
+            magic_program[phase].CameraFlags[i]= "S".toCharArray();
             magic_program[phase].Bursts[i]     = TotalityBBursts[i];
             magic_program[phase].ISOs[i]       = TotalityBISOs[i];
             magic_program[phase].Fs[i]         = 0;
@@ -281,7 +283,7 @@ class Settings {
         int[] C3ShootingISOs            = {100,           0}; // 0=END
         int[][] C3ShootingShutterSpeeds = {{1,4000},    {0,0}};
         for (int i=0; C3ShootingISOs[i]>0; i++) {
-            magic_program[phase].CameraFlags[i]= "S";
+            magic_program[phase].CameraFlags[i]= "S".toCharArray();
             magic_program[phase].Bursts[i]     = C3ShootingBursts[i];
             magic_program[phase].ISOs[i]       = C3ShootingISOs[i];
             magic_program[phase].Fs[i]         = 0;
@@ -296,7 +298,7 @@ class Settings {
         int[] P2PartialISOs            = {400,          400,       0 }; // 0=END
         int[][] P2PartialShutterSpeeds = {{1,1000},    {1, 2000}, {0,0}};
         for (int i=0; P2PartialISOs[i]>0; i++) {
-            magic_program[phase].CameraFlags[i]= "S";
+            magic_program[phase].CameraFlags[i]= "S".toCharArray();
             magic_program[phase].Bursts[i]     = P2PartialBursts[i];
             magic_program[phase].ISOs[i]       = P2PartialISOs[i];
             magic_program[phase].Fs[i]         = 0;

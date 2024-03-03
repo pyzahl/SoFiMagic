@@ -84,6 +84,10 @@ public class ListEntry extends TextView {
             index = i;
             setText(Lookup.call(i));
         }
+        if (i == -1) {
+            index = 0;
+            setText(" ");
+        }
     }
 
     @Override

@@ -278,14 +278,19 @@ public class SettingsActivity extends BaseActivity
 
             tvNumShots.setIndex(settings.magic_program[phase].number_shots);
 
-            for (int k=0; k<settings.magic_program[phase].CameraFlags.length; ++k)
-                exposureFlags[k].setIndex(CameraUtilISOs.getCFlagIndex(settings.magic_program[phase].CameraFlags[k]));
-            for (int k=0; k<settings.magic_program[phase].ISOs.length; ++k)
-                exposureISOs[k].setIndex(CameraUtilISOs.getISOIndex(settings.magic_program[phase].ISOs[k]));
-            for (int k=0; k<settings.magic_program[phase].Fs.length; ++k)
-                exposureFs[k].setIndex(CameraUtilISOs.getFIndex(settings.magic_program[phase].Fs[k]));
-            for (int k=0; k<settings.magic_program[phase].ShutterSpeeds.length; ++k)
-                exposureShutters[k].setIndex(CameraUtilShutterSpeed.getShutterValueIndex(settings.magic_program[phase].ShutterSpeeds[k][0], settings.magic_program[phase].ShutterSpeeds[k][1]));
+            for (int k=0; k<settings.magic_program[phase].ISOs.length; ++k) {
+                if (settings.magic_program[phase].ISOs[k] > 0) {
+                    exposureISOs[k].setIndex(CameraUtilISOs.getISOIndex(settings.magic_program[phase].ISOs[k]));
+                    exposureFlags[k].setIndex(CameraUtilISOs.getCFlagIndex(settings.magic_program[phase].CameraFlags[k]));
+                    exposureFs[k].setIndex(CameraUtilISOs.getFIndex(settings.magic_program[phase].Fs[k]));
+                    exposureShutters[k].setIndex(CameraUtilShutterSpeed.getShutterValueIndex(settings.magic_program[phase].ShutterSpeeds[k][0], settings.magic_program[phase].ShutterSpeeds[k][1]));
+                } else {
+                    exposureISOs[k].setIndex(-1);
+                    exposureFlags[k].setIndex(-1);
+                    exposureFs[k].setIndex(-1);
+                    exposureShutters[k].setIndex(-1);
+                }
+            }
             phase_loaded = phase;
         }
     }
@@ -299,15 +304,20 @@ public class SettingsActivity extends BaseActivity
 
             settings.magic_program[phase].number_shots = tvNumShots.getIndex();
 
-            for (int k=0; k<settings.magic_program[phase].CameraFlags.length; ++k)
-                settings.magic_program[phase].CameraFlags[k] = CameraUtilISOs.CFlags[exposureFlags[k].getIndex()];
-            for (int k=0; k<settings.magic_program[phase].ISOs.length; ++k)
-                settings.magic_program[phase].ISOs[k] = CameraUtilISOs.ISOs[exposureISOs[k].getIndex()];
-            for (int k=0; k<settings.magic_program[phase].Fs.length; ++k)
-                settings.magic_program[phase].Fs[k]   = CameraUtilISOs.Apertures[exposureFs[k].getIndex()];
-            for (int k=0; k<settings.magic_program[phase].ShutterSpeeds.length; ++k) {
-                settings.magic_program[phase].ShutterSpeeds[k][0] = CameraUtilShutterSpeed.SHUTTER_SPEEDS[exposureShutters[k].getIndex()][0];
-                settings.magic_program[phase].ShutterSpeeds[k][1] = CameraUtilShutterSpeed.SHUTTER_SPEEDS[exposureShutters[k].getIndex()][1];
+            for (int k=0; k<settings.magic_program[phase].ISOs.length; ++k) {
+                if (settings.magic_program[phase].ISOs[k] > 0) {
+                    settings.magic_program[phase].ISOs[k] = CameraUtilISOs.ISOs[exposureISOs[k].getIndex()];
+                    settings.magic_program[phase].CameraFlags[k] = CameraUtilISOs.CFlags[exposureFlags[k].getIndex()].toCharArray();
+                    settings.magic_program[phase].Fs[k] = CameraUtilISOs.Apertures[exposureFs[k].getIndex()];
+                    settings.magic_program[phase].ShutterSpeeds[k][0] = CameraUtilShutterSpeed.SHUTTER_SPEEDS[exposureShutters[k].getIndex()][0];
+                    settings.magic_program[phase].ShutterSpeeds[k][1] = CameraUtilShutterSpeed.SHUTTER_SPEEDS[exposureShutters[k].getIndex()][1];
+                } else {
+                    settings.magic_program[phase].ISOs[k] = CameraUtilISOs.ISOs[0];
+                    settings.magic_program[phase].CameraFlags[k] = CameraUtilISOs.CFlags[0].toCharArray();
+                    settings.magic_program[phase].Fs[k] = CameraUtilISOs.ISOs[0];
+                    settings.magic_program[phase].ShutterSpeeds[k][0] = CameraUtilShutterSpeed.SHUTTER_SPEEDS[0][0];
+                    settings.magic_program[phase].ShutterSpeeds[k][1] = CameraUtilShutterSpeed.SHUTTER_SPEEDS[0][1];
+                }
             }
         }
     }
