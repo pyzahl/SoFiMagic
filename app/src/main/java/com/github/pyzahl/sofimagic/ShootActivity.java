@@ -183,7 +183,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                         && settings.magic_program[MagicPhase].ISOs[exposureCount] != 0){  // not at end of exposure list?
                     log("shootRunnable: BurstMode B#" + Integer.toString(burstCount));
 
-                    if (burstCount == 0) // Before 1 Busrt Shot setup Busrt Mode
+                    if (burstCount == 0) // Before 1 Burst Shot setup Burst Mode
                         setDriveMode(settings.magic_program[MagicPhase].CameraFlags[exposureCount][0]);
 
                     if (burstCount < settings.magic_program[MagicPhase].BurstCounts[exposureCount]) {
@@ -465,20 +465,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         }
 
         final CameraEx.ParametersModifier modifier = cameraEx.createParametersModifier(params);
-
-/*
-        if (burstShooting) {
-            try {
-                modifier.setDriveMode(CameraEx.ParametersModifier.DRIVE_MODE_BURST);
-                List driveSpeeds = modifier.getSupportedBurstDriveSpeeds();
-                modifier.setBurstDriveSpeed(driveSpeeds.get(driveSpeeds.size() - 1).toString());
-                modifier.setBurstDriveButtonReleaseBehave(CameraEx.ParametersModifier.BURST_DRIVE_BUTTON_RELEASE_BEHAVE_CONTINUE);
-            } catch (Exception ignored) {
-            }
-        } else {
-            modifier.setDriveMode(CameraEx.ParametersModifier.DRIVE_MODE_SINGLE);
-        }
- */
+        modifier.setDriveMode(CameraEx.ParametersModifier.DRIVE_MODE_SINGLE);
 
         // setSilentShutterMode doesn't exist on all cameras
         try {
@@ -633,6 +620,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
             case 'C':
                 try {
                     log("Setting DriveMode " + CFlag);
+                    this.cameraEx.cancelTakePicture();
                     paramsModifier.setDriveMode(CameraEx.ParametersModifier.DRIVE_MODE_BURST);
                     List driveSpeeds = paramsModifier.getSupportedBurstDriveSpeeds();
                     //paramsModifier.setBurstDriveSpeed(driveSpeeds.get(driveSpeeds.size() - 1).toString()); // Speed: 2-1=1 => high
@@ -671,7 +659,10 @@ private void shoot(int iso, int[] shutterSpeed) {
             shootEndTime = shootTime+Math.round((double)1000*shutterSpeed[0]/shutterSpeed[1])+150;
             shotCount++;
         } catch (Exception ignored) {
+            this.cameraEx.cancelTakePicture();
             log("EXCEPTION Camera.burstableTakePicture() failed #" + Integer.toString(shotCount));
+            log("EXCEPTION trying to continue after 2s");
+            shootRunnableHandler.postDelayed(shootRunnable, 2000);
         }
 
         if (burstCount == 0) {
@@ -749,7 +740,7 @@ private void shoot(int iso, int[] shutterSpeed) {
         } else {
             log("onShutter repeat fast");
             stopPicturePreview = true;
-            shootRunnableHandler.postDelayed(shootRunnable, 500);
+            shootRunnableHandler.postDelayed(shootRunnable, 1000);
         }
     }
 
