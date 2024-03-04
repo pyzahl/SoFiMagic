@@ -48,6 +48,7 @@ public class SettingsActivity extends BaseActivity
     private TableLayout exposureParamTable;
 
     private ListEntry exposureFlags[];
+    private ListEntry burstCounts[];
     private ListEntry exposureISOs[];
     private ListEntry exposureFs[];
     private ListEntry exposureShutters[];
@@ -108,14 +109,16 @@ public class SettingsActivity extends BaseActivity
         tvNumShots.setRange(-1, 99);
         tvNumShots.setPrefix("#");
 
-        TableRow trFlags = (TableRow)findViewById(R.id.rowFlagsList);
-        TableRow trFs = (TableRow)findViewById(R.id.rowFList);
-        TableRow trISOs = (TableRow)findViewById(R.id.rowISOsList);
-        TableRow trShutters = (TableRow)findViewById(R.id.rowShutterSpeedsList);
+        TableRow trFlags       = (TableRow)findViewById(R.id.rowFlagsList);
+        TableRow trBurstCounts = (TableRow)findViewById(R.id.rowBurstCount);
+        TableRow trFs          = (TableRow)findViewById(R.id.rowFList);
+        TableRow trISOs        = (TableRow)findViewById(R.id.rowISOsList);
+        TableRow trShutters    = (TableRow)findViewById(R.id.rowShutterSpeedsList);
 
-        exposureFlags = new ListEntry[Settings.MAX_EXPOSURE_PARAMS];
-        exposureISOs = new ListEntry[Settings.MAX_EXPOSURE_PARAMS];
-        exposureFs = new ListEntry[Settings.MAX_EXPOSURE_PARAMS];
+        exposureFlags    = new ListEntry[Settings.MAX_EXPOSURE_PARAMS];
+        burstCounts      = new ListEntry[Settings.MAX_EXPOSURE_PARAMS];
+        exposureISOs     = new ListEntry[Settings.MAX_EXPOSURE_PARAMS];
+        exposureFs       = new ListEntry[Settings.MAX_EXPOSURE_PARAMS];
         exposureShutters = new ListEntry[Settings.MAX_EXPOSURE_PARAMS];
 
         for (int k=0; k<Settings.MAX_EXPOSURE_PARAMS; ++k){
@@ -123,6 +126,11 @@ public class SettingsActivity extends BaseActivity
             exposureFlags[k].setMaxIndex(CameraUtilISOs.CFlags.length-1);
             exposureFlags[k].setLookup(CameraUtilISOs.getCFString.instance);
             trFlags.addView(exposureFlags[k]);
+
+            burstCounts[k] = new ListEntry(getApplicationContext());
+            burstCounts[k].setMaxIndex(99);
+            burstCounts[k].setLookup(CameraUtilISOs.getBurstCountString.instance);
+            trBurstCounts.addView(burstCounts[k]);
 
             exposureISOs[k] = new ListEntry(getApplicationContext());
             exposureISOs[k].setMaxIndex(CameraUtilISOs.ISOs.length-1);
@@ -282,11 +290,13 @@ public class SettingsActivity extends BaseActivity
                 if (settings.magic_program[phase].ISOs[k] > 0) {
                     exposureISOs[k].setIndex(CameraUtilISOs.getISOIndex(settings.magic_program[phase].ISOs[k]));
                     exposureFlags[k].setIndex(CameraUtilISOs.getCFlagIndex(settings.magic_program[phase].CameraFlags[k]));
+                    burstCounts[k].setIndex(settings.magic_program[phase].BurstCounts[k]);
                     exposureFs[k].setIndex(CameraUtilISOs.getFIndex(settings.magic_program[phase].Fs[k]));
                     exposureShutters[k].setIndex(CameraUtilShutterSpeed.getShutterValueIndex(settings.magic_program[phase].ShutterSpeeds[k][0], settings.magic_program[phase].ShutterSpeeds[k][1]));
                 } else {
                     exposureISOs[k].setIndex(-1);
                     exposureFlags[k].setIndex(-1);
+                    burstCounts[k].setIndex(-1);
                     exposureFs[k].setIndex(-1);
                     exposureShutters[k].setIndex(-1);
                 }
@@ -307,12 +317,14 @@ public class SettingsActivity extends BaseActivity
             for (int k=0; k<settings.magic_program[phase].ISOs.length; ++k) {
                 if (settings.magic_program[phase].ISOs[k] > 0) {
                     settings.magic_program[phase].ISOs[k] = CameraUtilISOs.ISOs[exposureISOs[k].getIndex()];
+                    settings.magic_program[phase].BurstCounts[k] = burstCounts[k].getIndex();
                     settings.magic_program[phase].CameraFlags[k] = CameraUtilISOs.CFlags[exposureFlags[k].getIndex()].toCharArray();
                     settings.magic_program[phase].Fs[k] = CameraUtilISOs.Apertures[exposureFs[k].getIndex()];
                     settings.magic_program[phase].ShutterSpeeds[k][0] = CameraUtilShutterSpeed.SHUTTER_SPEEDS[exposureShutters[k].getIndex()][0];
                     settings.magic_program[phase].ShutterSpeeds[k][1] = CameraUtilShutterSpeed.SHUTTER_SPEEDS[exposureShutters[k].getIndex()][1];
                 } else {
                     settings.magic_program[phase].ISOs[k] = CameraUtilISOs.ISOs[0];
+                    settings.magic_program[phase].BurstCounts[k] = 0;
                     settings.magic_program[phase].CameraFlags[k] = CameraUtilISOs.CFlags[0].toCharArray();
                     settings.magic_program[phase].Fs[k] = CameraUtilISOs.ISOs[0];
                     settings.magic_program[phase].ShutterSpeeds[k][0] = CameraUtilShutterSpeed.SHUTTER_SPEEDS[0][0];

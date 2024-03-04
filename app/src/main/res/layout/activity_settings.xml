@@ -359,6 +359,17 @@
                                 android:textSize="20sp" />
                         </TableRow>
                         <TableRow
+                            android:id="@+id/rowBurstCount"
+                            >
+                            <TextView
+                                android:id="@+id/tvBurstCount"
+                                android:layout_marginLeft="10dp"
+                                android:layout_marginRight="10dp"
+                                android:gravity="center_vertical"
+                                android:text="CN"
+                                android:textSize="20sp" />
+                        </TableRow>
+                        <TableRow
                             android:id="@+id/rowISOsList">>
                             <TextView
                                 android:id="@+id/tvISOSs"

@@ -141,6 +141,15 @@ public class CameraUtilISOs {
         }
     }
 
+    public static class getBurstCountString implements ListEntry.LookupFunction<String, Integer> {
+        public static final getBurstCountString instance = new getBurstCountString();
+        private getBurstCountString() {
+        }
+        public String call(Integer i) {
+            return Integer.toString(i);
+        }
+    }
+
 
 }
 

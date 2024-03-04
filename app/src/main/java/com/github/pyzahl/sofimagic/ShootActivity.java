@@ -177,7 +177,8 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
             if (settings.magic_program[MagicPhase].number_shots != 0) {
 
                 // Check: Contineous Drive ? (Burst Operation)
-                if (settings.magic_program[MagicPhase].CameraFlags[exposureCount][0]=='C' // Burst (Contineous Mode?)
+                if (remainingTimeToContactPhase < 150
+                        && settings.magic_program[MagicPhase].CameraFlags[exposureCount][0]=='C' // Burst (Contineous Mode?)
                         && settings.magic_program[MagicPhase].number_shots > 1            // more than 1 shot?
                         && settings.magic_program[MagicPhase].ISOs[exposureCount] != 0){  // not at end of exposure list?
                     log("shootRunnable: BurstMode B#" + Integer.toString(burstCount));
@@ -185,7 +186,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                     if (burstCount == 0) // Before 1 Busrt Shot setup Busrt Mode
                         setDriveMode(settings.magic_program[MagicPhase].CameraFlags[exposureCount][0]);
 
-                    if (burstCount < settings.magic_program[MagicPhase].number_shots) {
+                    if (burstCount < settings.magic_program[MagicPhase].BurstCounts[exposureCount]) {
                         burstCount++;
                         int tmp = shotCount;
                         shoot(settings.magic_program[MagicPhase].ISOs[exposureCount], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount]);
@@ -193,11 +194,12 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                             burstCount--;
                         } else
                             repeatCount++;
+                        return; // DONE here, keep bursting
                     } else {
                         exposureCount++;
                         setDriveMode('S');
                         burstCount = 0;
-                        shootRunnableHandler.postDelayed(this, 150); // repeat
+                        shootRunnableHandler.postDelayed(this, 1000); // give some time to store and repeat
                         return; // DONE with this burst
                     }
                 } else {
@@ -462,9 +464,9 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         } catch (Exception ignored) {
         }
 
-
         final CameraEx.ParametersModifier modifier = cameraEx.createParametersModifier(params);
 
+/*
         if (burstShooting) {
             try {
                 modifier.setDriveMode(CameraEx.ParametersModifier.DRIVE_MODE_BURST);
@@ -476,6 +478,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         } else {
             modifier.setDriveMode(CameraEx.ParametersModifier.DRIVE_MODE_SINGLE);
         }
+ */
 
         // setSilentShutterMode doesn't exist on all cameras
         try {
@@ -483,6 +486,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         } catch (NoSuchMethodError ignored) {
         }
 
+        /*
         try {
             //add also AEL if set
             //if (settings.ael) {
@@ -491,6 +495,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         } catch (Exception e) {
             //do nothing
         }
+         */
 
         if (settings.brs) {
             try {
@@ -511,13 +516,13 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
 
         shotCount = 0;
-        shootRunnableHandler.postDelayed(shootRunnable, 250);
-        //shootRunnableHandler.postDelayed(shootRunnable, (long) settings.delay * 1000 * 60);
-        //shootStartTime = System.currentTimeMillis() + settings.delay * 1000 * 60;
+        shootRunnableHandler.postDelayed(shootRunnable, 1000);
 
-        if (burstShooting) {
+        /* // THIS WORKS!
+        if (settings.magic_program[MagicPhase].CameraFlags[exposureCount][0]=='C'){ // Starting with Burst? (Contineous Mode?)
             manualShutterCallbackCallRunnableHandler.postDelayed(manualShutterCallbackCallRunnable, 500);
         }
+        */
 
         display = new Display(getDisplayManager());
 
@@ -630,8 +635,9 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                     log("Setting DriveMode " + CFlag);
                     paramsModifier.setDriveMode(CameraEx.ParametersModifier.DRIVE_MODE_BURST);
                     List driveSpeeds = paramsModifier.getSupportedBurstDriveSpeeds();
-                    paramsModifier.setBurstDriveSpeed(driveSpeeds.get(driveSpeeds.size() - 1).toString());
-                    log("INFO: set DriveMode Burst Speed: " + Integer.toString(driveSpeeds.size()) + " => " + driveSpeeds.get(driveSpeeds.size() - 1).toString());
+                    //paramsModifier.setBurstDriveSpeed(driveSpeeds.get(driveSpeeds.size() - 1).toString()); // Speed: 2-1=1 => high
+                    paramsModifier.setBurstDriveSpeed(driveSpeeds.get(driveSpeeds.size() - 2).toString()); // Speed: 2-2=0 => low
+                    log("INFO: set DriveMode Burst Speed: " + Integer.toString(driveSpeeds.size()-2) + " => " + driveSpeeds.get(driveSpeeds.size() - 2).toString());
                     paramsModifier.setBurstDriveButtonReleaseBehave(CameraEx.ParametersModifier.BURST_DRIVE_BUTTON_RELEASE_BEHAVE_CONTINUE);
                 } catch (Exception ignored) {
                     log("EXCEPTION set DriveMode " + CFlag);
@@ -694,7 +700,24 @@ private void shoot(int iso, int[] shutterSpeed) {
             }
         }
 
-        this.cameraEx.cancelTakePicture();
+        // Burst Shooting?
+        if (settings.magic_program[MagicPhase].CameraFlags[exposureCount][0]=='C') {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    update_info();
+                }
+            });
+            if (burstCount++ < settings.magic_program[MagicPhase].BurstCounts[exposureCount]) {
+                logshot(Long.toString(System.currentTimeMillis()) + "ms: BurstShoot Photo " + settings.magic_program[MagicPhase].name + " #" + exposureCount + "#" + repeatCount + " Burst#" + burstCount + " Shot#" + shotCount);
+                manualShutterCallbackCallRunnableHandler.postDelayed(manualShutterCallbackCallRunnable, 333);
+            } else {
+                this.cameraEx.cancelTakePicture();
+                log("onShutter: Burst completed. cancelTakePicture()");
+                shootRunnableHandler.postDelayed(shootRunnable, 500);
+            }
+            return;
+        }
 
         if (settings.magic_program[MagicPhase].number_shots > 0 && settings.magic_program[MagicPhase].ISOs[exposureCount] == 0) {
             log("onShutter: exposure list completed.");
@@ -726,7 +749,7 @@ private void shoot(int iso, int[] shutterSpeed) {
         } else {
             log("onShutter repeat fast");
             stopPicturePreview = true;
-            shootRunnableHandler.postDelayed(shootRunnable, 250);
+            shootRunnableHandler.postDelayed(shootRunnable, 500);
         }
     }
 
