@@ -692,22 +692,24 @@ private void shoot(int iso, int[] shutterSpeed) {
         }
 
         // Burst Shooting?
-        if (settings.magic_program[MagicPhase].CameraFlags[exposureCount][0]=='C') {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    update_info();
+        if (settings.magic_program[MagicPhase].ISOs[exposureCount]!=0) {
+            if (settings.magic_program[MagicPhase].CameraFlags[exposureCount][0] == 'C') {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        update_info();
+                    }
+                });
+                if (burstCount++ < settings.magic_program[MagicPhase].BurstCounts[exposureCount]) {
+                    logshot(Long.toString(System.currentTimeMillis()) + "ms: BurstShoot Photo " + settings.magic_program[MagicPhase].name + " #" + exposureCount + "#" + repeatCount + " Burst#" + burstCount + " Shot#" + shotCount);
+                    manualShutterCallbackCallRunnableHandler.postDelayed(manualShutterCallbackCallRunnable, 333);
+                } else {
+                    this.cameraEx.cancelTakePicture();
+                    log("onShutter: Burst completed. cancelTakePicture()");
+                    shootRunnableHandler.postDelayed(shootRunnable, 500);
                 }
-            });
-            if (burstCount++ < settings.magic_program[MagicPhase].BurstCounts[exposureCount]) {
-                logshot(Long.toString(System.currentTimeMillis()) + "ms: BurstShoot Photo " + settings.magic_program[MagicPhase].name + " #" + exposureCount + "#" + repeatCount + " Burst#" + burstCount + " Shot#" + shotCount);
-                manualShutterCallbackCallRunnableHandler.postDelayed(manualShutterCallbackCallRunnable, 333);
-            } else {
-                this.cameraEx.cancelTakePicture();
-                log("onShutter: Burst completed. cancelTakePicture()");
-                shootRunnableHandler.postDelayed(shootRunnable, 500);
+                return;
             }
-            return;
         }
 
         if (settings.magic_program[MagicPhase].number_shots > 0 && settings.magic_program[MagicPhase].ISOs[exposureCount] == 0) {
