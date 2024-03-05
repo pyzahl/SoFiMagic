@@ -23,8 +23,11 @@
                 android:layout_alignParentBottom="true">
 
                 <TableRow>
+
                     <TextView
-                        android:id="@+id/lblCTdum"/>
+                        android:id="@+id/lblCTdum"
+                        android:text="V1.0.1"
+                        android:textSize="16sp" />
 
                     <TextView
                         android:id="@+id/lblC1"

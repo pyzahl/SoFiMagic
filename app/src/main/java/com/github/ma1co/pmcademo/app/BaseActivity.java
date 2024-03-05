@@ -249,11 +249,11 @@ public class BaseActivity extends Activity {
         return Build.MODEL.equals("Android SDK built for x86");
     }
 
-    public DateTime getDateTime() {
+    static public DateTime getDateTime() {
         return DateTime.getInstance();
     }
 
-    public int getSecondsOfDay() {
+    static public int getSecondsOfDay() {
         Calendar calendar = DateTime.getInstance().getCurrentTime();
         int tz = calendar.get(Calendar.ZONE_OFFSET) / 1000 / 3600;
         int h = calendar.get(Calendar.HOUR_OF_DAY) - tz;
@@ -263,7 +263,7 @@ public class BaseActivity extends Activity {
         return h*3600+m*60+s;
     }
 
-    public long getMilliSecondsOfDay() {
+    static public long getMilliSecondsOfDay() {
         Calendar calendar = DateTime.getInstance().getCurrentTime();
         int tz = calendar.get(Calendar.ZONE_OFFSET) / 1000 / 3600;
         int h = calendar.get(Calendar.HOUR_OF_DAY) - tz;
@@ -273,7 +273,7 @@ public class BaseActivity extends Activity {
         return Math.round((h*3600.0+m*60.0+s)*1000.0 + ms);
     }
 
-    public String getHMSMSfromMS(long ms) {
+    static public String getHMSMSfromMS(long ms) {
         long tmp = Math.abs(ms);
         long HH = tmp / 1000 / 3600;
         tmp -= HH * 1000 * 3600;

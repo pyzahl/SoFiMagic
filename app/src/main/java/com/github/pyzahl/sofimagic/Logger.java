@@ -10,6 +10,7 @@ import android.text.format.Time;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import com.github.ma1co.openmemories.framework.DateTime;
+import com.github.ma1co.pmcademo.app.BaseActivity;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -19,13 +20,9 @@ public class Logger
         return new File(Environment.getExternalStorageDirectory(), "SOFIMAGI/LOG.TXT");
     }
 
-    protected static void log(String msg) {
+    protected static void log_time_ms(String msg) {
         try {
-            Calendar calendar = DateTime.getInstance().getCurrentTime();
-            String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(calendar.getTime());
-            //int timeZoneOffset = calendar.getTimeZone().getRawOffset() / 1000 / 3600;
-            //date + " (GMT" + (timeZoneOffset >= 0 ? "+" : "") + timeZoneOffset + ":00)"
-
+            String date=BaseActivity.getHMSMSfromMS(BaseActivity.getMilliSecondsOfDay());
             getFile().getParentFile().mkdirs();
             BufferedWriter writer = new BufferedWriter(new FileWriter(getFile(), true));
             writer.append(date + " " + msg);
@@ -33,6 +30,20 @@ public class Logger
             writer.close();
         } catch (IOException e) {}
     }
+
+    protected static void log(String msg) {
+        try {
+            Calendar calendar = DateTime.getInstance().getCurrentTime();
+            String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(calendar.getTime());
+            int ms = calendar.get(Calendar.MILLISECOND);
+            getFile().getParentFile().mkdirs();
+            BufferedWriter writer = new BufferedWriter(new FileWriter(getFile(), true));
+            writer.append(String.format("%s.%03d %s",date,ms,msg));
+            writer.newLine();
+            writer.close();
+        } catch (IOException e) {}
+    }
+
     protected static void log(String type, String msg) { log("[" + type + "] " + msg); }
 
     public static void info(String msg) { log("INFO", msg); }
