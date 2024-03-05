@@ -620,7 +620,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
             case 'C':
                 try {
                     log("Setting DriveMode " + CFlag);
-                    this.cameraEx.cancelTakePicture();
+                    //this.cameraEx.cancelTakePicture();
                     paramsModifier.setDriveMode(CameraEx.ParametersModifier.DRIVE_MODE_BURST);
                     List driveSpeeds = paramsModifier.getSupportedBurstDriveSpeeds();
                     //paramsModifier.setBurstDriveSpeed(driveSpeeds.get(driveSpeeds.size() - 1).toString()); // Speed: 2-1=1 => high
@@ -661,8 +661,8 @@ private void shoot(int iso, int[] shutterSpeed) {
         } catch (Exception ignored) {
             this.cameraEx.cancelTakePicture();
             log("EXCEPTION Camera.burstableTakePicture() failed #" + Integer.toString(shotCount));
-            log("EXCEPTION trying to continue after 2s");
-            shootRunnableHandler.postDelayed(shootRunnable, 2000);
+            log("EXCEPTION trying to continue after 1s");
+            shootRunnableHandler.postDelayed(shootRunnable, 1000);
         }
 
         if (burstCount == 0) {
