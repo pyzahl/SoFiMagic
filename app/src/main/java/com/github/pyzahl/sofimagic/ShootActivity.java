@@ -150,7 +150,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                 else
                     log("shootRunnable " + getHMSMSfromMS(now) + " MagicPhase[" + Integer.toString(MagicPhase) + "]" + settings.magic_program[MagicPhase].name
                             + " SC:" + Integer.toString(shotCount) + " EC:" + Integer.toString(exposureCount) + " RC:" + Integer.toString(repeatCount) + " BC: " + Integer.toString(burstCount)
-    //                    + " ** CF=" + settings.magic_program[MagicPhase].CameraFlags[exposureCount][0]
+    //                    + " ** CF=" + settings.magic_program[MagicPhase].CameraFlags[exposureCount]
                             + ": " + Integer.toString(settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][0])
                             + "/" + Integer.toString(settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][1])
                             + " @ISO " + Integer.toString(settings.magic_program[MagicPhase].ISOs[exposureCount]));
@@ -181,13 +181,13 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
                 // Check: Contineous Drive ? (Burst Operation)
                 if (remainingTimeToContactPhase < 150
-                        && settings.magic_program[MagicPhase].CameraFlags[exposureCount][0]=='C' // Burst (Contineous Mode?)
+                        && settings.magic_program[MagicPhase].CameraFlags[exposureCount]=='C' // Burst (Contineous Mode?)
                         && settings.magic_program[MagicPhase].number_shots > 1            // more than 1 shot?
                         && settings.magic_program[MagicPhase].ISOs[exposureCount] != 0){  // not at end of exposure list?
                     log("shootRunnable: BurstMode B#" + Integer.toString(burstCount));
 
                     if (burstCount == 0) // Before 1 Burst Shot setup Burst Mode
-                        setDriveMode(settings.magic_program[MagicPhase].CameraFlags[exposureCount][0]);
+                        setDriveMode(settings.magic_program[MagicPhase].CameraFlags[exposureCount]);
 
                     if (burstCount < settings.magic_program[MagicPhase].BurstCounts[exposureCount]) {
                         burstCount++;
@@ -513,7 +513,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         shootRunnableHandler.postDelayed(shootRunnable, 1000);
 
         /* // THIS WORKS!
-        if (settings.magic_program[MagicPhase].CameraFlags[exposureCount][0]=='C'){ // Starting with Burst? (Contineous Mode?)
+        if (settings.magic_program[MagicPhase].CameraFlags[exposureCount]=='C'){ // Starting with Burst? (Contineous Mode?)
             manualShutterCallbackCallRunnableHandler.postDelayed(manualShutterCallbackCallRunnable, 500);
         }
         */
@@ -703,7 +703,7 @@ private void shoot(int iso, int[] shutterSpeed) {
 
         // Burst Shooting?
         if (settings.magic_program[MagicPhase].ISOs[exposureCount]!=0) {
-            if (settings.magic_program[MagicPhase].CameraFlags[exposureCount][0] == 'C') {
+            if (settings.magic_program[MagicPhase].CameraFlags[exposureCount] == 'C') {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

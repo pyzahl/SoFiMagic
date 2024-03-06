@@ -318,14 +318,14 @@ public class SettingsActivity extends BaseActivity
                 if (settings.magic_program[phase].ISOs[k] > 0) {
                     settings.magic_program[phase].ISOs[k] = CameraUtilISOs.ISOs[exposureISOs[k].getIndex()];
                     settings.magic_program[phase].BurstCounts[k] = burstCounts[k].getIndex();
-                    settings.magic_program[phase].CameraFlags[k] = CameraUtilISOs.CFlags[exposureFlags[k].getIndex()].toCharArray();
+                    settings.magic_program[phase].CameraFlags[k] = CameraUtilISOs.CFlags[exposureFlags[k].getIndex()].toCharArray()[0];
                     settings.magic_program[phase].Fs[k] = CameraUtilISOs.Apertures[exposureFs[k].getIndex()];
                     settings.magic_program[phase].ShutterSpeeds[k][0] = CameraUtilShutterSpeed.SHUTTER_SPEEDS[exposureShutters[k].getIndex()][0];
                     settings.magic_program[phase].ShutterSpeeds[k][1] = CameraUtilShutterSpeed.SHUTTER_SPEEDS[exposureShutters[k].getIndex()][1];
                 } else {
                     settings.magic_program[phase].ISOs[k] = CameraUtilISOs.ISOs[0];
                     settings.magic_program[phase].BurstCounts[k] = 0;
-                    settings.magic_program[phase].CameraFlags[k] = CameraUtilISOs.CFlags[0].toCharArray();
+                    settings.magic_program[phase].CameraFlags[k] = CameraUtilISOs.CFlags[0].toCharArray()[0];
                     settings.magic_program[phase].Fs[k] = CameraUtilISOs.ISOs[0];
                     settings.magic_program[phase].ShutterSpeeds[k][0] = CameraUtilShutterSpeed.SHUTTER_SPEEDS[0][0];
                     settings.magic_program[phase].ShutterSpeeds[k][1] = CameraUtilShutterSpeed.SHUTTER_SPEEDS[0][1];

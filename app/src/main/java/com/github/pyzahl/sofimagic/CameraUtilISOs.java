@@ -123,10 +123,10 @@ public class CameraUtilISOs {
         }
     }
 
-    public static int getCFlagIndex(char[] cf)
+    public static int getCFlagIndex(char cf)
     {
         for (int i = 0; i < CFlags.length; ++i)
-            if (CFlags[i].toCharArray()[0] == cf[0]) return i;
+            if (CFlags[i].toCharArray()[0] == cf) return i;
         return -1;
     }
 
