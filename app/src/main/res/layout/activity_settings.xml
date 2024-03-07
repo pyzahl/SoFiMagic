@@ -26,7 +26,7 @@
 
                     <TextView
                         android:id="@+id/lblCTdum"
-                        android:text="V1.0.1"
+                        android:text="V1.0.4"
                         android:textSize="16sp" />
 
                     <TextView
@@ -369,7 +369,7 @@
                                 android:layout_marginLeft="10dp"
                                 android:layout_marginRight="10dp"
                                 android:gravity="center_vertical"
-                                android:text="CN"
+                                android:text="BT"
                                 android:textSize="20sp" />
                         </TableRow>
                         <TableRow

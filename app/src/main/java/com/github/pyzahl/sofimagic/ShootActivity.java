@@ -48,6 +48,8 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
     private long remainingTimeThisPhase = 0;
     private long remainingTimeNextBurst = 0;
 
+    private long endBurstShooting = 0;
+
     private TextView tvCount, tvBattery, tvRemaining, tvNextShot, tvNextCT;
     private LinearLayout llEnd;
 
@@ -186,10 +188,12 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                         && settings.magic_program[MagicPhase].ISOs[exposureCount] != 0){  // not at end of exposure list?
                     log("shootRunnable: BurstMode B#" + Integer.toString(burstCount));
 
-                    if (burstCount == 0) // Before 1 Burst Shot setup Burst Mode
+                    if (burstCount == 0) { // Before 1 Burst Shot setup Burst Mode
                         setDriveMode(settings.magic_program[MagicPhase].CameraFlags[exposureCount]);
+                        endBurstShooting = 1000*settings.magic_program[MagicPhase].BurstCounts[exposureCount] + System.currentTimeMillis();
+                    }
 
-                    if (burstCount < settings.magic_program[MagicPhase].BurstCounts[exposureCount]) {
+                    if (endBurstShooting < System.currentTimeMillis()) {
                         burstCount++;
                         // this will fire up contineous shooting -- to be canceled
                         shoot(settings.magic_program[MagicPhase].ISOs[exposureCount], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount]);
@@ -373,6 +377,8 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         repeatCount = 0;
         burstCount = 0;
         shotErrorCount = 0;
+
+        endBurstShooting = 0;
 
         takingPicture = false;
         burstShooting = false;
@@ -722,9 +728,10 @@ private void shoot(int iso, int[] shutterSpeed) {
                     update_info();
                 }
             });
-            if (burstCount++ < settings.magic_program[MagicPhase].BurstCounts[exposureCount]) {
+            if (endBurstShooting < System.currentTimeMillis()) {
+                burstCount++; // not actual burst count as I do not get the actual Shutter events
                 logshot(Long.toString(System.currentTimeMillis()) + "ms: BurstShoot Photo " + settings.magic_program[MagicPhase].name + " #" + exposureCount + "#" + repeatCount + " Burst#" + burstCount + " Shot#" + shotCount);
-                manualShutterCallbackCallRunnableHandler.postDelayed(manualShutterCallbackCallRunnable, 333);
+                manualShutterCallbackCallRunnableHandler.postDelayed(manualShutterCallbackCallRunnable, 500);
             } else {
                 this.cameraEx.cancelTakePicture();
                 log("onShutter: Burst completed. cancelTakePicture()");

@@ -219,7 +219,7 @@ class Settings {
 
         // C1..C2 Partial1 Shooting
         magic_program[phase] = new shoot_program("Partial1", 1,2,+30, -30, 10);
-        int[] P1PartialBursts          = {0,             0,       0 };  // only used for Continuous Shooting Limit (Burst Mode) CFlag = C
+        int[] P1PartialBursts          = {0,             0,       0 };  // only used for Continuous Shooting Limit (Burst Mode) CFlag = C: Bursting time in sec.
         int[] P1PartialISOs            = {400,          400,       0 }; // 0=END
         int[][] P1PartialShutterSpeeds = {{1,1000},    {1, 2000}, {0,0}};
         for (int i=0; P1PartialISOs[i]>0; i++) {
@@ -235,7 +235,7 @@ class Settings {
         // C2 Shooting Parameters
         // Diamond Ring, Baily's Beats, ...
         magic_program[phase] = new shoot_program("Contact2", 2,2,-5, +5, -1);
-        int[] C2ShootingBursts          = {12,            6};
+        int[] C2ShootingBursts          = {4,            0};  // Bursting time in sec.
         int[] C2ShootingISOs            = {100,           0}; // 0=END
         int[][] C2ShootingShutterSpeeds = {{1,4000},    {0,0}};
         for (int i=0; C2ShootingISOs[i]>0; i++) {
@@ -297,7 +297,7 @@ class Settings {
         // C3 Shooting Parameters
         // Diamond Ring, Baily's Beats, ...
         magic_program[phase] = new shoot_program("Contact3", 3,3,-5, +5, -1);
-        int[] C3ShootingBursts          = {12,            0};
+        int[] C3ShootingBursts          = {4,            0};  // Bursting time in sec.
         int[] C3ShootingISOs            = {100,           0}; // 0=END
         int[][] C3ShootingShutterSpeeds = {{1,4000},    {0,0}};
         for (int i=0; C3ShootingISOs[i]>0; i++) {
