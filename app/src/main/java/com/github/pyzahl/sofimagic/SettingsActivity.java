@@ -319,7 +319,8 @@ public class SettingsActivity extends BaseActivity
                     settings.magic_program[phase].ISOs[k] = CameraUtilISOs.ISOs[exposureISOs[k].getIndex()];
                     settings.magic_program[phase].BurstCounts[k] = burstCounts[k].getIndex();
                     settings.magic_program[phase].CameraFlags[k] = CameraUtilISOs.CFlags[exposureFlags[k].getIndex()].toCharArray()[0];
-                    settings.magic_program[phase].Fs[k] = CameraUtilISOs.Apertures[exposureFs[k].getIndex()];
+                    int i = exposureFs[k].getIndex();
+                    settings.magic_program[phase].Fs[k] = CameraUtilISOs.Apertures[i>=0?i:0];
                     settings.magic_program[phase].ShutterSpeeds[k][0] = CameraUtilShutterSpeed.SHUTTER_SPEEDS[exposureShutters[k].getIndex()][0];
                     settings.magic_program[phase].ShutterSpeeds[k][1] = CameraUtilShutterSpeed.SHUTTER_SPEEDS[exposureShutters[k].getIndex()][1];
                 } else {

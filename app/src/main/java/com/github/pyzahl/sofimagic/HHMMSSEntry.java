@@ -64,8 +64,10 @@ public class HHMMSSEntry extends TextView {
             case ScalarInput.ISV_DIAL_1_COUNTERCW: s--; break;
             case ScalarInput.ISV_DIAL_2_CLOCKWISE: s+=60; break;
             case ScalarInput.ISV_DIAL_2_COUNTERCW: s-=60; break;
-            case ScalarInput.ISV_DIAL_3_CLOCKWISE: s+=3600; break;
+            case ScalarInput.ISV_DIAL_3_CLOCKWISE: s+=1200; break;
             case ScalarInput.ISV_DIAL_3_COUNTERCW: s-=3600; break;
+            //case ScalarInput.ISV_DIAL_3_CLOCKWISE: s+=3600; break;
+            //case ScalarInput.ISV_DIAL_3_COUNTERCW: s-=3600; break;
             default:
                 return super.onKeyUp(keyCode, event);
         }

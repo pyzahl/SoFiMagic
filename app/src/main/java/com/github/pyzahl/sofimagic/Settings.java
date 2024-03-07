@@ -54,10 +54,11 @@ class Settings {
             this.end_time = tf;
             this.number_shots = number_shots;
             CameraFlags = new char[MAX_EXPOSURE_PARAMS];
+            for (int i=0; i<CameraFlags.length; ++i) CameraFlags[i] = 'S';
             Fs = new double[MAX_EXPOSURE_PARAMS];
-            BurstCounts = new int[MAX_EXPOSURE_PARAMS];  //          = {-1,             0,       0 }; // 0=END, -1, regular (no burst)
-            ISOs = new int[MAX_EXPOSURE_PARAMS];    //          = {400,          400,       0 }; // 0=END
-            ShutterSpeeds = new int[MAX_EXPOSURE_PARAMS][2]; // = {{1,1000},    {1, 2000}, {0,0}};
+            BurstCounts = new int[MAX_EXPOSURE_PARAMS];
+            ISOs = new int[MAX_EXPOSURE_PARAMS];
+            ShutterSpeeds = new int[MAX_EXPOSURE_PARAMS][2];
         }
 
         public boolean skip = false;
@@ -217,7 +218,7 @@ class Settings {
         int phase=0;    // 0,... 7 for Partial1, Contact2, TotalA, TotalMax, TotalB, Contact3, Partial2
 
         // C1..C2 Partial1 Shooting
-        magic_program[phase] = new shoot_program("Partial1", 1,2,+30, -30, 32);
+        magic_program[phase] = new shoot_program("Partial1", 1,2,+30, -30, 10);
         int[] P1PartialBursts          = {0,             0,       0 };  // only used for Continuous Shooting Limit (Burst Mode) CFlag = C
         int[] P1PartialISOs            = {400,          400,       0 }; // 0=END
         int[][] P1PartialShutterSpeeds = {{1,1000},    {1, 2000}, {0,0}};
@@ -310,7 +311,7 @@ class Settings {
         phase++;
 
         // C3..C4 Partial2 Shooting
-        magic_program[phase] = new shoot_program("Partial2", 3,4,+30, -30, 32);
+        magic_program[phase] = new shoot_program("Partial2", 3,4,+30, -30, 10);
         int[] P2PartialBursts          = {0,             0,       0 };
         int[] P2PartialISOs            = {400,          400,       0 }; // 0=END
         int[][] P2PartialShutterSpeeds = {{1,1000},    {1, 2000}, {0,0}};
