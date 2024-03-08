@@ -210,18 +210,18 @@ class Settings {
 
         // Default Contact Times
         tc1 = 3600*12;
-        tc2 = tc1+60*60+10;
+        tc2 = tc1+60*60+10*60;
         tc3 = tc2+4*60;
-        tc4 = tc3+60*60+10;
+        tc4 = tc3+60*60+10*60;
 
         // initialze programn defaults
         int phase=0;    // 0,... 7 for Partial1, Contact2, TotalA, TotalMax, TotalB, Contact3, Partial2
 
         // C1..C2 Partial1 Shooting
-        magic_program[phase] = new shoot_program("Partial1", 1,2,+30, -30, 10);
-        int[] P1PartialBursts          = {0,             0,       0 };  // only used for Continuous Shooting Limit (Burst Mode) CFlag = C: Bursting time in sec.
-        int[] P1PartialISOs            = {400,          400,       0 }; // 0=END
-        int[][] P1PartialShutterSpeeds = {{1,1000},    {1, 2000}, {0,0}};
+        magic_program[phase] = new shoot_program("Partial1", 1,2,-30, -10, 100);
+        int[] P1PartialBursts          = {0,          0,         0,         0 };  // only used for Continuous Shooting Limit (Burst Mode) CFlag = C: Bursting time in sec.
+        int[] P1PartialISOs            = {400,        400,       320,       0 }; // 0=END
+        int[][] P1PartialShutterSpeeds = {{1,3200},  {1, 2000}, {1, 3200}, {0,0}};
         for (int i=0; P1PartialISOs[i]>0; i++) {
             magic_program[phase].CameraFlags[i]= 'S';
             magic_program[phase].BurstCounts[i]= P1PartialBursts[i];
@@ -234,13 +234,13 @@ class Settings {
 
         // C2 Shooting Parameters
         // Diamond Ring, Baily's Beats, ...
-        magic_program[phase] = new shoot_program("Contact2", 2,2,-5, +5, -1);
-        int[] C2ShootingBursts          = {4,            0};  // Bursting time in sec.
+        magic_program[phase] = new shoot_program("Contact2", 2,2,-6, +6, -1);
+        int[] C2ShootingBursts          = {12,            0}; // Bursting time in sec.
         int[] C2ShootingISOs            = {100,           0}; // 0=END
         int[][] C2ShootingShutterSpeeds = {{1,4000},    {0,0}};
         for (int i=0; C2ShootingISOs[i]>0; i++) {
             magic_program[phase].CameraFlags[i]= 'C';
-            magic_program[phase].BurstCounts[i]= C2ShootingBursts[i];
+            magic_program[phase].BurstCounts[i]= C2ShootingBursts[i]; // Contineous shooting Time
             magic_program[phase].ISOs[i]       = C2ShootingISOs[i];
             magic_program[phase].Fs[i]         = 0;
             magic_program[phase].ShutterSpeeds[i][0] = C2ShootingShutterSpeeds[i][0];
@@ -250,7 +250,7 @@ class Settings {
 
         // Totality C2..C3 parameters in three sections.
         // Totality C2...Max
-        magic_program[phase] = new shoot_program("TotalityA", 2,0, +5, -30, -1);
+        magic_program[phase] = new shoot_program("TotalityA", 2,0, +6, -30, -1);
         int[] TotalityABursts          = {0,          0,        0,        0,        0,        0,        0,        0,        0,        0,        0,         0 };
         int[] TotalityAISOs            = { 50,       100,      400,      800,      800,      800,      800,      800,      800,      800,      800,         0 }; // 0=END
         int[][] TotalityAShutterSpeeds = { {1,4000}, {1,2000}, {1,1000}, {1,1000}, {1, 500}, {1, 250}, {1, 100}, {1,  50}, {1,  20}, {1,   4}, {1,  1},    {0,0} };
@@ -266,7 +266,7 @@ class Settings {
 
         // Totality Max..C3
         magic_program[phase] = new shoot_program("MaxTotality", 0,0,-30, +30, -1);
-        int[] MaxTotalityBursts          = {0,          0,        0,        0,        0,        0,        0,        0,        0,        0,        0,        0,          0 };
+        int[] MaxTotalityBursts          = {0,          0,        0,        0,        0,        0,        0,        0,        0,        0,        0,        0,           0 };
         int[] MaxTotalityISOs            = { 100,      400,      800,      800,      800,      800,      800,      800,      800,      800,      800,      800,          0 }; // 0=END
         int[][] MaxTotalityShutterSpeeds = { {1,1000}, {1,1000}, {1,1000}, {1, 500}, {1,1000}, {1, 500}, {1,1000}, {1, 500}, {1, 100}, {1,  20}, {1,   1}, {2, 1},      {0,0} };
         for (int i=0; MaxTotalityISOs[i]>0; i++) {
@@ -280,7 +280,7 @@ class Settings {
         phase++;
 
         // Totality Max..C3
-        magic_program[phase] = new shoot_program("TotalityB", 0,3,+30, -5, -1);
+        magic_program[phase] = new shoot_program("TotalityB", 0,3,+30, -6,-1);
         int[] TotalityBBursts          = {0,          0,        0,        0,        0,        0,        0,        0,        0,        0,        0,         0 }; // 0=END, -1, regular (no burst)
         int[] TotalityBISOs            = { 50,       100,      400,      800,      800,      800,      800,      800,      800,      800,      800,         0 }; // 0=END
         int[][] TotalityBShutterSpeeds = { {1,4000}, {1,2000}, {1,1000}, {1,1000}, {1, 500}, {1, 250}, {1, 100}, {1,  50}, {1,  20}, {1,   4}, {1,  1},    {0,0} };
@@ -296,8 +296,8 @@ class Settings {
 
         // C3 Shooting Parameters
         // Diamond Ring, Baily's Beats, ...
-        magic_program[phase] = new shoot_program("Contact3", 3,3,-5, +5, -1);
-        int[] C3ShootingBursts          = {4,            0};  // Bursting time in sec.
+        magic_program[phase] = new shoot_program("Contact3", 3,3,-6, +6, -1);
+        int[] C3ShootingBursts          = {12,            0};  // Bursting time in sec.
         int[] C3ShootingISOs            = {100,           0}; // 0=END
         int[][] C3ShootingShutterSpeeds = {{1,4000},    {0,0}};
         for (int i=0; C3ShootingISOs[i]>0; i++) {
@@ -311,10 +311,10 @@ class Settings {
         phase++;
 
         // C3..C4 Partial2 Shooting
-        magic_program[phase] = new shoot_program("Partial2", 3,4,+30, -30, 10);
-        int[] P2PartialBursts          = {0,             0,       0 };
-        int[] P2PartialISOs            = {400,          400,       0 }; // 0=END
-        int[][] P2PartialShutterSpeeds = {{1,1000},    {1, 2000}, {0,0}};
+        magic_program[phase] = new shoot_program("Partial2", 3,4,+10, +30, 100);
+        int[] P2PartialBursts          = {0,          0,         0,         0 };  // only used for Continuous Shooting Limit (Burst Mode) CFlag = C: Bursting time in sec.
+        int[] P2PartialISOs            = {400,        400,       320,       0 }; // 0=END
+        int[][] P2PartialShutterSpeeds = {{1,3200},  {1, 2000}, {1, 3200}, {0,0}};
         for (int i=0; P2PartialISOs[i]>0; i++) {
             magic_program[phase].CameraFlags[i]= 'S';
             magic_program[phase].BurstCounts[i]= P2PartialBursts[i];

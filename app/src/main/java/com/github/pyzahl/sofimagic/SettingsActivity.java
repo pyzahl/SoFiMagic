@@ -106,7 +106,7 @@ public class SettingsActivity extends BaseActivity
         tvPhaseEnd.setUnit("s");
 
         tvNumShots = (IndexEntry) findViewById(R.id.tvNumberShots);
-        tvNumShots.setRange(-1, 99);
+        tvNumShots.setRange(-1, 9999);
         tvNumShots.setPrefix("#");
 
         TableRow trFlags       = (TableRow)findViewById(R.id.rowFlagsList);
