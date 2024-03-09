@@ -14,9 +14,12 @@ public class Display {
     private DisplayManager displayManager;
     private int autoOffDelay;
 
+    private boolean is_on;
+
     Display(DisplayManager displayManager) {
         this.displayManager = displayManager;
         autoOffDelay = 0;
+        is_on = false;
     }
 
     private Handler turnOffRunnableHandler = new Handler();
@@ -43,6 +46,7 @@ public class Display {
     }
 
     public void off() {
+        is_on = false;
         try {
             Logger.info("turn display off");
             displayManager.switchDisplayOutputTo(DisplayManager.DEVICE_ID_NONE);
@@ -54,8 +58,11 @@ public class Display {
     }
 
     public void on() {
-        Logger.info("turn display on");
-        displayManager.switchDisplayOutputTo(DisplayManager.DEVICE_ID_PANEL);
+        if (!is_on) {
+            Logger.info("turn display on");
+            is_on = true;
+            displayManager.switchDisplayOutputTo(DisplayManager.DEVICE_ID_PANEL);
+        }
     }
 
     public void on(boolean autoOff) {

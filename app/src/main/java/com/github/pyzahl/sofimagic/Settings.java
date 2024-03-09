@@ -12,6 +12,7 @@ import static com.github.pyzahl.sofimagic.Logger.log;
  */
 
 class Settings {
+    private static int verbose_level;
     private static final String EXTRA_TC1 = "com.github.pyzahl.sofimagic.TC1";
     private static final String EXTRA_TC2 = "com.github.pyzahl.sofimagic.TC2";
     private static final String EXTRA_TC3 = "com.github.pyzahl.sofimagic.TC3";
@@ -41,6 +42,16 @@ class Settings {
         int s = Integer.parseInt(hms[2]);
         return h*3600+m*60+s;
     }
+
+    static public void setVerboseLevel (String level) {
+        verbose_level = 10;
+        switch (level){
+            case "VERBOSE": verbose_level = 3; break;
+            case "DEFAULT": verbose_level = 2; break;
+            case "MINIMAL": verbose_level = 1; break;
+            case "PHOTOONLY": verbose_level = 0; break;
+        }
+    };
 
     public static final int MAX_EXPOSURE_PARAMS = 32;
 
@@ -138,7 +149,7 @@ class Settings {
         public void set_BurstDurations_list(String BC_list) {
             String[] bc_list = BC_list.split(",");
             int k;
-            for (k = 0; k < bc_list.length && k < BurstDurations.length; k++)
+            for (k = 0; k < bc_list.length && k < BurstDurations.length && ISOs[k]>0; k++)
                 BurstDurations[k] = Integer.parseInt(bc_list[k]);
             for (; k < BurstDurations.length; k++)
                 BurstDurations[k] = 0;
@@ -146,13 +157,13 @@ class Settings {
         public void set_F_list(String F_list) {
             String[] f_list = F_list.split(",");
             int k;
-            for (k = 0; k < f_list.length && k < Fs.length; k++)
-                Fs[k] = Integer.parseInt(f_list[k]);
+            for (k = 0; k < f_list.length && k < Fs.length && ISOs[k]>0; k++)
+                Fs[k] = Double.parseDouble(f_list[k]);
         }
         public void set_SHUTTER_SPEEDS_list(String SHUTTER_SPEED_list) {
             String[] ss_list = SHUTTER_SPEED_list.split(",");
             int k;
-            for (k = 0; k < ss_list.length && k < ShutterSpeeds.length; k++) {
+            for (k = 0; k < ss_list.length && k < ShutterSpeeds.length && ISOs[k]>0; k++) {
                 String[] ss = ss_list[k].split("/");
                 ShutterSpeeds[k][0] = Integer.parseInt(ss[0]);
                 ShutterSpeeds[k][1] = Integer.parseInt(ss[1]);

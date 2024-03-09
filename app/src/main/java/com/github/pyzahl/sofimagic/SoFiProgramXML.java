@@ -55,6 +55,12 @@ public class SoFiProgramXML {
             if (nListCheck.getLength() > 0) {
                 Logger.log("XMLPRG: valid SOFI XML Program Mark found, parsing...");
 
+                Node node_loglevel = nListCheck.item(0);
+                if (node_loglevel.getNodeType() == Node.ELEMENT_NODE){
+                    Element level = (Element) node_loglevel;
+                    Settings.setVerboseLevel (getValue("LOGGING_LEVEL", level));
+                }
+
                 NodeList nListTC = doc.getElementsByTagName("ECLIPSE_REF_CONTACT_TIMES");
                 if (nListTC.getLength() > 0) {
                     Node node = nListTC.item(0);
@@ -85,6 +91,7 @@ public class SoFiProgramXML {
                         Settings.magic_program[i].set_ISOs_list(getValue("ISO_LIST", phase));
                         Settings.magic_program[i].set_F_list(getValue("F_LIST", phase));
                         Settings.magic_program[i].set_SHUTTER_SPEEDS_list(getValue("SHUTTER_SPEED_LIST", phase));
+                        Logger.log("XMLPRG: reading exposure lists completed for phase " + Settings.magic_program[i].name);
                     }
                 }
             } else { // create default template
@@ -115,6 +122,17 @@ public class SoFiProgramXML {
 
             Element elementV = doc.createElement("VALID_SOFI_PROGRAM");
             appendElement(elementV, "STATUS", "VALID");
+            appendElement(elementV, "LOGGING_LEVEL", "VERBOSE");
+            appendElement(elementV, "COMMENT", "Eclipse Program: may edit this file or use App.\n" +
+                    "NAME: Name of Shooting Phase. There may be more or any names used than default.\n" +
+                    "PHASE Start/End time is relative to C0, C1..C4 as defined by REF_CONTACT_START/END plus a offset START and END in seconds.\n" +
+                    "Number shots > 0: Automated Interval Shooting for PHASE.\n" +
+                    "For each interval the Exposure Lists are executed once.\n" +
+                    "CAMERA_FLAG_LIST: Drive Modes are S: Single Photo, C: Continuous High, M: Continuous Medium, L: Continuous Low, B: Bracketing\n" +
+                    "BURST_DURATION_LIST: Defines Burst Duration if in C,M or L Drive Mode.\n" +
+                    "ISO_LIST: ISO to be set. Must be a valid ISO number. ISO=0 MUST terminate the list (internally)\n" +
+                    "F_LIST: Aperture setting, 0: ignored. MUST be a valid Aperture.\n" +
+                    "SHUTTER_SPEED_LIST: Shutter Speed to be set. MUST be a valid shutter speed.");
             root.appendChild(elementV);
 
             Element elementTC = doc.createElement("ECLIPSE_REF_CONTACT_TIMES");
@@ -173,6 +191,7 @@ public class SoFiProgramXML {
    private static String getValue(String tag, Element element) {
       NodeList nodeList = element.getElementsByTagName(tag).item(0).getChildNodes();
       Node node = nodeList.item(0);
+      Logger.log("XMLPRG: reading <" + tag + "> = " + node.getNodeValue());
       return node.getNodeValue();
       //node.setNodeValue();
    }
