@@ -10,6 +10,8 @@ I have only a Sony Alpha7Rii (ILCE-7RM2) to test it, if you have another camera 
 ## Installation ##
 Use [Sony-PMCA-RE](https://github.com/ma1co/Sony-PMCA-RE) or install through [sony-pmca.appspot.com](https://sony-pmca.appspot.com/apps).
 
+The build app apk package is included here ready to install.
+
 Thanks to [ma1co](https://github.com/ma1co) for creating this amazing framework and [obs1dium](https://github.com/obs1dium), I used FocusBracket as a code base.
 And final thanks to [jonasjuffinger](https://github.com/jonasjuffinger/TimeLapse) for creating TimeLapse I used as template to start SoFiMagic. 
 
@@ -17,7 +19,7 @@ And final thanks to [jonasjuffinger](https://github.com/jonasjuffinger/TimeLapse
 Load project into Android Studio...
 
 ## Usage ##
-Start App, configure. Review XML file on CF card in SOFIGAGI folder created by App itself at first start. Edit XML file... see below for example. (On Camera GUI is pending completion).
+Start App, configure. Review XML file on CF card in SOFIMAGI folder created by App itself at first start. Edit XML file... see below for example. (On Camera GUI is pending completion).
 Start App again.
 Finally click the start button and wait.
 
@@ -29,21 +31,9 @@ The silent shutter option is functionless on cameras without silent shutter mode
 ## MF (Manual Focus) ##
 This sets focus mode to manual. Be sure to have focused before starting the app!
 
-## BRC3 ##
-EXPERIMENTAL/TESTING -- DO NOT SELECT.
-The app supports exposure bracketing. Set the mode to three-image exposure bracketing outside of the app and check BRC3 checkbox in the app. The app will always take three pictures. Keep in mind that the interval time must be large enough to take all three pictures.
-
 ## DOFF (Display Off) ##
 EXPERIMENTAL/TETSING -- DO NOT SELECT.
 Turn the display off between each shot. This doesn't change the battery consumption but it can be healthy for the display when taking very long time lapses.
-
-## Burst mode ##
-EXPERIMENTAL -- DO NOT SELECT.
-When selecting the lowest interval the camera is in burst mode. In this mode it takes pictures as fast as it can write to the SD card for the duration set by the second slider.
-
-## Known Issues ##
-
-TESTING NEEDED
 
 ## AUTO CREATED CONFIGURATION FILE and APP + SHOOTING LOG
 The XML example below is auto created on first app start on SD Card as SOFIMAGI/SOFIPRG.XML.
