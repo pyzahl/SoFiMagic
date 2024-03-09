@@ -56,7 +56,7 @@ class Settings {
             CameraFlags = new char[MAX_EXPOSURE_PARAMS];
             for (int i=0; i<CameraFlags.length; ++i) CameraFlags[i] = 'S';
             Fs = new double[MAX_EXPOSURE_PARAMS];
-            BurstCounts = new int[MAX_EXPOSURE_PARAMS];
+            BurstDurations = new int[MAX_EXPOSURE_PARAMS];
             ISOs = new int[MAX_EXPOSURE_PARAMS];
             ShutterSpeeds = new int[MAX_EXPOSURE_PARAMS][2];
         }
@@ -68,7 +68,7 @@ class Settings {
         public int end_time = 0; // Time in Seconds relative tp ref_contact
         public int number_shots = 0; // numbershots/burst to distribute
         public char[] CameraFlags;
-        public int[] BurstCounts;   //          = {-1,             0,       0 }; // 0=END, -1, regular (no burst)
+        public int[] BurstDurations;   //          = {-1,             0,       0 }; // 0=END, -1, regular (no burst)
         public double[] Fs;    //          = {0,          0,       0 }; // 0=do not manage/change
         public int[] ISOs;    //          = {400,          400,       0 }; // 0=END
         public int[][] ShutterSpeeds; // = {{1,1000},    {1, 2000}, {0,0}};
@@ -90,11 +90,11 @@ class Settings {
             }
             return ISO_list;
         }
-        public String get_BurstCounts_list() {
+        public String get_BurstDurations_list() {
             String BC_list = "";
-            for (int k = 0; k < BurstCounts.length; ++k) {
+            for (int k = 0; k < BurstDurations.length; ++k) {
                 if (ISOs[k] > 0) {
-                    BC_list = BC_list + Integer.toString(BurstCounts[k]) + ",";
+                    BC_list = BC_list + Integer.toString(BurstDurations[k]) + ",";
                 } else break;
             }
             return BC_list;
@@ -135,13 +135,13 @@ class Settings {
             for (; k < ISOs.length; k++)
                 ISOs[k] = 0; // this will terminate no need to clear the other lists.
         }
-        public void set_BurstCounts_list(String BC_list) {
+        public void set_BurstDurations_list(String BC_list) {
             String[] bc_list = BC_list.split(",");
             int k;
-            for (k = 0; k < bc_list.length && k < BurstCounts.length; k++)
-                BurstCounts[k] = Integer.parseInt(bc_list[k]);
-            for (; k < BurstCounts.length; k++)
-                BurstCounts[k] = 0;
+            for (k = 0; k < bc_list.length && k < BurstDurations.length; k++)
+                BurstDurations[k] = Integer.parseInt(bc_list[k]);
+            for (; k < BurstDurations.length; k++)
+                BurstDurations[k] = 0;
         }
         public void set_F_list(String F_list) {
             String[] f_list = F_list.split(",");
@@ -224,7 +224,7 @@ class Settings {
         int[][] P1PartialShutterSpeeds = {{1,3200},  {1, 2000}, {1, 3200}, {0,0}};
         for (int i=0; P1PartialISOs[i]>0; i++) {
             magic_program[phase].CameraFlags[i]= 'S';
-            magic_program[phase].BurstCounts[i]= P1PartialBursts[i];
+            magic_program[phase].BurstDurations[i]= P1PartialBursts[i];
             magic_program[phase].ISOs[i]       = P1PartialISOs[i];
             magic_program[phase].Fs[i]         = 0;
             magic_program[phase].ShutterSpeeds[i][0] = P1PartialShutterSpeeds[i][0];
@@ -240,7 +240,7 @@ class Settings {
         int[][] C2ShootingShutterSpeeds = {{1,4000},    {0,0}};
         for (int i=0; C2ShootingISOs[i]>0; i++) {
             magic_program[phase].CameraFlags[i]= 'C';
-            magic_program[phase].BurstCounts[i]= C2ShootingBursts[i]; // Contineous shooting Time
+            magic_program[phase].BurstDurations[i]= C2ShootingBursts[i]; // Contineous shooting Time
             magic_program[phase].ISOs[i]       = C2ShootingISOs[i];
             magic_program[phase].Fs[i]         = 0;
             magic_program[phase].ShutterSpeeds[i][0] = C2ShootingShutterSpeeds[i][0];
@@ -256,7 +256,7 @@ class Settings {
         int[][] TotalityAShutterSpeeds = { {1,4000}, {1,2000}, {1,1000}, {1,1000}, {1, 500}, {1, 250}, {1, 100}, {1,  50}, {1,  20}, {1,   4}, {1,  1},    {0,0} };
         for (int i=0; TotalityAISOs[i]>0; i++) {
             magic_program[phase].CameraFlags[i]= 'S';
-            magic_program[phase].BurstCounts[i]= TotalityABursts[i];
+            magic_program[phase].BurstDurations[i]= TotalityABursts[i];
             magic_program[phase].ISOs[i]       = TotalityAISOs[i];
             magic_program[phase].Fs[i]         = 0;
             magic_program[phase].ShutterSpeeds[i][0] = TotalityAShutterSpeeds[i][0];
@@ -271,7 +271,7 @@ class Settings {
         int[][] MaxTotalityShutterSpeeds = { {1,1000}, {1,1000}, {1,1000}, {1, 500}, {1,1000}, {1, 500}, {1,1000}, {1, 500}, {1, 100}, {1,  20}, {1,   1}, {2, 1},      {0,0} };
         for (int i=0; MaxTotalityISOs[i]>0; i++) {
             magic_program[phase].CameraFlags[i]= 'S';
-            magic_program[phase].BurstCounts[i]= MaxTotalityBursts[i];
+            magic_program[phase].BurstDurations[i]= MaxTotalityBursts[i];
             magic_program[phase].ISOs[i]       = MaxTotalityISOs[i];
             magic_program[phase].Fs[i]         = 0;
             magic_program[phase].ShutterSpeeds[i][0] = MaxTotalityShutterSpeeds[i][0];
@@ -286,7 +286,7 @@ class Settings {
         int[][] TotalityBShutterSpeeds = { {1,4000}, {1,2000}, {1,1000}, {1,1000}, {1, 500}, {1, 250}, {1, 100}, {1,  50}, {1,  20}, {1,   4}, {1,  1},    {0,0} };
         for (int i=0; TotalityBISOs[i]>0; i++) {
             magic_program[phase].CameraFlags[i]= 'S';
-            magic_program[phase].BurstCounts[i]= TotalityBBursts[i];
+            magic_program[phase].BurstDurations[i]= TotalityBBursts[i];
             magic_program[phase].ISOs[i]       = TotalityBISOs[i];
             magic_program[phase].Fs[i]         = 0;
             magic_program[phase].ShutterSpeeds[i][0] = TotalityBShutterSpeeds[i][0];
@@ -302,7 +302,7 @@ class Settings {
         int[][] C3ShootingShutterSpeeds = {{1,4000},    {0,0}};
         for (int i=0; C3ShootingISOs[i]>0; i++) {
             magic_program[phase].CameraFlags[i]= 'C';
-            magic_program[phase].BurstCounts[i]= C3ShootingBursts[i];
+            magic_program[phase].BurstDurations[i]= C3ShootingBursts[i];
             magic_program[phase].ISOs[i]       = C3ShootingISOs[i];
             magic_program[phase].Fs[i]         = 0;
             magic_program[phase].ShutterSpeeds[i][0] = C3ShootingShutterSpeeds[i][0];
@@ -317,7 +317,7 @@ class Settings {
         int[][] P2PartialShutterSpeeds = {{1,3200},  {1, 2000}, {1, 3200}, {0,0}};
         for (int i=0; P2PartialISOs[i]>0; i++) {
             magic_program[phase].CameraFlags[i]= 'S';
-            magic_program[phase].BurstCounts[i]= P2PartialBursts[i];
+            magic_program[phase].BurstDurations[i]= P2PartialBursts[i];
             magic_program[phase].ISOs[i]       = P2PartialISOs[i];
             magic_program[phase].Fs[i]         = 0;
             magic_program[phase].ShutterSpeeds[i][0] = P2PartialShutterSpeeds[i][0];

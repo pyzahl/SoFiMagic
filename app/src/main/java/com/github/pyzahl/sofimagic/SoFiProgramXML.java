@@ -36,9 +36,9 @@ public class SoFiProgramXML {
         return new File(Environment.getExternalStorageDirectory(), XMLFileName);
     }
     SoFiProgramXML() {
-        Logger.log("XMLPRG: SoFiProgramXML, checking for " + XMLFileName);
+        Logger.log("XMLPRG new: SoFiProgramXML, checking for " + XMLFileName);
         try {
-            Logger.log("XMLPRG: check/create " + XMLFileName);
+            Logger.log("XMLPRG new: check/load/create " + XMLFileName);
             getXMLFile().getParentFile().mkdirs();
 
             // https://developer.android.com/reference/javax/xml/parsers/DocumentBuilder
@@ -81,7 +81,7 @@ public class SoFiProgramXML {
                         Settings.magic_program[i].end_time = Integer.parseInt(getValue("END", phase));
                         Settings.magic_program[i].number_shots = Integer.parseInt(getValue("NUMBER_SHOTS", phase));
                         Settings.magic_program[i].set_CFs_list(getValue("CAMERA_FLAG_LIST", phase));
-                        Settings.magic_program[i].set_BurstCounts_list(getValue("BURST_COUNT_LIST", phase));
+                        Settings.magic_program[i].set_BurstDurations_list(getValue("BURST_DURATION_LIST", phase));
                         Settings.magic_program[i].set_ISOs_list(getValue("ISO_LIST", phase));
                         Settings.magic_program[i].set_F_list(getValue("F_LIST", phase));
                         Settings.magic_program[i].set_SHUTTER_SPEEDS_list(getValue("SHUTTER_SPEED_LIST", phase));
@@ -101,7 +101,7 @@ public class SoFiProgramXML {
     public void SoFiProgramStoreXML() {
         Logger.log("XMLPRG: SoFiProgramStoreXML");
         try {
-            Logger.log("XMLPRG: check/creating new " + XMLFileName);
+            Logger.log("XMLPRG: store/creating new " + XMLFileName);
             getXMLFile().getParentFile().mkdirs();
 
             // https://developer.android.com/reference/javax/xml/parsers/DocumentBuilder
@@ -138,8 +138,8 @@ public class SoFiProgramXML {
 
                 String cf_list=Settings.magic_program[i].get_CFs_list();
                 appendElement(elementPH, "CAMERA_FLAG_LIST", cf_list);
-                String cn_list=Settings.magic_program[i].get_BurstCounts_list();
-                appendElement(elementPH, "BURST_COUNT_LIST", cn_list);
+                String cn_list=Settings.magic_program[i].get_BurstDurations_list();
+                appendElement(elementPH, "BURST_DURATION_LIST", cn_list);
                 String ISO_list=Settings.magic_program[i].get_ISOs_list();
                 appendElement(elementPH, "ISO_LIST", ISO_list);
                 String F_list=Settings.magic_program[i].get_Fs_list();
@@ -163,9 +163,9 @@ public class SoFiProgramXML {
 
             StreamResult file = new StreamResult(getXMLFile());
             transf.transform(source, file);
-            Logger.log("XMLPRG: building XML DONE");
+            Logger.log("XMLPRG: store XML completed");
         } catch (Exception e) {
-            Logger.error("XMLPRG: File/XML create exception for "+XMLFileName);
+            Logger.error("XMLPRG: File/XML store/create exception for "+XMLFileName);
             e.printStackTrace();
         }
     }

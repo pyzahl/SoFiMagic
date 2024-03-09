@@ -71,7 +71,9 @@ public class CameraUtilISOs {
     // Camera Flags, Drive Mode, ...
     public static final String[] CFlags = new String[]{
             "S", // DriveMode Single
-            "C", // DriveMode Continuous (Burst)
+            "C", // DriveMode Continuous (Burst) High
+            "M", // DriveMode Continuous (Burst) Middle
+            "L", // DriveMode Continuous (Burst) Low
             "B"  // BriveMode Bracketing
     };
 
@@ -142,9 +144,9 @@ public class CameraUtilISOs {
         }
     }
 
-    public static class getBurstCountString implements ListEntry.LookupFunction<String, Integer> {
-        public static final getBurstCountString instance = new getBurstCountString();
-        private getBurstCountString() {
+    public static class getBurstDurationstring implements ListEntry.LookupFunction<String, Integer> {
+        public static final getBurstDurationstring instance = new getBurstDurationstring();
+        private getBurstDurationstring() {
         }
         public String call(Integer i) {
             return Integer.toString(i);
