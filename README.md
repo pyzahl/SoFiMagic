@@ -31,35 +31,42 @@ The settings screen. Start button at the bottom, scroll down.
 
 Navigate with the navigation buttons/dial. Select field (green highlighted) to adjust using all three dials:
 
+## Eclipse Setup Basics ##
+a) setup contact times  CT1 .. CT4 to the second for your location. Make sure the Camera time is precisely set on the second!
+b) setup exposure lists and intervals
+c) do a test run!!!
+
 ## Adjusting times HH:MM:SS ##
 use the front/back dials to adjust HH and SS, use the navigation combo dial toadjust H-1h and H+20min (custom mode).
 use the front dial to adjust indicent, numbers and other settings. The 2nd and 3rd dial is applying larger increments!
+
+Setup CT1..CT4.
 
 Select Eclipse phase via the slider (Fron dial) and configure shooting details.
 
 For each Eclipse Phase "NAME" a exposure program is to be configured.
 
-
-	    NAME: Name of Shooting Phase. There may be more or any names used than default.
+	    NAME: Name of Shooting Phase:
+              Partial1, Contact2, TotalityA, MaxTotaliy, TotalityB, Contact3, Partial2, END
+            There may be more or any names used than default -- experimental, can be created via XML file.
 
 	    REF_CONTACT = 0 is MAX computed from (TC2+TC3)/2. 
             PHASE START, END times are in seconds relative to REF_CONTACT_START,_END index=1,2,0,3,4
 
+            Example 1st phase:
+	      Partial1:   CT1 - 30s  to  CT2 - 10s   #Shots to be distributed (Interval shooting) 100
+
 	    PHASE Start/End time is relative to C0, C1..C4 as defined by REF_CONTACT_START/END plus a offset START and END in seconds.
             Number shots &gt; 0: Automated Interval Shooting for PHASE.
+	    
             For each interval the Exposure Lists are executed once.
-            CAMERA_FLAG_LIST: Drive Modes are S: Single Photo, C: Continuous High, M: Continuous Medium, L: Continuous Low, B: Bracketing
-            BURST_DURATION_LIST: Defines Burst Duration if in C,M or L Drive Mode.
-            ISO_LIST: ISO to be set. Must be a valid ISO number. ISO=0 MUST terminate the list (internally)
-            F_LIST: Aperture setting, 0: ignored. MUST be a valid Aperture.
-            SHUTTER_SPEED_LIST: Shutter Speed to be set. MUST be a valid shutter speed.
+            CF:  CAMERA_FLAG_LIST: Drive Modes are S: Single Photo, C: Continuous High, M: Continuous Medium, L: Continuous Low, B: Bracketing
+            BT:  BURST_DURATION_LIST: Defines Burst Duration if in C,M or L Drive Mode.
+            ISO: ISO_LIST: ISO to be set. Must be a valid ISO number. ISO=0 MUST terminate the list (internally)
+            F:   F_LIST: Aperture setting, 0: ignored. MUST be a valid Aperture.
+            t:   SHUTTER_SPEED_LIST: Shutter Speed to be set. MUST be a valid shutter speed.
 
 Note: if you wish you can edit the created XML file on SD card. The app stores (auto created if not existing or wrong) a XML file if the SOFIMAGI folder. And uses it if found.
-
-## Eclipse Setup Basics ##
-a) setup contact times  CT1 .. CT4 to the second for your location. Make sure the Camera time is precisely set on the second!
-b) setup exposure lists and intervals
-c) do a test run!!!
 
 ## SS (Silent Shutter) ##
 The silent shutter option is functionless on cameras without silent shutter mode.
