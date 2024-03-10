@@ -34,9 +34,7 @@ You can stop by clicking the MENU button on the camera.
 The settings screens. Start button at the bottom, scroll down.
 
 ![Screenshot from 2024-03-09 23-00-18](https://github.com/pyzahl/SoFiMagic/assets/22110415/eceec0ad-1528-4fc9-a48c-fd51befa8e62)
-![Screenshot from 2024-03-09 23-00-38](https://github.com/pyzahl/SoFiMagic/assets/22110415/d3d4a522-a061-4ba8-abf1-987f1aa36df7)
-![Screenshot from 2024-03-09 23-00-47](https://github.com/pyzahl/SoFiMagic/assets/22110415/7059a81f-3f24-4258-8f76-ea9fbe115a34)
-
+See at the bottom for all configuration screens.
 
 
 Navigate with the navigation buttons/dial. Select field (green highlighted) to adjust using all three dials:
@@ -231,9 +229,13 @@ App in action:
 
 ![Screenshot from 2024-03-09 22-39-26](https://github.com/pyzahl/SoFiMagic/assets/22110415/4c5bd69d-41d2-4ae3-ad78-8d81017de222)
 
+All settings screenshots:
+
+![Screenshot from 2024-03-09 23-00-18](https://github.com/pyzahl/SoFiMagic/assets/22110415/eceec0ad-1528-4fc9-a48c-fd51befa8e62)
+![Screenshot from 2024-03-09 23-00-38](https://github.com/pyzahl/SoFiMagic/assets/22110415/d3d4a522-a061-4ba8-abf1-987f1aa36df7)
+![Screenshot from 2024-03-09 23-00-47](https://github.com/pyzahl/SoFiMagic/assets/22110415/7059a81f-3f24-4258-8f76-ea9fbe115a34)
 ![Screenshot from 2024-03-09 23-01-00](https://github.com/pyzahl/SoFiMagic/assets/22110415/13a98789-d35e-461c-baf2-ed1450a5cad8)
 ![Screenshot from 2024-03-09 23-01-10](https://github.com/pyzahl/SoFiMagic/assets/22110415/cf6c4417-4291-467a-8a0a-c834e2440131)
 ![Screenshot from 2024-03-09 23-01-19](https://github.com/pyzahl/SoFiMagic/assets/22110415/7481e86b-ad25-44c4-8c74-47c74098a75b)
 ![Screenshot from 2024-03-09 23-01-28](https://github.com/pyzahl/SoFiMagic/assets/22110415/e6a0a5c4-d426-4f60-b792-300c64a2f7e5)
-![Screenshot from 2024-03-09 23-01-44](https://github.com/pyzahl/SoFiMagic/assets/22110415/6f3ab6d4-9d09-4718-b78b-1307ec5783a3)
 
