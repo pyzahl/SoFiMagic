@@ -1,4 +1,4 @@
-# SoFiMagic -- Sony App to fully automated shot a Eclipse or similar task
+# SoFiMagic -- Sony App to fully automated shoot a Eclipse or similar task
 
 ![App Icon](app/src/main/res/drawable/icon.png)
 
@@ -7,8 +7,14 @@ Based in TimeLapse app, based on Focus app.
 
 I have only a Sony Alpha7Rii (ILCE-7RM2) to test it, if you have another camera I would be happy to receive bug reports.
 
+## Disclaimer ##
+Install and use on own risk. Test everything before yourself.
+
 ## Installation ##
-Use [Sony-PMCA-RE](https://github.com/ma1co/Sony-PMCA-RE) or install through [sony-pmca.appspot.com](https://sony-pmca.appspot.com/apps).
+Use [Sony-PMCA-RE](https://github.com/ma1co/Sony-PMCA-RE) 
+
+See here for supported cameras, "App-Support" is required:
+https://openmemories.readthedocs.io/devices.html
 
 The build app apk package is included here ready to install.
 
@@ -25,9 +31,11 @@ Finally click the start button and wait.
 
 You can stop by clicking the MENU button on the camera.
 
-The settings screen. Start button at the bottom, scroll down.
-![Screenshot from 2024-03-09 19-03-08](https://github.com/pyzahl/SoFiMagic/assets/22110415/05f7e927-efe2-4aad-aecd-9e5ccfe7b8d1)
-![Screenshot from 2024-03-09 19-02-22](https://github.com/pyzahl/SoFiMagic/assets/22110415/9e08fb55-afce-4b89-b15a-82f312c1cb36)
+The settings screens. Start button at the bottom, scroll down.
+
+![Screenshot from 2024-03-09 23-00-18](https://github.com/pyzahl/SoFiMagic/assets/22110415/eceec0ad-1528-4fc9-a48c-fd51befa8e62)
+See at the bottom for all configuration screens.
+
 
 Navigate with the navigation buttons/dial. Select field (green highlighted) to adjust using all three dials:
 
@@ -57,7 +65,9 @@ For each Eclipse Phase "NAME" a exposure program is to be configured.
 	      Partial1:   CT1 - 30s  to  CT2 - 10s   #Shots to be distributed (Interval shooting) 100
 
 	    PHASE Start/End time is relative to C0, C1..C4 as defined by REF_CONTACT_START/END plus a offset START and END in seconds.
-            Number shots &gt; 0: Automated Interval Shooting for PHASE.
+            Number shots (= Number of Exposure series to be run to be precise in interval mode) > 1: Automated Interval Shooting for this PHASE.
+	    Number Shots set to -1: Repeat Exposure List as often as it fits into the time window. No delays.
+            Number Shots set to 0 mean END of Lists!
 	    
             For each interval the Exposure Lists are executed once.
             CF:  CAMERA_FLAG_LIST: Drive Modes are S: Single Photo, C: Continuous High, M: Continuous Medium, L: Continuous Low, B: Bracketing
@@ -70,6 +80,7 @@ Note: if you wish you can edit the created XML file on SD card. The app stores (
 
 ## SS (Silent Shutter) ##
 The silent shutter option is functionless on cameras without silent shutter mode.
+WARNING: Burst/Continuous Shooting may not be available or work depending on Camera model. TEST IT! If in doubt, do not use.
 
 ## MF (Manual Focus) ##
 This sets focus mode to manual. Be sure to have focused before starting the app!
@@ -77,6 +88,18 @@ This sets focus mode to manual. Be sure to have focused before starting the app!
 ## DOFF (Display Off) ##
 EXPERIMENTAL/TETSING -- DO NOT SELECT.
 Turn the display off between each shot. This doesn't change the battery consumption but it can be healthy for the display when taking very long time lapses.
+
+
+## Running it ##
+After checking and adjusting the settings, activate the Start button.
+The following screen will show a live view and shooting stats with time to next shot/phase and current time.
+
+Pause/abort shooting via Menu button.
+WARNING: Try to avoid pushign the button whil shooting / saving images is in progress -- may cause issues. Known bug.
+
+## Restaring it while the Eclipse is in progress ##
+YES, you can restart it any time and it will catch up to the correct point in time to continue! 
+Still be cautious here, not extensive tested at this time.
 
 ## AUTO CREATED CONFIGURATION FILE and APP + SHOOTING LOG
 The XML example below is auto created on first app start on SD Card as SOFIMAGI/SOFIPRG.XML.
@@ -200,4 +223,22 @@ A app log file is also created (and always appended to) in SOFIMAGI/LOG.TXT.
         <SHUTTER_SPEED_LIST>1/3200,1/2000,1/3200,</SHUTTER_SPEED_LIST>
       </PHASE>
     </sofimagic>
+
+Installed Apppication View:
+
+![Screenshot from 2024-03-09 22-40-33](https://github.com/pyzahl/SoFiMagic/assets/22110415/d7d190c4-32fc-43ca-b878-b182de4ddc72)
+
+App in action:
+
+![Screenshot from 2024-03-09 22-39-26](https://github.com/pyzahl/SoFiMagic/assets/22110415/4c5bd69d-41d2-4ae3-ad78-8d81017de222)
+
+All settings screenshots:
+
+![Screenshot from 2024-03-09 23-00-18](https://github.com/pyzahl/SoFiMagic/assets/22110415/eceec0ad-1528-4fc9-a48c-fd51befa8e62)
+![Screenshot from 2024-03-09 23-00-38](https://github.com/pyzahl/SoFiMagic/assets/22110415/d3d4a522-a061-4ba8-abf1-987f1aa36df7)
+![Screenshot from 2024-03-09 23-00-47](https://github.com/pyzahl/SoFiMagic/assets/22110415/7059a81f-3f24-4258-8f76-ea9fbe115a34)
+![Screenshot from 2024-03-09 23-01-00](https://github.com/pyzahl/SoFiMagic/assets/22110415/13a98789-d35e-461c-baf2-ed1450a5cad8)
+![Screenshot from 2024-03-09 23-01-10](https://github.com/pyzahl/SoFiMagic/assets/22110415/cf6c4417-4291-467a-8a0a-c834e2440131)
+![Screenshot from 2024-03-09 23-01-19](https://github.com/pyzahl/SoFiMagic/assets/22110415/7481e86b-ad25-44c4-8c74-47c74098a75b)
+![Screenshot from 2024-03-09 23-01-28](https://github.com/pyzahl/SoFiMagic/assets/22110415/e6a0a5c4-d426-4f60-b792-300c64a2f7e5)
 
