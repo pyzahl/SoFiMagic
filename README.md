@@ -98,7 +98,7 @@ A app log file is also created (and always appended to) in SOFIMAGI/LOG.TXT.
             ISO_LIST: ISO to be set. Must be a valid ISO number. ISO=0 MUST terminate the list (internally)
             F_LIST: Aperture setting, 0: ignored. MUST be a valid Aperture.
             SHUTTER_SPEED_LIST: Shutter Speed to be set. MUST be a valid shutter speed.
-	</COMMENT>
+        </COMMENT>
       </VALID_SOFI_PROGRAM>
       <ECLIPSE_REF_CONTACT_TIMES>
         <C1>11:00:00</C1>
