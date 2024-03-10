@@ -80,6 +80,7 @@ Note: if you wish you can edit the created XML file on SD card. The app stores (
 
 ## SS (Silent Shutter) ##
 The silent shutter option is functionless on cameras without silent shutter mode.
+WARNING: Burst/Continuous Shooting may not be available or work depending on Camera model. TEST IT! If in doubt, do not use.
 
 ## MF (Manual Focus) ##
 This sets focus mode to manual. Be sure to have focused before starting the app!
