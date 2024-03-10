@@ -65,7 +65,9 @@ For each Eclipse Phase "NAME" a exposure program is to be configured.
 	      Partial1:   CT1 - 30s  to  CT2 - 10s   #Shots to be distributed (Interval shooting) 100
 
 	    PHASE Start/End time is relative to C0, C1..C4 as defined by REF_CONTACT_START/END plus a offset START and END in seconds.
-            Number shots &gt; 0: Automated Interval Shooting for PHASE.
+            Number shots &gt; 0: Automated Interval Shooting for PHASE. 
+	    Number Shots set to -1: Repeat Exposure List as often as it fits into the time window. No delays.
+            Number Shots set to 0 mean END of Lists!
 	    
             For each interval the Exposure Lists are executed once.
             CF:  CAMERA_FLAG_LIST: Drive Modes are S: Single Photo, C: Continuous High, M: Continuous Medium, L: Continuous Low, B: Bracketing
