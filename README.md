@@ -8,7 +8,10 @@ Based in TimeLapse app, based on Focus app.
 I have only a Sony Alpha7Rii (ILCE-7RM2) to test it, if you have another camera I would be happy to receive bug reports.
 
 ## Installation ##
-Use [Sony-PMCA-RE](https://github.com/ma1co/Sony-PMCA-RE) or install through [sony-pmca.appspot.com](https://sony-pmca.appspot.com/apps).
+Use [Sony-PMCA-RE](https://github.com/ma1co/Sony-PMCA-RE) 
+
+See here for supported cameras, "App-Support" is required:
+https://openmemories.readthedocs.io/devices.html
 
 The build app apk package is included here ready to install.
 
