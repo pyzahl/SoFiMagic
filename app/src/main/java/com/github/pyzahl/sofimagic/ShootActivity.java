@@ -1,5 +1,8 @@
 package com.github.pyzahl.sofimagic;
 
+import static com.github.pyzahl.sofimagic.CameraUtilShutterSpeed.SHUTTER_SPEEDS;
+import static com.github.pyzahl.sofimagic.CameraUtilShutterSpeed.getShutterValueIndex;
+
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.Camera;
@@ -183,7 +186,9 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
                 // Check: Contineous Drive ? (Burst Operation)
                 if (remainingTimeToContactPhase < 150
-                        && settings.magic_program[MagicPhase].CameraFlags[exposureCount]=='C' // Burst (Contineous Mode?)
+                        && (settings.magic_program[MagicPhase].CameraFlags[exposureCount]=='C' // Burst Modes, (Contineous Shooting) High
+                            || settings.magic_program[MagicPhase].CameraFlags[exposureCount]=='L' // Burst Modes, (Contineous Shooting) Low
+                            || settings.magic_program[MagicPhase].CameraFlags[exposureCount]=='M') // Burst Modes, (Contineous Shooting) Medium
                         && settings.magic_program[MagicPhase].BurstDurations[exposureCount] > 1  // more than 1 shot?
                         && settings.magic_program[MagicPhase].ISOs[exposureCount] != 0){  // not at end of exposure list?
 
@@ -211,6 +216,56 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                         log("shootRunnable: BurstShooting END detected. B*** SHOULD NOT GET HERE NORMALLY ** MANAGED by onShutter");
                         setDriveMode('S');
                         burstCount = 0;
+                        exposureCount++; // next
+                        shootRunnableHandler.postDelayed(this, 250); // continue
+                        return;
+                    }
+                }
+
+                // Check: Bracket Operation
+                if (remainingTimeToContactPhase < 150
+                        && settings.magic_program[MagicPhase].CameraFlags[exposureCount]=='B' // Bracketing Mode
+                        && settings.magic_program[MagicPhase].BurstDurations[exposureCount] > 1  // more than 1 shot?
+                        && settings.magic_program[MagicPhase].ISOs[exposureCount] != 0){  // not at end of exposure list?
+
+                    if (m_bracketPicCount == 0) { // Before 1 Burst Shot setup Burst Mode
+                        m_bracketMaxPicCount = settings.magic_program[MagicPhase].BurstDurations[exposureCount]; // 3, 5, 7
+                        m_bracketStep = (settings.magic_program[MagicPhase].BurstDurations[exposureCount]-1)/2; // #+/- steps in 1/3 stops
+                        if (m_bracketStep > 2) {
+                            m_bracketShutterDelta = 2;
+                            m_bracketMaxPicCount /= 2;
+                        } else
+                            m_bracketShutterDelta = 1;
+
+                        m_bracketActive = true;
+                        m_bracketNeutralShutterIndex = CameraUtilShutterSpeed.getShutterValueIndex(settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][0], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][1]);
+                        stopPicturePreview = false;
+                        camera.stopPreview();
+                        reviewSurfaceView.setVisibility(View.GONE);
+                        if (settings.displayOff)
+                            display.off();
+                        setDriveMode(settings.magic_program[MagicPhase].CameraFlags[exposureCount]);
+                    }
+                    log("shootRunnable: enter Bracketing Mode 'B'. BC#" + Integer.toString(burstCount) + " BTime:" + Integer.toString(settings.magic_program[MagicPhase].BurstDurations[exposureCount]) + "s BurstEnd in: " + Long.toString(endBurstShooting-System.currentTimeMillis()) + "ms");
+
+                    if (m_bracketPicCount < m_bracketMaxPicCount) {
+                        // this will fire up bracket shooting -- to be canceled.  OnShutter will take over and give control back when burst completed
+                        shoot(settings.magic_program[MagicPhase].ISOs[exposureCount], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount]);
+                    } else {
+                        log("shootRunnable: BracketShooting END detected. A*** SHOULD NOT GET HERE NORMALLY ** MANAGED by onShutter");
+                        m_bracketActive = false;
+                        shootRunnableHandler.postDelayed(this, 1000); // give some time to store and repeat
+                    }
+                    return; // DONE with initiate Burst
+                } else {
+                    if (burstCount > 0) { // end section, reset DriveMode -- just in case of critical timings, should not get here normally
+                        log("shootRunnable: BracketShooting END detected. B*** SHOULD NOT GET HERE NORMALLY ** MANAGED by onShutter");
+                        setDriveMode('S');
+                        burstCount = 0;
+                        exposureCount++; // next
+                        m_bracketActive = false;
+                        shootRunnableHandler.postDelayed(this, 250); // continue
+                        return;
                     }
                 }
 
@@ -382,9 +437,11 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         shotErrorCount = 0;
 
         endBurstShooting = 0;
+        m_bracketPicCount = 0;
 
         takingPicture = false;
         burstShooting = false;
+        m_bracketActive = false;
 
         tvCount = (TextView) findViewById(R.id.tvCount);
         tvBattery = (TextView) findViewById(R.id.tvBattery);
@@ -619,8 +676,8 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
     private void setShutterSpeed(int sec, int frac)
     {
-        final int shutterIndex = CameraUtilShutterSpeed.getShutterValueIndex(sec,frac);
-        final int shutterDiff = shutterIndex - CameraUtilShutterSpeed.getShutterValueIndex(getCurrentShutterSpeed());
+        final int shutterIndex = getShutterValueIndex(sec,frac);
+        final int shutterDiff = shutterIndex - getShutterValueIndex(getCurrentShutterSpeed());
         //log("set ShutterSpeed " + String.valueOf(sec) + "/" + String.valueOf(frac) + "s" + " shutterIndexDiff:" + String.valueOf(shutterDiff));
         if (shutterDiff != 0) {
             cameraEx.adjustShutterSpeed(-shutterDiff);
@@ -675,7 +732,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                 break;
             case 'B':
                 try {
-                    log("Not yet supported: DriveMode Bracket");
+                    log("Setting DriveMode Bracket (experimental)");
                     paramsModifier.setDriveMode(CameraEx.ParametersModifier.DRIVE_MODE_BRACKET);
                     cameraEx.getNormalCamera().setParameters(params);
                 } catch (Exception ignored) {
@@ -750,15 +807,11 @@ private void shoot(int iso, int[] shutterSpeed) {
         }
 
         // Burst Shooting?
-        if (settings.magic_program[MagicPhase].ISOs[exposureCount]!=0 && settings.magic_program[MagicPhase].CameraFlags[exposureCount] == 'C') {
-            if (false) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        update_info();
-                    }
-                });
-            }
+        if (settings.magic_program[MagicPhase].ISOs[exposureCount]!=0
+            && (settings.magic_program[MagicPhase].CameraFlags[exposureCount]=='C' // Burst Modes, (Contineous Shooting) High
+                || settings.magic_program[MagicPhase].CameraFlags[exposureCount]=='L' // Burst Modes, (Contineous Shooting) Low
+                || settings.magic_program[MagicPhase].CameraFlags[exposureCount]=='M') // Burst Modes, (Contineous Shooting) Medium
+            ) {
             shotCount++;
             if (endBurstShooting > System.currentTimeMillis()) {
                 logshot(settings.magic_program[MagicPhase].name, Long.toString(endBurstShooting-System.currentTimeMillis()) + "ms left for Burst Shooting E#" + exposureCount + " R#" + repeatCount + " ~B#" + burstCount + "~ S#" + shotCount);
@@ -773,6 +826,47 @@ private void shoot(int iso, int[] shutterSpeed) {
                 shootRunnableHandler.postDelayed(shootRunnable, 500); // continue manage program
             }
             return;
+        }
+
+        // Bracket Shooting?
+        if (m_bracketActive
+                && settings.magic_program[MagicPhase].ISOs[exposureCount]!=0
+                && settings.magic_program[MagicPhase].CameraFlags[exposureCount]=='B' // Bracket Mode
+        ) {
+            //m_bracketStep = (settings.magic_program[MagicPhase].BurstDurations[exposureCount] - 1) / 2; // #+/- steps in 1/3 stops
+            //m_bracketShutterDelta = 2;
+            //m_bracketNeutralShutterIndex = CameraUtilShutterSpeed.getShutterValueIndex(settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][0], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][1]);
+
+            shotCount++;
+            m_bracketPicCount++; // Bracket Shot Count
+            if (m_bracketPicCount < m_bracketMaxPicCount) {
+                burstCount++; //
+                int simax = (m_bracketMaxPicCount-1)/2;
+                int si = m_bracketNeutralShutterIndex;
+                if (m_bracketPicCount > simax)
+                    si -=  (m_bracketPicCount-simax)*m_bracketShutterDelta ;
+                else
+                    si +=  m_bracketPicCount*m_bracketShutterDelta ;
+
+                if (si >= 0 && si < SHUTTER_SPEEDS.length) { // limit, hold if at limit.
+                    logshot(settings.magic_program[MagicPhase].name, Integer.toString(m_bracketPicCount) + " ShutterSpeed[" + si + "] " + SHUTTER_SPEEDS[si][0] + "/" + SHUTTER_SPEEDS[si][1] + " Bracket Shooting E#" + exposureCount + " R#" + repeatCount + " ~B#" + burstCount + "~ S#" + shotCount);
+                    setShutterSpeed(SHUTTER_SPEEDS[si][0], SHUTTER_SPEEDS[si][1]);
+                    //this.cameraEx.cancelTakePicture();
+                    //shoot(settings.magic_program[MagicPhase].ISOs[exposureCount], SHUTTER_SPEEDS[si]);
+                } else
+                    logshot(settings.magic_program[MagicPhase].name, Integer.toString(m_bracketPicCount) + " LIMITED ** Bracket Shooting E#" + exposureCount + " R#" + repeatCount + " ~B#" + burstCount + "~ S#" + shotCount);
+                manualShutterCallbackCallRunnableHandler.postDelayed(manualShutterCallbackCallRunnable, 300);
+            } else {
+                exposureCount++; // next
+                burstCount = 0;
+                this.cameraEx.cancelTakePicture();
+                log("onShutter: Bracketing completed. cancelTakePicture() now.");
+                setDriveMode('S');
+                m_bracketActive = false;
+                shootRunnableHandler.postDelayed(shootRunnable, 500); // continue manage program
+            }
+            return;
+
         }
 
         // shot completed
