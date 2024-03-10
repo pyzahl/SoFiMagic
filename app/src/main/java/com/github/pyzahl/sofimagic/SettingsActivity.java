@@ -54,7 +54,7 @@ public class SettingsActivity extends BaseActivity
     private ListEntry exposureShutters[];
 
     private CheckBox cbSilentShutter;
-    private CheckBox cbBRS;
+    //private CheckBox cbBRS;
     private CheckBox cbMF;
     private CheckBox cbDOFF;
 
@@ -149,7 +149,6 @@ public class SettingsActivity extends BaseActivity
         }
 
         cbSilentShutter = (CheckBox) findViewById(R.id.cbSilentShutter);
-        cbBRS  = (CheckBox) findViewById(R.id.cbBRC);
         cbMF   = (CheckBox) findViewById(R.id.cbMF);
         cbDOFF = (CheckBox) findViewById(R.id.cbDOFF);
 
@@ -158,8 +157,8 @@ public class SettingsActivity extends BaseActivity
         cbSilentShutter.setOnCheckedChangeListener(cbSilentShutterOnCheckListener);
         //cbSilentShutter.setVisibility(View.INVISIBLE);
 
-        cbBRS.setChecked(settings.brs);
-        cbBRS.setOnCheckedChangeListener(cbBRSOnCheckListener);
+        //cbBRS.setChecked(settings.brs);
+        //cbBRS.setOnCheckedChangeListener(cbBRSOnCheckListener);
 
         cbMF.setChecked(settings.mf);
         cbMF.setOnCheckedChangeListener(cbMFOnCheckListener);
