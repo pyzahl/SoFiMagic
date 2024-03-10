@@ -1,4 +1,4 @@
-# SoFiMagic -- Sony App to fully automated shot a Eclipse or similar task
+# SoFiMagic -- Sony App to fully automated shoot a Eclipse or similar task
 
 ![App Icon](app/src/main/res/drawable/icon.png)
 
