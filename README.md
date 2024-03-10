@@ -31,9 +31,14 @@ Finally click the start button and wait.
 
 You can stop by clicking the MENU button on the camera.
 
-The settings screen. Start button at the bottom, scroll down.
-![Screenshot from 2024-03-09 19-03-08](https://github.com/pyzahl/SoFiMagic/assets/22110415/05f7e927-efe2-4aad-aecd-9e5ccfe7b8d1)
-![Screenshot from 2024-03-09 19-02-22](https://github.com/pyzahl/SoFiMagic/assets/22110415/9e08fb55-afce-4b89-b15a-82f312c1cb36)
+The settings screens. Start button at the bottom, scroll down.
+
+![Screenshot from 2024-03-09 22-38-33](https://github.com/pyzahl/SoFiMagic/assets/22110415/b349804e-1631-4481-b826-b5f3898f8a59)
+![Screenshot from 2024-03-09 22-39-00](https://github.com/pyzahl/SoFiMagic/assets/22110415/3c49ec6e-3f6f-4844-a4cf-d5a2c8dcf82f)
+![Screenshot from 2024-03-09 22-47-09](https://github.com/pyzahl/SoFiMagic/assets/22110415/340ac29f-e50c-46b1-aa9b-8321b7fd417e)
+![Screenshot from 2024-03-09 22-48-08](https://github.com/pyzahl/SoFiMagic/assets/22110415/83c67520-de14-4518-998d-cda21fb11f85)
+
+
 
 Navigate with the navigation buttons/dial. Select field (green highlighted) to adjust using all three dials:
 
@@ -83,6 +88,18 @@ This sets focus mode to manual. Be sure to have focused before starting the app!
 ## DOFF (Display Off) ##
 EXPERIMENTAL/TETSING -- DO NOT SELECT.
 Turn the display off between each shot. This doesn't change the battery consumption but it can be healthy for the display when taking very long time lapses.
+
+
+## Running it ##
+After checking and adjusting the settings, activate the Start button.
+The following screen will show a live view and shooting stats with time to next shot/phase and current time.
+
+Pause/abort shooting via Menu button.
+WARNING: Try to avoid pushign the button whil shooting / saving images is in progress -- may cause issues. Known bug.
+
+## Restaring it while the Eclipse is in progress ##
+YES, you can restart it any time and it will catch up to the correct point in time to continue! 
+Still be cautious here, not extensive tested at this time.
 
 ## AUTO CREATED CONFIGURATION FILE and APP + SHOOTING LOG
 The XML example below is auto created on first app start on SD Card as SOFIMAGI/SOFIPRG.XML.
@@ -206,4 +223,13 @@ A app log file is also created (and always appended to) in SOFIMAGI/LOG.TXT.
         <SHUTTER_SPEED_LIST>1/3200,1/2000,1/3200,</SHUTTER_SPEED_LIST>
       </PHASE>
     </sofimagic>
+
+Installed Apppication View:
+
+![Screenshot from 2024-03-09 22-40-33](https://github.com/pyzahl/SoFiMagic/assets/22110415/d7d190c4-32fc-43ca-b878-b182de4ddc72)
+
+App in action:
+
+![Screenshot from 2024-03-09 22-39-26](https://github.com/pyzahl/SoFiMagic/assets/22110415/4c5bd69d-41d2-4ae3-ad78-8d81017de222)
+
 
