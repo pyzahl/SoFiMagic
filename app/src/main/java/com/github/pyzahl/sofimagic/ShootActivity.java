@@ -104,6 +104,8 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
     private int pictureReviewTime;
 
     private boolean burstShooting;
+
+    private char currentDriveMode;
     private boolean stopPicturePreview;
     private boolean takingPicture;
 
@@ -135,6 +137,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
             }
 
             if (MagicPhase==0 && shotCount == 0) { // start preview while waiting first for first shot
+                setDriveMode('S', 0); // set to single
                 camera.startPreview();
                 reviewSurfaceView.setVisibility(View.VISIBLE);
                 stopPicturePreview = false;
@@ -214,7 +217,6 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                 } else {
                     if (burstCount > 0) { // end section, reset DriveMode -- just in case of critical timings, should not get here normally
                         log("shootRunnable: BurstShooting END detected. B*** SHOULD NOT GET HERE NORMALLY ** MANAGED by onShutter");
-                        setDriveMode('S', 0);
                         burstCount = 0;
                         exposureCount++; // next
                         shootRunnableHandler.postDelayed(this, 250); // continue
@@ -254,13 +256,13 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                     } else {
                         log("shootRunnable: BracketShooting END detected. A*** SHOULD NOT GET HERE NORMALLY ** MANAGED by onShutter");
                         m_bracketActive = false;
+                        m_bracketPicCount = 0;
                         shootRunnableHandler.postDelayed(this, 1000); // give some time to store and repeat
                     }
                     return; // DONE with initiate Burst
                 } else {
                     if (burstCount > 0) { // end section, reset DriveMode -- just in case of critical timings, should not get here normally
                         log("shootRunnable: BracketShooting END detected. B*** SHOULD NOT GET HERE NORMALLY ** MANAGED by onShutter");
-                        setDriveMode('S', 0);
                         burstCount = 0;
                         exposureCount++; // next
                         m_bracketActive = false;
@@ -289,6 +291,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                         log("shootRunnable: remaining time to next Exposure Series in " + settings.magic_program[MagicPhase].name + " ##" + Integer.toString(repeatCount) + " next in: " + getHMSMSfromMS(remainingTimeNextExposureSet));
 
                     if (remainingTimeNextExposureSet < 150) {
+                        setDriveMode('S', 0);
                         shoot(settings.magic_program[MagicPhase].ISOs[exposureCount], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount]);
                     } else {
                         // ...wait for Contact Start Time
@@ -335,6 +338,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                         // Shoot === ***** Shoot, will re-trigger this handler once completed!
                         if (settings.magic_program[MagicPhase].number_shots != 0) {
                             shooting = true;
+                            setDriveMode('S', 0);
                             shoot(settings.magic_program[MagicPhase].ISOs[exposureCount], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount]);
                             //log("shootRunnable: shoot fired, next exposure");
                         }
@@ -441,6 +445,8 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         burstCount = 0;
         shotErrorCount = 0;
 
+        currentDriveMode = 'S';
+
         endBurstShooting = 0;
         m_bracketPicCount = 0;
 
@@ -540,6 +546,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         //autoReviewControl.setPictureReviewInfoHist(true);
         cameraEx.setAutoPictureReviewControl(autoReviewControl);
 
+
         final Camera.Parameters params = cameraEx.getNormalCamera().getParameters();
 
         try {
@@ -550,8 +557,10 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         } catch (Exception ignored) {
         }
 
+
         final CameraEx.ParametersModifier modifier = cameraEx.createParametersModifier(params);
-        modifier.setDriveMode(CameraEx.ParametersModifier.DRIVE_MODE_SINGLE);
+
+        // modifier.setDriveMode(CameraEx.ParametersModifier.DRIVE_MODE_SINGLE);
 
         // setSilentShutterMode doesn't exist on all cameras
         try {
@@ -589,6 +598,17 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         pictureReviewTime = 2; //autoReviewControl.getPictureReviewTime();
         //log(Integer.toString(pictureReviewTime));
 
+        /*
+        // TEST -- BKT works!!
+        setIso(800);
+        setShutterSpeed(1, 125);
+        setDriveMode('B', 10); // 1EV 3Pic
+        logshot("000","TEST PHOTO 1/125s ISO800 BKT10");
+        shootTime = System.currentTimeMillis(); // " @millis=" + shootTime +
+        cameraEx.getNormalCamera().takePicture(null, null, null);
+        logshot("000","TEST PHOTO EXECUTED");
+        // END TEST
+        */
 
         shotCount = 0;
         shootRunnableHandler.postDelayed(shootRunnable, 1000);
@@ -701,6 +721,10 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
     }
 
     private void setDriveMode(char CFlag, int num) {
+        if (currentDriveMode == 'S' && CFlag == 'S')
+            return;
+
+        currentDriveMode = CFlag;
         final Camera.Parameters params = cameraEx.getNormalCamera().getParameters();
         final CameraEx.ParametersModifier paramsModifier = cameraEx.createParametersModifier(params);
         switch (CFlag){ // DriveMode Burst Continuous high, middle, low, bracket, single
@@ -793,6 +817,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 private void shootPicture(int iso, int[] shutterSpeed) {
     setIso(iso);
     setShutterSpeed(shutterSpeed[0], shutterSpeed[1]);
+    shootTime = System.currentTimeMillis(); // " @millis=" + shootTime +
     try {
         cameraEx.getNormalCamera().takePicture(null, null, null);
         logshot(settings.magic_program[MagicPhase].name, "Take Photo E#" + exposureCount + " R#" + repeatCount + " S#" + shotCount + " " +  String.valueOf(shutterSpeed[0]) +"/" + String.valueOf(shutterSpeed[1]) + "s ISO " + String.valueOf(iso));
@@ -802,13 +827,6 @@ private void shootPicture(int iso, int[] shutterSpeed) {
         log("EXCEPTION Camera.TakePicture() * retry in 500ms * " + settings.magic_program[MagicPhase].name + " #" + exposureCount + "#" + repeatCount + " Shot#" + shotCount + " Err#" + shotErrorCount + " " +  String.valueOf(shutterSpeed[0]) +"/" + String.valueOf(shutterSpeed[1]) + "s ISO " + String.valueOf(iso));
         shootRunnableHandler.postDelayed(shootRunnable, 500);
     }
-
-    runOnUiThread(new Runnable() {
-        @Override
-        public void run() {
-            update_info();
-        }
-    });
 }
 
 private void shoot(int iso, int[] shutterSpeed) {
@@ -913,20 +931,21 @@ private void shoot(int iso, int[] shutterSpeed) {
             return;
         }
 
-        // Bracket Shooting?
-        if (m_bracketActive
-                && settings.magic_program[MagicPhase].ISOs[exposureCount]!=0
-                && settings.magic_program[MagicPhase].CameraFlags[exposureCount]=='B' // Bracket Mode
-        ) {
-            //m_bracketStep = (settings.magic_program[MagicPhase].BurstDurations[exposureCount] - 1) / 2; // #+/- steps in 1/3 stops
-            //m_bracketShutterDelta = 2;
-            //m_bracketNeutralShutterIndex = CameraUtilShutterSpeed.getShutterValueIndex(settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][0], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][1]);
+        if(false) {
+            // Bracket Shooting?
+            if (m_bracketActive
+                    && settings.magic_program[MagicPhase].ISOs[exposureCount] != 0
+                    && settings.magic_program[MagicPhase].CameraFlags[exposureCount] == 'B' // Bracket Mode
+            ) {
+                //m_bracketStep = (settings.magic_program[MagicPhase].BurstDurations[exposureCount] - 1) / 2; // #+/- steps in 1/3 stops
+                //m_bracketShutterDelta = 2;
+                //m_bracketNeutralShutterIndex = CameraUtilShutterSpeed.getShutterValueIndex(settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][0], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][1]);
 
-            shotCount++;
-            m_bracketPicCount++; // Bracket Shot Count
-            if (m_bracketPicCount < m_bracketMaxPicCount) {
-                burstCount++; //
-                int si = m_bracketNeutralShutterIndex;
+                shotCount++;
+                m_bracketPicCount++; // Bracket Shot Count
+                if (m_bracketPicCount < m_bracketMaxPicCount) {
+                    burstCount++; //
+                    int si = m_bracketNeutralShutterIndex;
 /*
                 int simax = (m_bracketMaxPicCount-1)/2;
                 if (m_bracketPicCount > simax)
@@ -941,27 +960,34 @@ private void shoot(int iso, int[] shutterSpeed) {
                     //this.cameraEx.cancelTakePicture();
                     //shoot(settings.magic_program[MagicPhase].ISOs[exposureCount], SHUTTER_SPEEDS[si]);
                     //shootPictureCallbackCallRunnableHandler.postDelayed(shootPictureCallbackCallRunnable, 200);
-                logshot(settings.magic_program[MagicPhase].name, Integer.toString(m_bracketPicCount) + " **ShutterSpeed[" + si + "] " + SHUTTER_SPEEDS[si][0] + "/" + SHUTTER_SPEEDS[si][1] + " Bracket Shooting E#" + exposureCount + " R#" + repeatCount + " ~B#" + burstCount + "~ S#" + shotCount);
-                //manualShutterCallbackCallRunnableHandler.postDelayed(manualShutterCallbackCallRunnable, 200);
-                //} else
-                //    logshot(settings.magic_program[MagicPhase].name, Integer.toString(m_bracketPicCount) + " LIMITED ** Bracket Shooting E#" + exposureCount + " R#" + repeatCount + " ~B#" + burstCount + "~ S#" + shotCount);
-                manualShutterCallbackCallRunnableHandler.postDelayed(manualShutterCallbackCallRunnable, 300);
-            } else {
-                exposureCount++; // next
-                burstCount = 0;
-                this.cameraEx.cancelTakePicture();
-                log("onShutter: Bracketing completed. cancelTakePicture() now.");
-                setDriveMode('S', 0);
-                m_bracketActive = false;
-                shootRunnableHandler.postDelayed(shootRunnable, 500); // continue manage program
+                    logshot(settings.magic_program[MagicPhase].name, Integer.toString(m_bracketPicCount) + " **ShutterSpeed[" + si + "] " + SHUTTER_SPEEDS[si][0] + "/" + SHUTTER_SPEEDS[si][1] + " Bracket Shooting E#" + exposureCount + " R#" + repeatCount + " ~B#" + burstCount + "~ S#" + shotCount);
+                    //manualShutterCallbackCallRunnableHandler.postDelayed(manualShutterCallbackCallRunnable, 200);
+                    //} else
+                    //    logshot(settings.magic_program[MagicPhase].name, Integer.toString(m_bracketPicCount) + " LIMITED ** Bracket Shooting E#" + exposureCount + " R#" + repeatCount + " ~B#" + burstCount + "~ S#" + shotCount);
+                    manualShutterCallbackCallRunnableHandler.postDelayed(manualShutterCallbackCallRunnable, 300);
+                } else {
+                    exposureCount++; // next
+                    burstCount = 0;
+                    this.cameraEx.cancelTakePicture();
+                    log("onShutter: Bracketing completed. cancelTakePicture() now.");
+                    setDriveMode('S', 0);
+                    m_bracketActive = false;
+                    shootRunnableHandler.postDelayed(shootRunnable, 500); // continue manage program
+                }
+                return;
             }
-            return;
-
         }
 
         // shot completed
         this.cameraEx.cancelTakePicture();
-        shotCount++;
+
+        if (m_bracketActive) {
+            log("onShutter: Bracketing Shooting completed.");
+            shotCount += m_bracketMaxPicCount;
+            m_bracketActive = false;
+            m_bracketPicCount = 0;
+        } else
+                shotCount++;
         exposureCount++;
         log("onShutter EC:" + Integer.toString(exposureCount)+ ", past TakePicture ms: " +  Long.toString( System.currentTimeMillis() - shootEndTime));
 
