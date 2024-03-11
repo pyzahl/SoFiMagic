@@ -75,7 +75,7 @@ public class SoFiProgramXML {
                 }
 
                 NodeList nListPH = doc.getElementsByTagName("PHASE");
-                for (int i = 0; i < nListPH.getLength(); i++) {
+                for (int i = 0; i < nListPH.getLength() && i < Settings.magic_program.length; i++) {
                     Node node = nListPH.item(i);
                     if (node.getNodeType() == Node.ELEMENT_NODE) {
                         Element phase = (Element) node;
@@ -93,6 +93,8 @@ public class SoFiProgramXML {
                         Settings.magic_program[i].set_SHUTTER_SPEEDS_list(getValue("SHUTTER_SPEED_LIST", phase));
                         Logger.log("XMLPRG: reading exposure lists completed for phase " + Settings.magic_program[i].name);
                     }
+                    if (Settings.magic_program[i].number_shots == 0)
+                        break;
                 }
             } else { // create default template
                 Logger.log("XMLPRG: no valid SOFI XML Program Mark found, creating defaults...");
@@ -124,12 +126,13 @@ public class SoFiProgramXML {
             appendElement(elementV, "STATUS", "VALID");
             appendElement(elementV, "LOGGING_LEVEL", "VERBOSE");
             appendElement(elementV, "COMMENT", "Eclipse Program: may edit this file or use App.\n" +
-                    "NAME: Name of Shooting Phase. There may be more or any names used than default.\n" +
+                    "NAME: Name of Shooting Phase. There may be more or any names used than default. PHASES must be listed in actual shooting order i.e. with ascending START times.\n" +
                     "PHASE Start/End time is relative to C0, C1..C4 as defined by REF_CONTACT_START/END plus a offset START and END in seconds.\n" +
                     "Number shots > 0: Automated Interval Shooting for PHASE.\n" +
                     "For each interval the Exposure Lists are executed once.\n" +
                     "CAMERA_FLAG_LIST: Drive Modes are S: Single Photo, C: Continuous High, M: Continuous Medium, L: Continuous Low, B: Bracketing\n" +
                     "BURST_DURATION_LIST: Defines Burst Duration if in C,M or L Drive Mode.\n" +
+                    "               NOTE: For Bracketing Drive Mode B this is the number of Brackets. Only 3 and 5 are valid, else defaulting to 3.\n" +
                     "ISO_LIST: ISO to be set. Must be a valid ISO number. ISO=0 MUST terminate the list (internally)\n" +
                     "F_LIST: Aperture setting, 0: ignored. MUST be a valid Aperture.\n" +
                     "SHUTTER_SPEED_LIST: Shutter Speed to be set. MUST be a valid shutter speed.");
@@ -165,6 +168,9 @@ public class SoFiProgramXML {
                 String SHUTTER_list=Settings.magic_program[i].get_ShutterSpeeds_list();
                 appendElement(elementPH, "SHUTTER_SPEED_LIST", SHUTTER_list);
                 root.appendChild(elementPH);
+
+                if (Settings.magic_program[i].number_shots == 0)
+                    break;
             }
 
 

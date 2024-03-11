@@ -176,7 +176,10 @@ public class SettingsActivity extends BaseActivity
         tvPhaseIndex = (TextView) findViewById(R.id.tvPhaseId);
         tvPhaseName = (TextView) findViewById(R.id.tvPhase);
 
-        sbPhase.setMax(settings.magic_program.length-1);
+        // check for end
+        int last_phase=1;
+        for (; settings.magic_program[last_phase].number_shots != 0 && last_phase < (settings.magic_program.length-1); ++last_phase);
+        sbPhase.setMax(last_phase);
         sbPhase.setOnSeekBarChangeListener(sbPhaseOnSeekBarChangeListener);
         sbPhase.setProgress(0);
         sbPhaseOnSeekBarChangeListener.onProgressChanged(sbPhase, 0, false);

@@ -217,7 +217,7 @@ class Settings {
     Settings() {
 
         Logger.log("Settings Init Magic Program");
-        magic_program = new shoot_program[8]; // Partial1, Contact2, TotalA, TotalMax, TotalB, Contact3, Partial2, END
+        magic_program = new shoot_program[17]; // Partial1, Contact2, TotalA, TotalMax, TotalB, Contact3, Partial2, END
 
         // Default Contact Times
         tc1 = 3600*12;
@@ -336,8 +336,9 @@ class Settings {
         }
         phase++;
 
-        // END BLOCK
-        magic_program[phase] = new shoot_program("END", 4,4, +30, +30, 0);
+        // END BLOCK/fill
+        for(; phase < magic_program.length; ++phase)
+            magic_program[phase] = new shoot_program("END", 4,4, +30, +30, 0);
 
         shotCount = 1;
         displayOff = false;
