@@ -12,7 +12,6 @@ import static com.github.pyzahl.sofimagic.Logger.log;
  */
 
 class Settings {
-    private static int verbose_level;
     private static final String EXTRA_TC1 = "com.github.pyzahl.sofimagic.TC1";
     private static final String EXTRA_TC2 = "com.github.pyzahl.sofimagic.TC2";
     private static final String EXTRA_TC3 = "com.github.pyzahl.sofimagic.TC3";
@@ -44,13 +43,7 @@ class Settings {
     }
 
     static public void setVerboseLevel (String level) {
-        verbose_level = 10;
-        switch (level){
-            case "VERBOSE": verbose_level = 3; break;
-            case "DEFAULT": verbose_level = 2; break;
-            case "MINIMAL": verbose_level = 1; break;
-            case "PHOTOONLY": verbose_level = 0; break;
-        }
+        Logger.set_verbose_level(Integer.parseInt(level));
     };
 
     public static final int MAX_EXPOSURE_PARAMS = 32;
