@@ -154,15 +154,22 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
             do {
                 remainingTimeToContactPhase = settings.magic_program[MagicPhase].get_remainingTimeToStart(now);
                 remainingTimeThisPhase = settings.magic_program[MagicPhase].get_remainingTime(now);
+                if (settings.magic_program[MagicPhase].number_shots > 0)
+                    remainingTimeNextExposureSet = settings.magic_program[MagicPhase].get_remainingTimeToNext(repeatCount+1, now);
+                else
+                    remainingTimeNextExposureSet = 0;
+
                 if ((remainingTimeToContactPhase > 0 && remainingTimeToContactPhase < 60) || (remainingTimeToContactPhase%60) == 0)
                     log_progress("shootRunnable: remaining time to MagicPhase " + settings.magic_program[MagicPhase].name + " @" + getHMSMSfromMS((long) settings.magic_program[MagicPhase].get_start_time() * 1000) + " #" + Integer.toString(MagicPhase) + " start in: " + getHMSfromMS(remainingTimeToContactPhase));
-                else if (remainingTimeToContactPhase <= 0 && settings.magic_program[MagicPhase].ISOs[exposureCount] > 0)
+                else if (remainingTimeToContactPhase <= 0 && settings.magic_program[MagicPhase].ISOs[exposureCount] > 0 && remainingTimeNextExposureSet < 4000)
                     log_info("shootRunnable " + getHMSMSfromMS(now) + " MagicPhase[" + Integer.toString(MagicPhase) + "]" + settings.magic_program[MagicPhase].name
                             + " SC:" + Integer.toString(shotCount) + " EC:" + Integer.toString(exposureCount) + " RC:" + Integer.toString(repeatCount) + " BC: " + Integer.toString(burstCount)
                             + " ** CF=" + settings.magic_program[MagicPhase].CameraFlags[exposureCount]
                             + ": " + Integer.toString(settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][0])
                             + "/" + Integer.toString(settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][1])
-                            + " @ISO " + Integer.toString(settings.magic_program[MagicPhase].ISOs[exposureCount]));
+                            + " @ISO " + Integer.toString(settings.magic_program[MagicPhase].ISOs[exposureCount])
+                            + " Next set in " + getHMSMSfromMS(remainingTimeNextExposureSet)
+                    );
                 if (remainingTimeThisPhase <= 0) { // this time is up!
                     log_info("shootRunnable: skipping to next phase...");
                     if (settings.magic_program[MagicPhase].number_shots != 0) {
