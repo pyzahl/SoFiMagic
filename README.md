@@ -70,11 +70,32 @@ For each Eclipse Phase "NAME" a exposure program is to be configured.
             Number Shots set to 0 mean END of Lists!
 	    
             For each interval the Exposure Lists are executed once.
-            CF:  CAMERA_FLAG_LIST: Drive Modes are S: Single Photo, C: Continuous High, M: Continuous Medium, L: Continuous Low, B: Bracketing
-            BT:  BURST_DURATION_LIST: Defines Burst Duration if in C,M or L Drive Mode.
+            CF:  CAMERA_FLAG_LIST: Drive Modes are S: Single Photo, C: Continuous High, M: Continuous Medium, L: Continuous Low, B: Bracketing (new/experimental)
+            BT:  BURST_DURATION_LIST: Defines Burst Duration if in C,M or L Drive Mode. In Bracketing Mode (CF=B), see list of BT values below.
             ISO: ISO_LIST: ISO to be set. Must be a valid ISO number. ISO=0 MUST terminate the list (internally)
             F:   F_LIST: Aperture setting, 0: ignored. MUST be a valid Aperture.
             t:   SHUTTER_SPEED_LIST: Shutter Speed to be set. MUST be a valid shutter speed.
+
+        Bracketing Options:
+        BT value
+        3:       Bracket 0.3EV, 3 Pictures 
+        4:       Bracket 0.3EV, 5 Pictures
+        5:       Bracket 0.5EV, 3 Pictures
+        6:       Bracket 0.5EV, 5 Pictures
+        7:       Bracket 0.7EV, 3 Pictures
+        8:       Bracket 0.7EV, 5 Pictures
+        9:       Bracket 0.7EV, 9 Pictures ** no supported by all cameras
+        10:      Bracket 1EV, 3 Pictures
+        11:      Bracket 1EV, 5 Pictures
+        12:      Bracket 1EV, 9 Picturesc ** no supported by all cameras
+        20:      Bracket 2EV, 3 Pictures
+        21:      Bracket 2EV, 5 Pictures
+        22:      Bracket 2EV, 9 Picturse ** no supported by all cameras
+        30:      Bracket 3EV, 3 Pictures
+        31:      Bracket 3EV, 5 Pictures
+        32:      Bracket 3EV, 9 Pictures ** no supported by all cameras
+
+     
 
 Note: if you wish you can edit the created XML file on SD card. The app stores (auto created if not existing or wrong) a XML file if the SOFIMAGI folder. And uses it if found.
 
