@@ -86,9 +86,9 @@ public class SoFiProgramXML {
                         Settings.magic_program[i].ref_contact_end = Integer.parseInt(getValue("REF_CONTACT_END", phase));
                         Settings.magic_program[i].end_time = Integer.parseInt(getValue("END", phase));
                         Settings.magic_program[i].number_shots = Integer.parseInt(getValue("NUMBER_SHOTS", phase));
+                        Settings.magic_program[i].set_ISOs_list(getValue("ISO_LIST", phase)); // MUST BE FIRST
                         Settings.magic_program[i].set_CFs_list(getValue("CAMERA_FLAG_LIST", phase));
                         Settings.magic_program[i].set_BurstDurations_list(getValue("BURST_DURATION_LIST", phase));
-                        Settings.magic_program[i].set_ISOs_list(getValue("ISO_LIST", phase));
                         Settings.magic_program[i].set_F_list(getValue("F_LIST", phase));
                         Settings.magic_program[i].set_SHUTTER_SPEEDS_list(getValue("SHUTTER_SPEED_LIST", phase));
                         Logger.log("XMLPRG: reading exposure lists completed for phase " + Settings.magic_program[i].name);
@@ -157,12 +157,12 @@ public class SoFiProgramXML {
                 appendElement(elementPH, "END", Integer.toString(Settings.magic_program[i].end_time));
                 appendElement(elementPH, "NUMBER_SHOTS", Integer.toString(Settings.magic_program[i].number_shots));
 
+                String ISO_list=Settings.magic_program[i].get_ISOs_list();
+                appendElement(elementPH, "ISO_LIST", ISO_list);
                 String cf_list=Settings.magic_program[i].get_CFs_list();
                 appendElement(elementPH, "CAMERA_FLAG_LIST", cf_list);
                 String cn_list=Settings.magic_program[i].get_BurstDurations_list();
                 appendElement(elementPH, "BURST_DURATION_LIST", cn_list);
-                String ISO_list=Settings.magic_program[i].get_ISOs_list();
-                appendElement(elementPH, "ISO_LIST", ISO_list);
                 String F_list=Settings.magic_program[i].get_Fs_list();
                 appendElement(elementPH, "F_LIST", F_list);
                 String SHUTTER_list=Settings.magic_program[i].get_ShutterSpeeds_list();

@@ -164,7 +164,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                 else if (remainingTimeToContactPhase <= 0 && settings.magic_program[MagicPhase].ISOs[exposureCount] > 0 && remainingTimeNextExposureSet < 4000)
                     log_info("shootRunnable " + getHMSMSfromMS(now) + " MagicPhase[" + Integer.toString(MagicPhase) + "]" + settings.magic_program[MagicPhase].name
                             + " SC:" + Integer.toString(shotCount) + " EC:" + Integer.toString(exposureCount) + " RC:" + Integer.toString(repeatCount) + " BC: " + Integer.toString(burstCount)
-                            + " ** CF=" + settings.magic_program[MagicPhase].CameraFlags[exposureCount]
+                            + " ** CF=" + settings.magic_program[MagicPhase].CameraFlags[exposureCount] + settings.magic_program[MagicPhase].BurstDurations[exposureCount]
                             + ": " + Integer.toString(settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][0])
                             + "/" + Integer.toString(settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][1])
                             + " @ISO " + Integer.toString(settings.magic_program[MagicPhase].ISOs[exposureCount])
@@ -787,16 +787,16 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                         case 6: paramsModifier.setExposureBracketPeriod(5); paramsModifier.setNumOfBracketPicture(5); m_bracketMaxPicCount=5; log_debug("Setting DriveMode Bracket 0.5EV,5Pic(experimental)"); break;
                         case 7: paramsModifier.setExposureBracketPeriod(7); paramsModifier.setNumOfBracketPicture(3); m_bracketMaxPicCount=3; log_debug("Setting DriveMode Bracket 0.7EV,3Pic(experimental)"); break; // 0.7EV
                         case 8: paramsModifier.setExposureBracketPeriod(7); paramsModifier.setNumOfBracketPicture(5); m_bracketMaxPicCount=5; log_debug("Setting DriveMode Bracket 0.7EV,5Pic(experimental)"); break;
-                        case 9: paramsModifier.setExposureBracketPeriod(7); paramsModifier.setNumOfBracketPicture(9); m_bracketMaxPicCount=9; log_debug("Setting DriveMode Bracket 0.7EV,9Pic(experimental)"); break;
+                        case 9: paramsModifier.setExposureBracketPeriod(7); paramsModifier.setNumOfBracketPicture(9); m_bracketMaxPicCount=9; log_debug("Setting DriveMode Bracket 0.7EV,9Pic(experimental)"); break; // ** no all cameras
                         case 10: paramsModifier.setExposureBracketPeriod(10); paramsModifier.setNumOfBracketPicture(3); m_bracketMaxPicCount=3; log_debug("Setting DriveMode Bracket 1EV,3Pic(experimental)"); break; // 1EV
                         case 11: paramsModifier.setExposureBracketPeriod(10); paramsModifier.setNumOfBracketPicture(5); m_bracketMaxPicCount=5; log_debug("Setting DriveMode Bracket 1EV,5Pic(experimental)"); break;
-                        case 12: paramsModifier.setExposureBracketPeriod(10); paramsModifier.setNumOfBracketPicture(9); m_bracketMaxPicCount=9; log_debug("Setting DriveMode Bracket 1EV,9Pic(experimental)"); break;
+                        case 12: paramsModifier.setExposureBracketPeriod(10); paramsModifier.setNumOfBracketPicture(9); m_bracketMaxPicCount=9; log_debug("Setting DriveMode Bracket 1EV,9Pic(experimental)"); break; // ** no all cameras
                         case 20: paramsModifier.setExposureBracketPeriod(20); paramsModifier.setNumOfBracketPicture(3); m_bracketMaxPicCount=3; log_debug("Setting DriveMode Bracket 2EV,3Pic(experimental)"); break; // 2EV
                         case 21: paramsModifier.setExposureBracketPeriod(20); paramsModifier.setNumOfBracketPicture(5); m_bracketMaxPicCount=5; log_debug("Setting DriveMode Bracket 2EV,5Pic(experimental)"); break;
-                        case 22: paramsModifier.setExposureBracketPeriod(20); paramsModifier.setNumOfBracketPicture(9); m_bracketMaxPicCount=9; log_debug("Setting DriveMode Bracket 2EV,9Pic(experimental)"); break;
+                        case 22: paramsModifier.setExposureBracketPeriod(20); paramsModifier.setNumOfBracketPicture(9); m_bracketMaxPicCount=9; log_debug("Setting DriveMode Bracket 2EV,9Pic(experimental)"); break; // ** no all cameras
                         case 30: paramsModifier.setExposureBracketPeriod(30); paramsModifier.setNumOfBracketPicture(3); m_bracketMaxPicCount=3; log_debug("Setting DriveMode Bracket 3EV,3Pic(experimental)"); break; // 3EV
                         case 31: paramsModifier.setExposureBracketPeriod(30); paramsModifier.setNumOfBracketPicture(5); m_bracketMaxPicCount=5; log_debug("Setting DriveMode Bracket 3EV,5Pic(experimental)"); break;
-                        case 32: paramsModifier.setExposureBracketPeriod(30); paramsModifier.setNumOfBracketPicture(9); m_bracketMaxPicCount=9; log_debug("Setting DriveMode Bracket 3EV,9Pic(experimental)"); break;
+                        case 32: paramsModifier.setExposureBracketPeriod(30); paramsModifier.setNumOfBracketPicture(9); m_bracketMaxPicCount=9; log_debug("Setting DriveMode Bracket 3EV,9Pic(experimental)"); break; // ** no all cameras
                         default: paramsModifier.setExposureBracketPeriod(30); paramsModifier.setNumOfBracketPicture(3); m_bracketMaxPicCount=3; log_debug("Setting DriveMode Bracket *3EV,3Pic(experimental)"); break;
                     }
                     //log_debug("SupportedBracketStepPeriods: " + paramsModifier.getSupportedExposureBracketPeriods().toString()); // [3, 5, 7, 10, 20, 30]
