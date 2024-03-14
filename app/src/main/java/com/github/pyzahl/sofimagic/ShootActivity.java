@@ -216,7 +216,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
                     if (endBurstShooting > System.currentTimeMillis()) {
                         // this will fire up continuous shooting -- to be canceled.  OnShutter will take over and give control back when burst completed
-                        shoot(settings.magic_program[MagicPhase].ISOs[exposureCount], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount]);
+                        shoot(settings.magic_program[MagicPhase].ISOs[exposureCount], settings.magic_program[MagicPhase].Fs[exposureCount], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount]);
                     } else {
                         log_debug("shootRunnable: BurstShooting END detected. A*** SHOULD NOT GET HERE NORMALLY ** MANAGED by onShutter");
                         shootRunnableHandler.postDelayed(this, 1000); // give some time to store and repeat
@@ -279,7 +279,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
                             if (m_bracketPicCount < m_bracketMaxPicCount) {
                                 // this will fire up bracket shooting -- to be canceled.  OnShutter will take over and give control back when burst completed
-                                shootPicture(settings.magic_program[MagicPhase].ISOs[exposureCount], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount]);
+                                shootPicture(settings.magic_program[MagicPhase].ISOs[exposureCount], settings.magic_program[MagicPhase].Fs[exposureCount], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount]);
                             } else {
                                 log_debug("shootRunnable: BracketShooting END detected. A*** SHOULD NOT GET HERE NORMALLY ** MANAGED by onShutter");
                                 m_bracketActive = false;
@@ -298,7 +298,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                             }
                             // single shot
                             setDriveMode('S', 0);
-                            shoot(settings.magic_program[MagicPhase].ISOs[exposureCount], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount]);
+                            shoot(settings.magic_program[MagicPhase].ISOs[exposureCount], settings.magic_program[MagicPhase].Fs[exposureCount], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount]);
                         }
                     } else {
                         // ...wait for Contact Start Time
@@ -314,18 +314,18 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                             });
                             shootRunnableHandler.postDelayed(this, 1000); // wait a second and check again, update screen
                         } else {
-                            if (remainingTimeNextExposureSet > 250)
-                                shootRunnableHandler.postDelayed(this, remainingTimeNextExposureSet- 250); // getting close, wait a little and check again
+                            if (remainingTimeNextExposureSet > 500)
+                                shootRunnableHandler.postDelayed(this, remainingTimeNextExposureSet - 300); // getting close, wait a little and check again
                             else
-                                shootRunnableHandler.postDelayed(this, 250); // getting close, wait a little and check again
+                                shootRunnableHandler.postDelayed(this, 200); // getting close, wait a little and check again
                         }
                     }
                     return; // DONE
 
                 } else { // keep shooting, no interval, as many as round of exposure list as possible!
-                    if (remainingTimeToContactPhase <= 150 && settings.magic_program[MagicPhase].number_shots != 0) { // 300ms is vaguely the time this postDelayed is to slow
+                    if (remainingTimeToContactPhase <= 300 && settings.magic_program[MagicPhase].number_shots != 0) { // 300ms is vaguely the time this postDelayed is to slow
                         long remainingTimeToNextContactPhase = settings.magic_program[MagicPhase + 1].get_remainingTimeToStart(now);
-                        if (remainingTimeToNextContactPhase <= 150) {
+                        if (remainingTimeToNextContactPhase <= 300) {
                             if (settings.magic_program[MagicPhase + 1].number_shots != 0) { // make sure not at end
                                 MagicPhase++;
                                 log_progress("shootRunnable: Entering Next MagicPhase " + settings.magic_program[MagicPhase].name + " #" + Integer.toString(MagicPhase));
@@ -346,7 +346,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                         if (settings.magic_program[MagicPhase].number_shots != 0) {
                             shooting = true;
                             setDriveMode('S', 0);
-                            shoot(settings.magic_program[MagicPhase].ISOs[exposureCount], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount]);
+                            shoot(settings.magic_program[MagicPhase].ISOs[exposureCount], settings.magic_program[MagicPhase].Fs[exposureCount], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount]);
                             //log_debug("shootRunnable: shoot fired, next exposure");
                         }
                     } else {
@@ -362,10 +362,10 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                             });
                             shootRunnableHandler.postDelayed(this, 1000); // wait a second and check again, update screen
                         } else {
-                            if (remainingTimeToContactPhase > 250)
-                                shootRunnableHandler.postDelayed(this, remainingTimeToContactPhase - 250); // wait a little and check again
+                            if (remainingTimeToContactPhase > 500)
+                                shootRunnableHandler.postDelayed(this, remainingTimeToContactPhase - 300); // wait a little and check again
                             else
-                                shootRunnableHandler.postDelayed(this, 250); // wait a little and check again
+                                shootRunnableHandler.postDelayed(this, 200); // wait a little and check again
                         }
                         return; // DONE
                     }
@@ -699,12 +699,15 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         cameraEx.getNormalCamera().setParameters(params);
 
         m_tvISO.setText(String.format("\uE488 %d", iso));
-        setAp(0); // dummy, just update diusplay
     }
 
-    private void setAp(int ap) {
+    private void setAp(double ap) {
+        if (ap>0.0)
+            cameraEx.adjustAperture((int)(ap*100));
+
         final Camera.Parameters params = cameraEx.getNormalCamera().getParameters();
         final CameraEx.ParametersModifier paramsModifier = cameraEx.createParametersModifier(params);
+
         m_tvAperture.setText(String.format("f%.1f", (float) paramsModifier.getAperture() / 100.0f));
     }
 
@@ -821,13 +824,15 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         }
     }
 
-private void shootPicture(int iso, int[] shutterSpeed) {
+private void shootPicture(int iso, double ap, int[] shutterSpeed) {
     setIso(iso);
     setShutterSpeed(shutterSpeed[0], shutterSpeed[1]);
+    setAp(ap);
     shootTime = System.currentTimeMillis(); // " @millis=" + shootTime +
     try {
         cameraEx.getNormalCamera().takePicture(null, null, null);
-        logshot(settings.magic_program[MagicPhase].name, "Taking Photo Bracket EC#" + exposureCount + " RC#" + repeatCount + " SC#" + shotCount + " " +  String.valueOf(shutterSpeed[0]) +"/" + String.valueOf(shutterSpeed[1]) + "s ISO " + String.valueOf(iso));
+        logshot(settings.magic_program[MagicPhase].name, "Taking Photo Bracket EC#" + exposureCount + " RC#" + repeatCount + " SC#" + shotCount + " "
+                +  String.valueOf(shutterSpeed[0]) +"/" + String.valueOf(shutterSpeed[1]) + "s ISO " + String.valueOf(iso)+ " F" + String.valueOf(ap));
     } catch (Exception ignored) {
         shotErrorCount++;
         //this.cameraEx.cancelTakePicture();
@@ -836,13 +841,14 @@ private void shootPicture(int iso, int[] shutterSpeed) {
     }
 }
 
-private void shoot(int iso, int[] shutterSpeed) {
+private void shoot(int iso, double ap, int[] shutterSpeed) {
         if(takingPicture)
             return;
 
         if (burstCount <= 1) { // only at initial burst shot and always otherwise
             setIso(iso);
             setShutterSpeed(shutterSpeed[0], shutterSpeed[1]);
+            setAp(ap);
         }
 
         try {
@@ -851,7 +857,8 @@ private void shoot(int iso, int[] shutterSpeed) {
             //cameraEx.startDirectShutter();
             //cameraEx.startSelfTimerShutter();
             shootEndTime = shootTime+Math.round((double)1000*shutterSpeed[0]/shutterSpeed[1])+150;
-            logshot(settings.magic_program[MagicPhase].name, "Shoot Photo E#" + exposureCount + " R#" + repeatCount + " S#" + shotCount + " " +  String.valueOf(shutterSpeed[0]) +"/" + String.valueOf(shutterSpeed[1]) + "s ISO " + String.valueOf(iso));
+            logshot(settings.magic_program[MagicPhase].name, "Shoot Photo E#" + exposureCount + " R#" + repeatCount + " S#" + shotCount + " "
+                    +  String.valueOf(shutterSpeed[0]) +"/" + String.valueOf(shutterSpeed[1]) + "s ISO " + String.valueOf(iso) + " F" + String.valueOf(ap));
         } catch (Exception ignored) {
             shotErrorCount++;
             //this.cameraEx.cancelTakePicture();

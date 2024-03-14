@@ -317,7 +317,8 @@ public class SettingsActivity extends BaseActivity
             settings.magic_program[phase].number_shots = tvNumShots.getIndex();
 
             for (int k=0; k<settings.magic_program[phase].ISOs.length; ++k) {
-                if (settings.magic_program[phase].ISOs[k] > 0) {
+                int iso=CameraUtilISOs.ISOs[exposureISOs[k].getIndex()];
+                if (iso > 0) {
                     settings.magic_program[phase].ISOs[k] = CameraUtilISOs.ISOs[exposureISOs[k].getIndex()];
                     settings.magic_program[phase].BurstDurations[k] = BurstDurations[k].getIndex();
                     settings.magic_program[phase].CameraFlags[k] = CameraUtilISOs.CFlags[exposureFlags[k].getIndex()].toCharArray()[0];
