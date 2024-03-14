@@ -268,11 +268,11 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
                                 m_bracketActive = true;
                                 m_bracketNeutralShutterIndex = CameraUtilShutterSpeed.getShutterValueIndex(settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][0], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][1]);
-                                stopPicturePreview = false;
-                                camera.stopPreview();
-                                reviewSurfaceView.setVisibility(View.GONE);
-                                if (settings.displayOff)
-                                    display.off();
+                                //stopPicturePreview = false;
+                                //camera.stopPreview();
+                                //reviewSurfaceView.setVisibility(View.GONE);
+                                //if (settings.displayOff)
+                                //    display.off();
                                 setDriveMode(settings.magic_program[MagicPhase].CameraFlags[exposureCount], settings.magic_program[MagicPhase].BurstDurations[exposureCount]);
                             }
                             log_debug("shootRunnable: enter Bracketing Mode 'B'. BC#" + Integer.toString(burstCount) + " #NB:" + Integer.toString(settings.magic_program[MagicPhase].BurstDurations[exposureCount]));
@@ -284,7 +284,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                                 log_debug("shootRunnable: BracketShooting END detected. A*** SHOULD NOT GET HERE NORMALLY ** MANAGED by onShutter");
                                 m_bracketActive = false;
                                 m_bracketPicCount = 0;
-                                shootRunnableHandler.postDelayed(this, 1000); // give some time to store and repeat
+                                shootRunnableHandler.postDelayed(this, 250); // give some time to store and repeat ** 1000
                             }
                             return; // DONE with initiate Burst
                         } else {
@@ -304,7 +304,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                         // ...wait for Contact Start Time
                         if (remainingTimeToContactPhase <= 0) // omit this log when waiting for phase start
                             log_debug("shootRunnable: waiting for next exposue block...");
-                        if (remainingTimeNextExposureSet > 1500) {
+                        if (remainingTimeNextExposureSet > 3000) {
                             display.on();
                             runOnUiThread(new Runnable() {
                                 @Override
@@ -317,7 +317,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                             if (remainingTimeNextExposureSet > 500)
                                 shootRunnableHandler.postDelayed(this, remainingTimeNextExposureSet - 300); // getting close, wait a little and check again
                             else
-                                shootRunnableHandler.postDelayed(this, 200); // getting close, wait a little and check again
+                                shootRunnableHandler.postDelayed(this, 150); // getting close, wait a little and check again
                         }
                     }
                     return; // DONE
@@ -352,7 +352,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                     } else {
                         // ...wait for Contact Start Time
                         log_debug("shootRunnable: waiting...");
-                        if (remainingTimeToContactPhase > 1500) {
+                        if (remainingTimeToContactPhase > 3000) {
                             display.on();
                             runOnUiThread(new Runnable() {
                                 @Override
@@ -365,7 +365,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                             if (remainingTimeToContactPhase > 500)
                                 shootRunnableHandler.postDelayed(this, remainingTimeToContactPhase - 300); // wait a little and check again
                             else
-                                shootRunnableHandler.postDelayed(this, 200); // wait a little and check again
+                                shootRunnableHandler.postDelayed(this, 150); // wait a little and check again
                         }
                         return; // DONE
                     }
@@ -825,6 +825,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
     }
 
 private void shootPicture(int iso, double ap, int[] shutterSpeed) {
+    this.cameraEx.cancelTakePicture(); // TEST
     setIso(iso);
     setShutterSpeed(shutterSpeed[0], shutterSpeed[1]);
     setAp(ap);
@@ -845,7 +846,9 @@ private void shoot(int iso, double ap, int[] shutterSpeed) {
         if(takingPicture)
             return;
 
-        if (burstCount <= 1) { // only at initial burst shot and always otherwise
+    this.cameraEx.cancelTakePicture(); // TEST
+
+    if (burstCount <= 1) { // only at initial burst shot and always otherwise
             setIso(iso);
             setShutterSpeed(shutterSpeed[0], shutterSpeed[1]);
             setAp(ap);
@@ -905,7 +908,7 @@ private void shoot(int iso, double ap, int[] shutterSpeed) {
         //log_debug(String.format("onShutter i: %d\n", i));
         if (i != 0)
         {
-            this.cameraEx.cancelTakePicture();
+            //** this.cameraEx.cancelTakePicture();
             takingPicture = false;
             log_debug("onShutter ** take picture canceled or not ready -- delaying, retry shoot picture in 300ms, i: " + Integer.toString(i));
             shootPictureCallbackCallRunnableHandler.postDelayed(shootPictureCallbackCallRunnable, 300);
@@ -942,7 +945,7 @@ private void shoot(int iso, double ap, int[] shutterSpeed) {
         }
 
         // shot completed
-        this.cameraEx.cancelTakePicture();
+        //*** this.cameraEx.cancelTakePicture();
 
         if (m_bracketActive) {
             log_debug("onShutter: Bracketing Shooting completed.");
@@ -969,7 +972,7 @@ private void shoot(int iso, double ap, int[] shutterSpeed) {
             log_progress("onShutter: Remaining Time: " + getHMSMSfromMS(remainingTime));
 
             // if the remaining time is negative or short immediately start over and take the next picture
-            if (remainingTime < 2000) {
+            if (remainingTime < 3000) {
                 stopPicturePreview = true;
                 shootRunnableHandler.post(shootRunnable);
             }
@@ -985,7 +988,8 @@ private void shoot(int iso, double ap, int[] shutterSpeed) {
         } else {
             //log_debug("onShutter repeat fast");
             stopPicturePreview = true;
-            shootRunnableHandler.postDelayed(shootRunnable, 500);
+            shootRunnableHandler.post(shootRunnable);
+            //shootRunnableHandler.postDelayed(shootRunnable, 500);
         }
     }
 
