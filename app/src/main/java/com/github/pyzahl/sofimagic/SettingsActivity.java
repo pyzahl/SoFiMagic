@@ -42,6 +42,7 @@ public class SettingsActivity extends BaseActivity
 
     private int phase_loaded=-1;
 
+    private TextView lvdbg;
     private TextView tvPhaseName;
     private IndexEntry tvPhaseRStart, tvPhaseStart, tvPhaseREnd, tvPhaseEnd, tvNumShots;
 
@@ -83,6 +84,8 @@ public class SettingsActivity extends BaseActivity
 
         bnClose = (Button) findViewById(R.id.bnClose);
         bnClose.setOnClickListener(bnCloseOnClickListener);
+
+        lvdbg = (TextView) findViewById(R.id.tvVersionDbg);
 
         edTC1 = (HHMMSSEntry) findViewById(R.id.editTextTimeC1);
         edTC2 = (HHMMSSEntry) findViewById(R.id.editTextTimeC2);
@@ -273,6 +276,7 @@ public class SettingsActivity extends BaseActivity
     };
 
     void updatePhase(int phase) {
+        lvdbg.setText("1.4.1 L"+Integer.toString(Logger.get_verbose_level()));
         tvPhaseIndex.setText(Integer.toString(phase));
         if (phase >= 0 && phase < settings.magic_program.length) {
 

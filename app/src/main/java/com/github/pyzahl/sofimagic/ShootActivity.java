@@ -427,6 +427,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                 }
             } catch (Exception ignored) {
                 shotErrorCount++;
+                cameraEx.cancelTakePicture(); // ***
                 log_exception("EXCEPTION Retry Camera.burstableTakePicture() fail * " + settings.magic_program[MagicPhase].name + " EC#" + exposureCount + "RC#" + repeatCount + " Burst#" + burstCount + " Shot#" + shotCount + " Err#" + shotErrorCount);
                 onShutter(1, cameraEx);
             }
@@ -617,6 +618,8 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         // END TEST
         */
 
+        cameraEx.cancelTakePicture();
+
         shotCount = 0;
         shootRunnableHandler.postDelayed(shootRunnable, 1000);
 
@@ -654,6 +657,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         log_debug("on pause");
 
         shootRunnableHandler.removeCallbacks(shootRunnable);
+        cameraEx.cancelTakePicture();
 
         if (cameraSurfaceHolder == null)
             log_debug("cameraSurfaceHolder == null");
@@ -824,48 +828,48 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         }
     }
 
-private void shootPicture(int iso, double ap, int[] shutterSpeed) {
-    this.cameraEx.cancelTakePicture(); // TEST
-    setIso(iso);
-    setShutterSpeed(shutterSpeed[0], shutterSpeed[1]);
-    setAp(ap);
-    shootTime = System.currentTimeMillis(); // " @millis=" + shootTime +
-    try {
-        cameraEx.getNormalCamera().takePicture(null, null, null);
-        logshot(settings.magic_program[MagicPhase].name, "Taking Photo Bracket EC#" + exposureCount + " RC#" + repeatCount + " SC#" + shotCount + " "
-                +  String.valueOf(shutterSpeed[0]) +"/" + String.valueOf(shutterSpeed[1]) + "s ISO " + String.valueOf(iso)+ " F" + String.valueOf(ap));
-    } catch (Exception ignored) {
-        shotErrorCount++;
-        //this.cameraEx.cancelTakePicture();
-        log_exception("EXCEPTION Camera.TakePicture() * retry in 500ms * " + settings.magic_program[MagicPhase].name + " EC#" + exposureCount + "RC#" + repeatCount + " Shot#" + shotCount + " Err#" + shotErrorCount + " " +  String.valueOf(shutterSpeed[0]) +"/" + String.valueOf(shutterSpeed[1]) + "s ISO " + String.valueOf(iso));
-        shootRunnableHandler.postDelayed(shootRunnable, 500);
-    }
-}
+    private void shootPicture(int iso, double ap, int[] shutterSpeed) {
+        //this.cameraEx.cancelTakePicture(); // TEST
 
-private void shoot(int iso, double ap, int[] shutterSpeed) {
-        if(takingPicture)
+        setIso(iso);
+        setShutterSpeed(shutterSpeed[0], shutterSpeed[1]);
+        setAp(ap);
+        shootTime = System.currentTimeMillis(); // " @millis=" + shootTime +
+        try {
+            cameraEx.getNormalCamera().takePicture(null, null, null);
+            shootEndTime = shootTime + Math.round((double) 1000 * shutterSpeed[0] / shutterSpeed[1]);
+            logshot(settings.magic_program[MagicPhase].name, "Taking Photo Bracket EC#" + exposureCount + " RC#" + repeatCount + " SC#" + shotCount + " "
+                    + String.valueOf(shutterSpeed[0]) + "/" + String.valueOf(shutterSpeed[1]) + "s ISO " + String.valueOf(iso) + " F" + String.valueOf(ap));
+        } catch (Exception ignored) {
+            shotErrorCount++;
+            cameraEx.cancelTakePicture();
+            log_exception("EXCEPTION in shootPicture: Camera.TakePicture() * retry in 500ms * " + settings.magic_program[MagicPhase].name + " EC#" + exposureCount + "RC#" + repeatCount + " Shot#" + shotCount + " Err#" + shotErrorCount + " " + String.valueOf(shutterSpeed[0]) + "/" + String.valueOf(shutterSpeed[1]) + "s ISO " + String.valueOf(iso));
+            shootRunnableHandler.postDelayed(shootRunnable, 500);
+        }
+    }
+
+    private void shoot(int iso, double ap, int[] shutterSpeed) {
+        if (takingPicture)
             return;
 
-    this.cameraEx.cancelTakePicture(); // TEST
+        //this.cameraEx.cancelTakePicture(); // TEST
 
-    if (burstCount <= 1) { // only at initial burst shot and always otherwise
-            setIso(iso);
-            setShutterSpeed(shutterSpeed[0], shutterSpeed[1]);
-            setAp(ap);
-        }
+        setIso(iso);
+        setShutterSpeed(shutterSpeed[0], shutterSpeed[1]);
+        setAp(ap);
+        shootTime = System.currentTimeMillis(); // " @millis=" + shootTime +
 
         try {
-            shootTime = System.currentTimeMillis(); // " @millis=" + shootTime +
             cameraEx.burstableTakePicture();
             //cameraEx.startDirectShutter();
             //cameraEx.startSelfTimerShutter();
-            shootEndTime = shootTime+Math.round((double)1000*shutterSpeed[0]/shutterSpeed[1])+150;
-            logshot(settings.magic_program[MagicPhase].name, "Shoot Photo E#" + exposureCount + " R#" + repeatCount + " S#" + shotCount + " "
-                    +  String.valueOf(shutterSpeed[0]) +"/" + String.valueOf(shutterSpeed[1]) + "s ISO " + String.valueOf(iso) + " F" + String.valueOf(ap));
+            shootEndTime = shootTime + Math.round((double) 1000 * shutterSpeed[0] / shutterSpeed[1]);
+            logshot(settings.magic_program[MagicPhase].name, "Shoot Photo EC#" + exposureCount + " RC#" + repeatCount + " SC#" + shotCount + " "
+                    + String.valueOf(shutterSpeed[0]) + "/" + String.valueOf(shutterSpeed[1]) + "s ISO " + String.valueOf(iso) + " F" + String.valueOf(ap));
         } catch (Exception ignored) {
             shotErrorCount++;
-            //this.cameraEx.cancelTakePicture();
-            log_exception("EXCEPTION Camera.burstableTakePicture() * retry in 500ms * " + settings.magic_program[MagicPhase].name + " #" + exposureCount + "#" + repeatCount + " Shot#" + shotCount + " Err#" + shotErrorCount + " " +  String.valueOf(shutterSpeed[0]) +"/" + String.valueOf(shutterSpeed[1]) + "s ISO " + String.valueOf(iso));
+            cameraEx.cancelTakePicture();
+            log_exception("EXCEPTION in shoot: Camera.burstableTakePicture() * retry in 500ms * " + settings.magic_program[MagicPhase].name + " #" + exposureCount + "#" + repeatCount + " Shot#" + shotCount + " Err#" + shotErrorCount + " " + String.valueOf(shutterSpeed[0]) + "/" + String.valueOf(shutterSpeed[1]) + "s ISO " + String.valueOf(iso));
             shootRunnableHandler.postDelayed(shootRunnable, 500);
         }
 
@@ -883,7 +887,7 @@ private void shoot(int iso, double ap, int[] shutterSpeed) {
     protected boolean onShutterKeyDown() {
         setDriveMode(settings.magic_program[MagicPhase].CameraFlags[exposureCount], settings.magic_program[MagicPhase].BurstDurations[exposureCount]);
         setIso(settings.magic_program[MagicPhase].ISOs[exposureCount]);
-        setShutterSpeed(settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][0],settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][1]);
+        setShutterSpeed(settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][0], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][1]);
         try {
             cameraEx.cancelTakePicture(); // make sure nothing is stuck
             cameraEx.getNormalCamera().takePicture(null, null, null);
@@ -894,6 +898,7 @@ private void shoot(int iso, double ap, int[] shutterSpeed) {
         log_debug("onShutterKeyDown: Drive Mode: " + settings.magic_program[MagicPhase].CameraFlags[exposureCount] + ", Manual Shot Fired");
         return true;
     }
+
     @Override
     protected boolean onShutterKeyUp() {
         cameraEx.cancelTakePicture();
@@ -906,8 +911,8 @@ private void shoot(int iso, double ap, int[] shutterSpeed) {
     public void onShutter(int i, CameraEx cameraEx) {
         // i: 0 = success, 1 = canceled, 2 = error
         //log_debug(String.format("onShutter i: %d\n", i));
-        if (i != 0)
-        {
+        log_debug("onShutter");
+        if (i != 0) {
             //** this.cameraEx.cancelTakePicture();
             takingPicture = false;
             log_debug("onShutter ** take picture canceled or not ready -- delaying, retry shoot picture in 300ms, i: " + Integer.toString(i));
@@ -915,24 +920,27 @@ private void shoot(int iso, double ap, int[] shutterSpeed) {
             return; // not ready/error
         }
 
-        if(brck.get()<0){
+        if (brck.get() < 0) {
             brck = new AtomicInteger(0);
-            if(getcnt()>1) {
+            if (getcnt() > 1) {
                 brck = new AtomicInteger(2);
             }
         }
 
         // Burst Shooting?
-        if (settings.magic_program[MagicPhase].ISOs[exposureCount]!=0
-            && (settings.magic_program[MagicPhase].CameraFlags[exposureCount]=='C' // Burst Modes, (Contineous Shooting) High
-                || settings.magic_program[MagicPhase].CameraFlags[exposureCount]=='L' // Burst Modes, (Contineous Shooting) Low
-                || settings.magic_program[MagicPhase].CameraFlags[exposureCount]=='M') // Burst Modes, (Contineous Shooting) Medium
-            ) {
+        if (settings.magic_program[MagicPhase].ISOs[exposureCount] != 0
+                && (settings.magic_program[MagicPhase].CameraFlags[exposureCount] == 'C' // Burst Modes, (Contineous Shooting) High
+                || settings.magic_program[MagicPhase].CameraFlags[exposureCount] == 'L' // Burst Modes, (Contineous Shooting) Low
+                || settings.magic_program[MagicPhase].CameraFlags[exposureCount] == 'M') // Burst Modes, (Contineous Shooting) Medium
+        ) {
             shotCount++;
             if (endBurstShooting > System.currentTimeMillis()) {
-                logshot(settings.magic_program[MagicPhase].name, Long.toString(endBurstShooting-System.currentTimeMillis()) + "ms left for Burst Shooting E#" + exposureCount + " R#" + repeatCount + " ~B#" + burstCount + "~ S#" + shotCount);
+                logshot(settings.magic_program[MagicPhase].name, Long.toString(endBurstShooting - System.currentTimeMillis()) + "ms left for Burst Shooting E#" + exposureCount + " R#" + repeatCount + " ~B#" + burstCount + "~ S#" + shotCount);
                 burstCount++; // not actual burst count as I do not get the actual Shutter events
-                manualShutterCallbackCallRunnableHandler.postDelayed(manualShutterCallbackCallRunnable, 300);
+                if (settings.magic_program[MagicPhase].CameraFlags[exposureCount] == 'C')
+                    manualShutterCallbackCallRunnableHandler.postDelayed(manualShutterCallbackCallRunnable, 200);
+                else
+                    manualShutterCallbackCallRunnableHandler.postDelayed(manualShutterCallbackCallRunnable, 500);
             } else {
                 exposureCount++; // next
                 burstCount = 0;
@@ -945,7 +953,7 @@ private void shoot(int iso, double ap, int[] shutterSpeed) {
         }
 
         // shot completed
-        //*** this.cameraEx.cancelTakePicture();
+        cameraEx.cancelTakePicture();
 
         if (m_bracketActive) {
             log_debug("onShutter: Bracketing Shooting completed.");
@@ -957,7 +965,7 @@ private void shoot(int iso, double ap, int[] shutterSpeed) {
 
         exposureCount++;
 
-        log_debug("onShutter EC:" + Integer.toString(exposureCount)+ ", past TakePicture ms: " +  Long.toString( System.currentTimeMillis() - shootEndTime));
+        log_debug("onShutter EC:" + Integer.toString(exposureCount) + ", past TakePicture ms: " + Long.toString(System.currentTimeMillis() - shootEndTime));
 
         // end of exposure series?
         if (settings.magic_program[MagicPhase].number_shots > 0 && settings.magic_program[MagicPhase].ISOs[exposureCount] == 0) {

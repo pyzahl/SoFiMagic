@@ -47,6 +47,7 @@ public class Logger
     }
 
     public static void set_verbose_level(int l) { level=l; };
+    public static int get_verbose_level() { return level; };
     protected static void log(int L, String type, String msg) { if (level>L) log("[" + type + "] " + msg); }
     public static void info_debug(String msg) { log(2, "DEBUG", msg); }
     public static void info(String msg) { log(1, "INFO", msg); }

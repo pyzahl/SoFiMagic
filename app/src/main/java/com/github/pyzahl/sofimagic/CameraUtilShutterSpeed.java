@@ -14,6 +14,9 @@ public class CameraUtilShutterSpeed
     };
 
     public static final int[][] SHUTTER_SPEEDS = new int[][] {
+            new int[]{1, 8000}, // **
+            new int[]{1, 6400}, // **
+            new int[]{1, 5000}, // **
             new int[]{1, 4000},
             new int[]{1, 3200},
             new int[]{1, 2500},
