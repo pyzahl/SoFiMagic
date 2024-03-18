@@ -124,7 +124,7 @@ public class SoFiProgramXML {
 
             Element elementV = doc.createElement("VALID_SOFI_PROGRAM");
             appendElement(elementV, "STATUS", "VALID");
-            appendElement(elementV, "LOGGING_LEVEL", "2");
+            appendElement(elementV, "LOGGING_LEVEL", Integer.toString(Logger.get_verbose_level()));
             appendElement(elementV, "COMMENT", "Eclipse Program: may edit this file or use App.\n" +
                     "NAME: Name of Shooting Phase. There may be more or any names used than default. PHASES must be listed in actual shooting order i.e. with ascending START times.\n" +
                     "PHASE Start/End time is relative to C0, C1..C4 as defined by REF_CONTACT_START/END plus a offset START and END in seconds.\n" +

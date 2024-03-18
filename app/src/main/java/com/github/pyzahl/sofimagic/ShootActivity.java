@@ -212,7 +212,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                             display.off();
                         setDriveMode(settings.magic_program[MagicPhase].CameraFlags[exposureCount], settings.magic_program[MagicPhase].BurstDurations[exposureCount]);
                     }
-                    log_debug("shootRunnable: enter Continueous BurstMode 'C'. BC#" + Integer.toString(burstCount) + " BTime:" + Integer.toString(settings.magic_program[MagicPhase].BurstDurations[exposureCount]) + "s BurstEnd in: " + Long.toString(endBurstShooting-System.currentTimeMillis()) + "ms");
+                    log_debug("shootRunnable: enter Continueous BurstMode " + Character.toString(settings.magic_program[MagicPhase].CameraFlags[exposureCount]) + " BC#" + Integer.toString(burstCount) + " BTime:" + Integer.toString(settings.magic_program[MagicPhase].BurstDurations[exposureCount]) + "s BurstEnd in: " + Long.toString(endBurstShooting-System.currentTimeMillis()) + "ms");
 
                     if (endBurstShooting > System.currentTimeMillis()) {
                         // this will fire up continuous shooting -- to be canceled.  OnShutter will take over and give control back when burst completed
