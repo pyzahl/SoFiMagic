@@ -31,6 +31,9 @@ Finally click the start button and wait.
 
 You can stop by clicking the MENU button on the camera.
 
+IMPORTANT NOTE: PLEASE DO NOT START THIS APP WITH CAMERA BEEN IN DRIVE MODE USING ANY TIMER SETTING (2/10s delay, or Bracket delayed...) -- THIS WILL FAIL PROGRAMMED SHOOTING!
+SET TO SINGLE DRIVE MODE, NO TIMER.
+
 The settings screens. Start button at the bottom, scroll down.
 
 ![Screenshot from 2024-03-09 23-00-18](https://github.com/pyzahl/SoFiMagic/assets/22110415/eceec0ad-1528-4fc9-a48c-fd51befa8e62)
