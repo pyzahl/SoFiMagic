@@ -111,6 +111,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
     private long shootTime;
     private long shootEndTime;
+    private long shutterDuration=0;
     private long shootStartTime;
 
     private Display display;
@@ -834,10 +835,10 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         setIso(iso);
         setShutterSpeed(shutterSpeed[0], shutterSpeed[1]);
         setAp(ap);
+        shutterDuration = Math.round((double) 1000 * shutterSpeed[0] / shutterSpeed[1]);
         shootTime = System.currentTimeMillis(); // " @millis=" + shootTime +
         try {
             cameraEx.getNormalCamera().takePicture(null, null, null);
-            shootEndTime = shootTime + Math.round((double) 1000 * shutterSpeed[0] / shutterSpeed[1]);
             logshot(settings.magic_program[MagicPhase].name, "Taking Photo Bracket EC#" + exposureCount + " RC#" + repeatCount + " SC#" + shotCount + " "
                     + String.valueOf(shutterSpeed[0]) + "/" + String.valueOf(shutterSpeed[1]) + "s ISO " + String.valueOf(iso) + " F" + String.valueOf(ap));
         } catch (Exception ignored) {
@@ -857,13 +858,13 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         setIso(iso);
         setShutterSpeed(shutterSpeed[0], shutterSpeed[1]);
         setAp(ap);
+        shutterDuration = Math.round((double) 1000 * shutterSpeed[0] / shutterSpeed[1]);
         shootTime = System.currentTimeMillis(); // " @millis=" + shootTime +
 
         try {
             cameraEx.burstableTakePicture();
             //cameraEx.startDirectShutter();
             //cameraEx.startSelfTimerShutter();
-            shootEndTime = shootTime + Math.round((double) 1000 * shutterSpeed[0] / shutterSpeed[1]);
             logshot(settings.magic_program[MagicPhase].name, "Shoot Photo EC#" + exposureCount + " RC#" + repeatCount + " SC#" + shotCount + " "
                     + String.valueOf(shutterSpeed[0]) + "/" + String.valueOf(shutterSpeed[1]) + "s ISO " + String.valueOf(iso) + " F" + String.valueOf(ap));
         } catch (Exception ignored) {
@@ -911,7 +912,13 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
     public void onShutter(int i, CameraEx cameraEx) {
         // i: 0 = success, 1 = canceled, 2 = error
         //log_debug(String.format("onShutter i: %d\n", i));
-        log_debug("onShutter");
+        if (shootEndTime == 0) {
+            if (m_bracketActive)
+                shootEndTime = 5*shutterDuration + System.currentTimeMillis();
+            else
+                shootEndTime = shutterDuration + System.currentTimeMillis();
+        }
+        log_debug("onShutter: ");
         if (i != 0) {
             //** this.cameraEx.cancelTakePicture();
             takingPicture = false;
@@ -952,8 +959,15 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
             return;
         }
 
-        // shot completed
-        cameraEx.cancelTakePicture();
+        // shot completed?
+
+        long remaining_exposure_time = System.currentTimeMillis() - shootEndTime;
+        if (remaining_exposure_time < 0) {
+            manualShutterCallbackCallRunnableHandler.postDelayed(manualShutterCallbackCallRunnable, -remaining_exposure_time); // wait for long exposure to complete
+            log_debug("onShutter delaying for long exposure waitup, recall onShutter in " + Long.toString(-remaining_exposure_time) + "ms EC:" + Integer.toString(exposureCount));
+            return;
+        }
+        shootEndTime = 0;
 
         if (m_bracketActive) {
             log_debug("onShutter: Bracketing Shooting completed.");
@@ -965,7 +979,10 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
         exposureCount++;
 
-        log_debug("onShutter EC:" + Integer.toString(exposureCount) + ", past TakePicture ms: " + Long.toString(System.currentTimeMillis() - shootEndTime));
+        // shot completed
+        cameraEx.cancelTakePicture();
+
+        log_debug("onShutter EC:" + Integer.toString(exposureCount) + ", past TakePicture ms: " + Long.toString(remaining_exposure_time));
 
         // end of exposure series?
         if (settings.magic_program[MagicPhase].number_shots > 0 && settings.magic_program[MagicPhase].ISOs[exposureCount] == 0) {
