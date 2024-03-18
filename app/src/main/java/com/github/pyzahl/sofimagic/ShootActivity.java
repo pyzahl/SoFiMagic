@@ -216,9 +216,11 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                     log_debug("shootRunnable: enter Continueous BurstMode " + Character.toString(settings.magic_program[MagicPhase].CameraFlags[exposureCount]) + " BC#" + Integer.toString(burstCount) + " BTime:" + Integer.toString(settings.magic_program[MagicPhase].BurstDurations[exposureCount]) + "s BurstEnd in: " + Long.toString(endBurstShooting-System.currentTimeMillis()) + "ms");
 
                     if (endBurstShooting > System.currentTimeMillis()) {
+                        burstShooting = true;
                         // this will fire up continuous shooting -- to be canceled.  OnShutter will take over and give control back when burst completed
                         shoot(settings.magic_program[MagicPhase].ISOs[exposureCount], settings.magic_program[MagicPhase].Fs[exposureCount], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount]);
                     } else {
+                        burstShooting = false;
                         log_debug("shootRunnable: BurstShooting END detected. A*** SHOULD NOT GET HERE NORMALLY ** MANAGED by onShutter");
                         shootRunnableHandler.postDelayed(this, 1000); // give some time to store and repeat
                     }
@@ -227,6 +229,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                     if (burstCount > 0) { // end section, reset DriveMode -- just in case of critical timings, should not get here normally
                         log_debug("shootRunnable: BurstShooting END detected. B*** SHOULD NOT GET HERE NORMALLY ** MANAGED by onShutter");
                         burstCount = 0;
+                        burstShooting = false;
                         exposureCount++; // next
                         shootRunnableHandler.postDelayed(this, 250); // continue
                         return;
@@ -935,11 +938,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         }
 
         // Burst Shooting?
-        if (settings.magic_program[MagicPhase].ISOs[exposureCount] != 0
-                && (settings.magic_program[MagicPhase].CameraFlags[exposureCount] == 'C' // Burst Modes, (Contineous Shooting) High
-                || settings.magic_program[MagicPhase].CameraFlags[exposureCount] == 'L' // Burst Modes, (Contineous Shooting) Low
-                || settings.magic_program[MagicPhase].CameraFlags[exposureCount] == 'M') // Burst Modes, (Contineous Shooting) Medium
-        ) {
+        if (burstShooting){
             shotCount++;
             if (endBurstShooting > System.currentTimeMillis()) {
                 logshot(settings.magic_program[MagicPhase].name, Long.toString(endBurstShooting - System.currentTimeMillis()) + "ms left for Burst Shooting E#" + exposureCount + " R#" + repeatCount + " ~B#" + burstCount + "~ S#" + shotCount);
@@ -951,6 +950,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
             } else {
                 exposureCount++; // next
                 burstCount = 0;
+                burstShooting = false;
                 this.cameraEx.cancelTakePicture();
                 log_debug("onShutter: Burst completed. cancelTakePicture() now.");
                 setDriveMode('S', 0);
