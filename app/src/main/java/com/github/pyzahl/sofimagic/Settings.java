@@ -177,7 +177,7 @@ class Settings {
             return Math.round((long)get_end_time() * 1000.0 - as_of_ms); // Milli Sec
         }
         public int get_TimeOfNext(int count) {
-            if (number_shots > 1)
+            if (number_shots > 0)
                 return get_start_time() + count*(get_end_time()-get_start_time())/(number_shots-1); // time in Sec
             else
                 return get_start_time();

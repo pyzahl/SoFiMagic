@@ -50,6 +50,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
     private long remainingTimeToContactPhase = 0;
     private long remainingTimeThisPhase = 0;
     private long remainingTimeNextExposureSet = 0;
+    private long remainingTimeThisExposureSet = 0;
 
     private long endBurstShooting = 0;
 
@@ -127,8 +128,8 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
     void wait_for_next_exposure() {
         // ...wait for Contact Start Time
-        log_debug("shootRunnable: waiting... " + getHMSMSfromMS(remainingTimeNextExposureSet));
-        if (remainingTimeNextExposureSet > 3000) {
+        log_debug("shootRunnable: waiting... " + getHMSMSfromMS(remainingTimeThisExposureSet));
+        if (remainingTimeThisExposureSet > 3000) {
             display.on();
             runOnUiThread(new Runnable() {
                 @Override
@@ -138,8 +139,8 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
             });
             shootRunnableHandler.postDelayed(shootRunnable, 1000); // wait a second and check again, update screen
         } else {
-            if (remainingTimeNextExposureSet > 500)
-                shootRunnableHandler.postDelayed(shootRunnable, remainingTimeNextExposureSet - 300); // wait a little and check again
+            if (remainingTimeThisExposureSet > 500)
+                shootRunnableHandler.postDelayed(shootRunnable, remainingTimeThisExposureSet - 300); // wait a little and check again
             else
                 shootRunnableHandler.postDelayed(shootRunnable, 150); // wait a little and check again
         }
@@ -169,6 +170,13 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
             // Get Time
             long now = getMilliSecondsOfDay();
+
+            if (settings.magic_program[MagicPhase].ISOs[exposureCount] == 0) {
+                if (exposureCount > 0)
+                    log_progress("shootRunnable: exposure list completed, repeating.");
+                exposureCount = 0; // reset exposure count for phase and repeat exposure block
+                repeatCount++;
+            }
 
             // Check in MagicPhase, adjust if needed:
             // if aborted, it will continue at the right phase automatically and skips forward as required!
@@ -200,11 +208,6 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                 }
             } while (remainingTimeThisPhase <= 250 && settings.magic_program[MagicPhase].number_shots != 0); // skip forward if past this phase
 
-            if (remainingTimeNextExposureSet > 250) {
-                wait_for_next_exposure();
-                return;
-            }
-
             // check if we need to skip forward (in timed series)
             if (settings.magic_program[MagicPhase].number_shots > 0) {
                 do {
@@ -215,22 +218,29 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                         repeatCount++; // skip
                     }
                 } while (remainingTimeNextExposureSet < 0 && settings.magic_program[MagicPhase].ISOs[exposureCount] != 0);
-            } else
-                remainingTimeNextExposureSet = 0; // no interval, keep shooting
+            }
+            remainingTimeThisExposureSet = settings.magic_program[MagicPhase].get_remainingTimeToNext(repeatCount, now); // returns Start of Phase if NShots == -1 (no interval)
 
             // CHECK FOR NOT END OF ECLIPSE TO PROCEED
             if (settings.magic_program[MagicPhase].number_shots != 0) {
 
+                // check for next set start and wait if needed
+                if (remainingTimeThisExposureSet > 250) {
+                    wait_for_next_exposure();
+                    return;
+                }
+
+                // CHECK CFLAGS FOR MODE OF OPERATION
+
                 // Check: Contineous Drive ? (Burst Operation)
-                if (remainingTimeNextExposureSet < 150
-                        && (settings.magic_program[MagicPhase].CameraFlags[exposureCount]=='C' // Burst Modes, (Contineous Shooting) High
-                            || settings.magic_program[MagicPhase].CameraFlags[exposureCount]=='L' // Burst Modes, (Contineous Shooting) Low
-                            || settings.magic_program[MagicPhase].CameraFlags[exposureCount]=='M') // Burst Modes, (Contineous Shooting) Medium
+                if ((settings.magic_program[MagicPhase].CameraFlags[exposureCount] == 'C' // Burst Modes, (Contineous Shooting) High
+                        || settings.magic_program[MagicPhase].CameraFlags[exposureCount] == 'L' // Burst Modes, (Contineous Shooting) Low
+                        || settings.magic_program[MagicPhase].CameraFlags[exposureCount] == 'M') // Burst Modes, (Contineous Shooting) Medium
                         && settings.magic_program[MagicPhase].BurstDurations[exposureCount] > 1  // more than 1 shot?
-                        && settings.magic_program[MagicPhase].ISOs[exposureCount] != 0){  // not at end of exposure list?
+                        && settings.magic_program[MagicPhase].ISOs[exposureCount] != 0) {  // not at end of exposure list?
 
                     if (burstCount == 0) { // Before 1 Burst Shot setup Burst Mode
-                        endBurstShooting = 1000*settings.magic_program[MagicPhase].BurstDurations[exposureCount] + System.currentTimeMillis();
+                        endBurstShooting = 1000 * settings.magic_program[MagicPhase].BurstDurations[exposureCount] + System.currentTimeMillis();
                         stopPicturePreview = false;
                         camera.stopPreview();
                         reviewSurfaceView.setVisibility(View.GONE);
@@ -238,7 +248,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                             display.off();
                         setDriveMode(settings.magic_program[MagicPhase].CameraFlags[exposureCount], settings.magic_program[MagicPhase].BurstDurations[exposureCount]);
                     }
-                    log_debug("shootRunnable: enter Continueous BurstMode " + Character.toString(settings.magic_program[MagicPhase].CameraFlags[exposureCount]) + " BC#" + Integer.toString(burstCount) + " BTime:" + Integer.toString(settings.magic_program[MagicPhase].BurstDurations[exposureCount]) + "s BurstEnd in: " + Long.toString(endBurstShooting-System.currentTimeMillis()) + "ms");
+                    log_debug("shootRunnable: enter Continueous BurstMode " + Character.toString(settings.magic_program[MagicPhase].CameraFlags[exposureCount]) + " BC#" + Integer.toString(burstCount) + " BTime:" + Integer.toString(settings.magic_program[MagicPhase].BurstDurations[exposureCount]) + "s BurstEnd in: " + Long.toString(endBurstShooting - System.currentTimeMillis()) + "ms");
 
                     if (endBurstShooting > System.currentTimeMillis()) {
                         burstShooting = true;
@@ -260,117 +270,62 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                         return;
                     }
                 }
+                // DONE BURST OP
 
+                // Check: Bracket Operation
+                if (settings.magic_program[MagicPhase].CameraFlags[exposureCount] == 'B' // Bracketing Mode
+                        && settings.magic_program[MagicPhase].BurstDurations[exposureCount] > 1  // more than 1 shot?
+                        && settings.magic_program[MagicPhase].ISOs[exposureCount] != 0) {  // not at end of exposure list?
 
-                // keep working on exposure list in intervall mode or end of exposure list and distributed shots -- else keep going and repeat exposure block
-                if (remainingTimeNextExposureSet > 150
-                        || (settings.magic_program[MagicPhase].number_shots > 0 && settings.magic_program[MagicPhase].ISOs[exposureCount] == 0)) {
+                    if (m_bracketPicCount == 0) { // Before 1 Burst Shot setup Burst Mode
+                        m_bracketMaxPicCount = settings.magic_program[MagicPhase].BurstDurations[exposureCount]; // 3, 5, 7
+                        m_bracketStep = (settings.magic_program[MagicPhase].BurstDurations[exposureCount] - 1) / 2; // #+/- steps in 1/3 stops
+                        if (m_bracketStep > 2) {
+                            m_bracketShutterDelta = 2;
+                            m_bracketMaxPicCount /= 2;
+                        } else
+                            m_bracketShutterDelta = 1;
 
-                    if (settings.magic_program[MagicPhase].ISOs[exposureCount] == 0) {
-                        if (exposureCount > 1)
-                            log_progress("shootRunnable: exposure list completed, repeating.");
-                        exposureCount = 0; // reset exposure count for phase and repeat exposure block
-                        repeatCount++;
+                        m_bracketActive = true;
+                        m_bracketNeutralShutterIndex = CameraUtilShutterSpeed.getShutterValueIndex(settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][0], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][1]);
+                        //stopPicturePreview = false;
+                        //camera.stopPreview();
+                        //reviewSurfaceView.setVisibility(View.GONE);
+                        //if (settings.displayOff)
+                        //    display.off();
+                        setDriveMode(settings.magic_program[MagicPhase].CameraFlags[exposureCount], settings.magic_program[MagicPhase].BurstDurations[exposureCount]);
                     }
-                    int time_of_next_burst = settings.magic_program[MagicPhase].get_TimeOfNext(repeatCount);
-                    now = getMilliSecondsOfDay();
-                    remainingTimeNextExposureSet= settings.magic_program[MagicPhase].get_remainingTimeToNext(repeatCount, now);
-                    if (remainingTimeToContactPhase <= 0)  // omit this log when waiting for phase start
-                        log_debug("shootRunnable: remaining time to next Exposure Series in " + settings.magic_program[MagicPhase].name + " EC#" + Integer.toString(repeatCount) + " next in: " + getHMSMSfromMS(remainingTimeNextExposureSet));
+                    log_debug("shootRunnable: enter Bracketing Mode 'B'. BC#" + Integer.toString(burstCount) + " #NB:" + Integer.toString(settings.magic_program[MagicPhase].BurstDurations[exposureCount]));
 
-                    if (remainingTimeNextExposureSet < 150) {
-                        // Check: Bracket Operation
-                        if (settings.magic_program[MagicPhase].CameraFlags[exposureCount]=='B' // Bracketing Mode
-                            && settings.magic_program[MagicPhase].BurstDurations[exposureCount] > 1  // more than 1 shot?
-                            && settings.magic_program[MagicPhase].ISOs[exposureCount] != 0){  // not at end of exposure list?
-
-                            if (m_bracketPicCount == 0) { // Before 1 Burst Shot setup Burst Mode
-                                m_bracketMaxPicCount = settings.magic_program[MagicPhase].BurstDurations[exposureCount]; // 3, 5, 7
-                                m_bracketStep = (settings.magic_program[MagicPhase].BurstDurations[exposureCount]-1)/2; // #+/- steps in 1/3 stops
-                                if (m_bracketStep > 2) {
-                                    m_bracketShutterDelta = 2;
-                                    m_bracketMaxPicCount /= 2;
-                                } else
-                                    m_bracketShutterDelta = 1;
-
-                                m_bracketActive = true;
-                                m_bracketNeutralShutterIndex = CameraUtilShutterSpeed.getShutterValueIndex(settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][0], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][1]);
-                                //stopPicturePreview = false;
-                                //camera.stopPreview();
-                                //reviewSurfaceView.setVisibility(View.GONE);
-                                //if (settings.displayOff)
-                                //    display.off();
-                                setDriveMode(settings.magic_program[MagicPhase].CameraFlags[exposureCount], settings.magic_program[MagicPhase].BurstDurations[exposureCount]);
-                            }
-                            log_debug("shootRunnable: enter Bracketing Mode 'B'. BC#" + Integer.toString(burstCount) + " #NB:" + Integer.toString(settings.magic_program[MagicPhase].BurstDurations[exposureCount]));
-
-                            if (m_bracketPicCount < m_bracketMaxPicCount) {
-                                // this will fire up bracket shooting -- to be canceled.  OnShutter will take over and give control back when burst completed
-                                shootPicture(settings.magic_program[MagicPhase].ISOs[exposureCount], settings.magic_program[MagicPhase].Fs[exposureCount], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount]);
-                            } else {
-                                log_debug("shootRunnable: BracketShooting END detected. A*** SHOULD NOT GET HERE NORMALLY ** MANAGED by onShutter");
-                                m_bracketActive = false;
-                                m_bracketPicCount = 0;
-                                shootRunnableHandler.postDelayed(this, 250); // give some time to store and repeat ** 1000
-                            }
-                            return; // DONE with initiate Burst
-                        } else {
-                            if (burstCount > 0) { // end section, reset DriveMode -- just in case of critical timings, should not get here normally
-                                log_debug("shootRunnable: BracketShooting END detected. B*** SHOULD NOT GET HERE NORMALLY ** MANAGED by onShutter");
-                                burstCount = 0;
-                                exposureCount++; // next
-                                m_bracketActive = false;
-                                shootRunnableHandler.postDelayed(this, 250); // continue
-                                return;
-                            }
-                            // single shot
-                            setDriveMode('S', 0);
-                            shoot(settings.magic_program[MagicPhase].ISOs[exposureCount], settings.magic_program[MagicPhase].Fs[exposureCount], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount]);
-                        }
+                    if (m_bracketPicCount < m_bracketMaxPicCount) {
+                        // this will fire up bracket shooting -- to be canceled.  OnShutter will take over and give control back when burst completed
+                        shootPicture(settings.magic_program[MagicPhase].ISOs[exposureCount], settings.magic_program[MagicPhase].Fs[exposureCount], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount]);
                     } else {
-                        // ...wait for Contact Start Time
-                        if (remainingTimeNextExposureSet <= 0) // omit this log when waiting for phase start
-                            log_debug("shootRunnable: waiting for next exposue block...");
-                        wait_for_next_exposure();
+                        log_debug("shootRunnable: BracketShooting END detected. A*** SHOULD NOT GET HERE NORMALLY ** MANAGED by onShutter");
+                        m_bracketActive = false;
+                        m_bracketPicCount = 0;
+                        shootRunnableHandler.postDelayed(this, 250); // give some time to store and repeat ** 1000
                     }
-                    return; // DONE
-
-                } else { // keep shooting, no interval, as many as round of exposure list as possible!
-                    if (remainingTimeToContactPhase <= 300 && settings.magic_program[MagicPhase].number_shots != 0) { // 300ms is vaguely the time this postDelayed is to slow
-                        long remainingTimeToNextContactPhase = settings.magic_program[MagicPhase + 1].get_remainingTimeToStart(now);
-                        if (remainingTimeToNextContactPhase <= 300) {
-                            if (settings.magic_program[MagicPhase + 1].number_shots != 0) { // make sure not at end
-                                MagicPhase++;
-                                log_progress("shootRunnable: Entering Next MagicPhase " + settings.magic_program[MagicPhase].name + " #" + Integer.toString(MagicPhase));
-                            }
-                            exposureCount = 0;
-                            repeatCount = 0;
-                        }
-
-                        if (settings.magic_program[MagicPhase].ISOs[exposureCount] == 0) {
-                            if (exposureCount > 1)
-                                log_progress("shootRunnable: exposure list completed, repeating.");
-                            exposureCount = 0; // reset exposure count for phase and repeat exposure block
-                            repeatCount++;
-                        }
-
-                        //display.off();
-                        // Shoot === ***** Shoot, will re-trigger this handler once completed!
-                        if (settings.magic_program[MagicPhase].number_shots != 0) {
-                            shooting = true;
-                            setDriveMode('S', 0);
-                            shoot(settings.magic_program[MagicPhase].ISOs[exposureCount], settings.magic_program[MagicPhase].Fs[exposureCount], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount]);
-                            //log_debug("shootRunnable: shoot fired, next exposure");
-                        }
-                    } else {
-                        // ...wait for Contact Start Time
-                        log_debug("shootRunnable: waiting...");
-                        wait_for_next_exposure();
-                        return; // DONE
-                    }
-
+                    return; // DONE with initiate Burst
                 }
-            } else { // END OF ECLIPSE
+                else // SINGLE DRIVE SHOOTING MODE 'S':
+                {
+                    // make sure BURST is ENDED now
+                    if (burstCount > 0) { // end section, reset DriveMode -- just in case of critical timings, should not get here normally
+                        log_debug("shootRunnable: BracketShooting END detected. B*** SHOULD NOT GET HERE NORMALLY ** MANAGED by onShutter");
+                        burstCount = 0;
+                        exposureCount++; // next
+                        m_bracketActive = false;
+                        shootRunnableHandler.postDelayed(this, 250); // continue shortly
+                        return;
+                    }
+                    // set single shot drive mode and shoot normally
+                    setDriveMode('S', 0);
+                    shoot(settings.magic_program[MagicPhase].ISOs[exposureCount], settings.magic_program[MagicPhase].Fs[exposureCount], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount]);
+                }
+            }
+            else // END OF ECLIPSE
+            {
                 log_progress("shootRunnable: END of ECLIPSE.");
                 display.on();
                 runOnUiThread(new Runnable() {
@@ -393,7 +348,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
     public void update_info() {
         tvCount.setText(Integer.toString(shotCount) + ":" + Integer.toString(exposureCount) + ":" + Integer.toString(repeatCount) + "/" + Integer.toString(settings.magic_program[MagicPhase].number_shots));
-        tvRemaining.setText(getHMSfromMS(remainingTimeNextExposureSet));
+        tvRemaining.setText(getHMSfromMS(remainingTimeThisExposureSet));
         tvBattery.setText(getBatteryPercentage());
         if (remainingTimeToContactPhase > 0)
             tvNextShot.setText(getHMSfromMS(remainingTimeToContactPhase) + " until " + settings.magic_program[MagicPhase].name);
