@@ -39,34 +39,48 @@ public class CameraUtilISOs {
             102400
     };
 
-    public static final double[] Apertures = new double[]{
-            0,
-            1,
-            2,
-            2.2,
-            2.5,
-            2.8,
-            3.2,
-            4,
-            4.5,
-            3.2,
-            5,
-            5.6,
-            6.3,
-            7.1,
-            8,
-            9,
-            10,
-            11,
-            13,
-            14,
-            16,
-            18,
-            20,
-            22,
-            28,
-            32
+    public static final float[] Apertures = new float[]{
+            0f,
+            1f,
+            1.1f,
+            1.3f,
+            1.4f,
+            1.6f,
+            1.8f,
+            2f,
+            2.5f,
+            2.8f,
+            3.2f,
+            3.5f,
+            4f,
+            4.5f,
+            5f,
+            5.6f,
+            6.3f,
+            7.1f,
+            8f,
+            9f,
+            10f,
+            11f,
+            13f,
+            14f,
+            16f,
+            18f,
+            20f,
+            22f,
+            28f,
+            32f
     };
+
+    public static int getApertureValueIndex(float ap)
+    {
+        for (int i = 0; i < Apertures.length; ++i)
+        {
+            if (Apertures[i]-ap == 0.0)
+                return i;
+        }
+        return -1;
+    }
 
     // Camera Flags, Drive Mode, ...
     public static final String[] CFlags = new String[]{

@@ -59,7 +59,7 @@ class Settings {
             this.number_shots = number_shots;
             CameraFlags = new char[MAX_EXPOSURE_PARAMS];
             for (int i=0; i<CameraFlags.length; ++i) CameraFlags[i] = 'S';
-            Fs = new double[MAX_EXPOSURE_PARAMS];
+            Fs = new float[MAX_EXPOSURE_PARAMS];
             BurstDurations = new int[MAX_EXPOSURE_PARAMS];
             ISOs = new int[MAX_EXPOSURE_PARAMS];
             ShutterSpeeds = new int[MAX_EXPOSURE_PARAMS][2];
@@ -73,7 +73,7 @@ class Settings {
         public int number_shots = 0; // numbershots/burst to distribute
         public char[] CameraFlags;
         public int[] BurstDurations;   //          = {-1,             0,       0 }; // 0=END, -1, regular (no burst)
-        public double[] Fs;    //          = {0,          0,       0 }; // 0=do not manage/change
+        public float[] Fs;    //          = {0,          0,       0 }; // 0=do not manage/change
         public int[] ISOs;    //          = {400,          400,       0 }; // 0=END
         public int[][] ShutterSpeeds; // = {{1,1000},    {1, 2000}, {0,0}};
 
@@ -107,7 +107,7 @@ class Settings {
             String F_list = "";
             for (int k = 0; k < Fs.length; ++k) {
                 if (ISOs[k] > 0) {
-                    F_list = F_list + Double.toString(Fs[k]) + ",";
+                    F_list = F_list + Float.toString(Fs[k]) + ",";
                 } else break;
             }
             return F_list;
@@ -151,7 +151,7 @@ class Settings {
             String[] f_list = F_list.split(",");
             int k;
             for (k = 0; k < f_list.length && k < Fs.length && ISOs[k]>0; k++)
-                Fs[k] = Double.parseDouble(f_list[k]);
+                Fs[k] = Float.parseFloat(f_list[k]);
         }
         public void set_SHUTTER_SPEEDS_list(String SHUTTER_SPEED_list) {
             String[] ss_list = SHUTTER_SPEED_list.split(",");

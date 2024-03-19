@@ -1,7 +1,10 @@
 package com.github.pyzahl.sofimagic;
 
+import static com.github.pyzahl.sofimagic.CameraUtilISOs.getApertureValueIndex;
 import static com.github.pyzahl.sofimagic.CameraUtilShutterSpeed.SHUTTER_SPEEDS;
 import static com.github.pyzahl.sofimagic.CameraUtilShutterSpeed.getShutterValueIndex;
+
+import static java.lang.Math.round;
 
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -659,13 +662,27 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         m_tvISO.setText(String.format("\uE488 %d", iso));
     }
 
-    private void setAp(double ap) {
-        if (ap>0.0)
-            cameraEx.adjustAperture((int)(ap*100));
-
+    private void setAp(float ap) {
         final Camera.Parameters params = cameraEx.getNormalCamera().getParameters();
         final CameraEx.ParametersModifier paramsModifier = cameraEx.createParametersModifier(params);
 
+        if (ap>0.0) {
+            float a = (float)paramsModifier.getAperture() / 100.0f;
+            int apertureIndex = getApertureValueIndex(a);
+            int apertureDiff = apertureIndex - getApertureValueIndex(ap);
+            log_debug("set Aperture: current: " + String.valueOf(a) + " i:" + String.valueOf(apertureIndex) + " new:" + String.valueOf(ap) + " i:" + String.valueOf(getApertureValueIndex(ap)) + " diff:" + String.valueOf(apertureDiff));
+            if (apertureDiff != 0) {
+                while (apertureDiff > 0) {
+                    apertureDiff--;
+                    cameraEx.decrementAperture();
+                }
+                while (apertureDiff < 0) {
+                    apertureDiff++;
+                    cameraEx.incrementAperture();
+                }
+                //cameraEx.adjustAperture(-apertureDiff); // not working
+            }
+        }
         m_tvAperture.setText(String.format("f%.1f", (float) paramsModifier.getAperture() / 100.0f));
     }
 
@@ -782,13 +799,13 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         }
     }
 
-    private void shootPicture(int iso, double ap, int[] shutterSpeed) {
+    private void shootPicture(int iso, float ap, int[] shutterSpeed) {
         //this.cameraEx.cancelTakePicture(); // TEST
 
         setIso(iso);
         setShutterSpeed(shutterSpeed[0], shutterSpeed[1]);
         setAp(ap);
-        shutterDuration = Math.round((double) 1000 * shutterSpeed[0] / shutterSpeed[1]);
+        shutterDuration = round((double) 1000 * shutterSpeed[0] / shutterSpeed[1]);
         shootTime = System.currentTimeMillis(); // " @millis=" + shootTime +
         try {
             cameraEx.getNormalCamera().takePicture(null, null, null);
@@ -802,7 +819,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         }
     }
 
-    private void shoot(int iso, double ap, int[] shutterSpeed) {
+    private void shoot(int iso, float ap, int[] shutterSpeed) {
         if (takingPicture)
             return;
 
@@ -811,7 +828,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         setIso(iso);
         setShutterSpeed(shutterSpeed[0], shutterSpeed[1]);
         setAp(ap);
-        shutterDuration = Math.round((double) 1000 * shutterSpeed[0] / shutterSpeed[1]);
+        shutterDuration = round((double) 1000 * shutterSpeed[0] / shutterSpeed[1]);
         shootTime = System.currentTimeMillis(); // " @millis=" + shootTime +
 
         try {
