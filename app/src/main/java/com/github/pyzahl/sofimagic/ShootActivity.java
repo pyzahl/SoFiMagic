@@ -133,7 +133,14 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         // ...wait for Contact Start Time
         log_debug("shootRunnable: waiting... " + getHMSMSfromMS(remainingTimeThisExposureSet));
         if (remainingTimeThisExposureSet > 3000) {
-            display.on();
+
+            //stopPicturePreview = false;
+            //camera.stopPreview();
+            //reviewSurfaceView.setVisibility(View.GONE);
+            //if (settings.displayOff)
+            //    display.off();
+            //else
+            //    display.on();
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -157,8 +164,8 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                 stopPicturePreview = false;
                 camera.stopPreview();
                 reviewSurfaceView.setVisibility(View.GONE);
-                if (settings.displayOff)
-                    display.off();
+                //if (settings.displayOff)
+                //    display.off();
             }
 
             if (MagicPhase==0 && shotCount == -1) { // start preview while waiting first for first shot
@@ -166,6 +173,8 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                 camera.startPreview();
                 reviewSurfaceView.setVisibility(View.VISIBLE);
                 stopPicturePreview = false;
+                display.on();
+                display.turnAutoOff(10000);
                 shotCount=0;
             }
 
@@ -247,8 +256,6 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                         stopPicturePreview = false;
                         camera.stopPreview();
                         reviewSurfaceView.setVisibility(View.GONE);
-                        if (settings.displayOff)
-                            display.off();
                         setDriveMode(settings.magic_program[MagicPhase].CameraFlags[exposureCount], settings.magic_program[MagicPhase].BurstDurations[exposureCount]);
                     }
                     log_debug("shootRunnable: enter Continueous BurstMode " + Character.toString(settings.magic_program[MagicPhase].CameraFlags[exposureCount]) + " BC#" + Integer.toString(burstCount) + " BTime:" + Integer.toString(settings.magic_program[MagicPhase].BurstDurations[exposureCount]) + "s BurstEnd in: " + Long.toString(endBurstShooting - System.currentTimeMillis()) + "ms");
@@ -291,11 +298,6 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
                         m_bracketActive = true;
                         m_bracketNeutralShutterIndex = CameraUtilShutterSpeed.getShutterValueIndex(settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][0], settings.magic_program[MagicPhase].ShutterSpeeds[exposureCount][1]);
-                        //stopPicturePreview = false;
-                        //camera.stopPreview();
-                        //reviewSurfaceView.setVisibility(View.GONE);
-                        //if (settings.displayOff)
-                        //    display.off();
                         setDriveMode(settings.magic_program[MagicPhase].CameraFlags[exposureCount], settings.magic_program[MagicPhase].BurstDurations[exposureCount]);
                     }
                     log_debug("shootRunnable: enter Bracketing Mode 'B'. BC#" + Integer.toString(burstCount) + " #NB:" + Integer.toString(settings.magic_program[MagicPhase].BurstDurations[exposureCount]));
@@ -599,6 +601,15 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
     }
 
     @Override
+    protected boolean onPlayKeyDown() {
+        display.on();
+        //if (settings.displayOff) {
+        display.turnAutoOff(5000);
+        //}
+        return true;
+    }
+
+    @Override
     protected boolean onMenuKeyUp() {
         onBackPressed();
         return true;
@@ -716,6 +727,8 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
             case 'C':
                 try {
                     log_debug("Setting DriveMode Continuous HIGH");
+                    if (settings.silentShutter)
+                        paramsModifier.setSilentShutterMode(false); // must disable for burst most
                     paramsModifier.setDriveMode(CameraEx.ParametersModifier.DRIVE_MODE_BURST);
                     paramsModifier.setBurstDriveSpeed(CameraEx.ParametersModifier.BURST_DRIVE_SPEED_HIGH);
                     paramsModifier.setBurstDriveButtonReleaseBehave(CameraEx.ParametersModifier.BURST_DRIVE_BUTTON_RELEASE_BEHAVE_CONTINUE);
@@ -728,6 +741,8 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
             case 'L':
                 try {
                     log_debug("Setting DriveMode Continuous LOW");
+                    if (settings.silentShutter)
+                        paramsModifier.setSilentShutterMode(false); // must disable for burst most
                     paramsModifier.setDriveMode(CameraEx.ParametersModifier.DRIVE_MODE_BURST);
                     paramsModifier.setBurstDriveSpeed(CameraEx.ParametersModifier.BURST_DRIVE_SPEED_LOW);
                     paramsModifier.setBurstDriveButtonReleaseBehave(CameraEx.ParametersModifier.BURST_DRIVE_BUTTON_RELEASE_BEHAVE_CONTINUE);
@@ -740,6 +755,8 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
             case 'M':
                 try {
                     log_debug("Setting DriveMode Continuous MIDDLE");
+                    if (settings.silentShutter)
+                        paramsModifier.setSilentShutterMode(false); // must disable for burst most
                     paramsModifier.setDriveMode(CameraEx.ParametersModifier.DRIVE_MODE_BURST);
                     paramsModifier.setBurstDriveSpeed(CameraEx.ParametersModifier.BURST_DRIVE_SPEED_MIDDLE);
                     paramsModifier.setBurstDriveButtonReleaseBehave(CameraEx.ParametersModifier.BURST_DRIVE_BUTTON_RELEASE_BEHAVE_CONTINUE);
@@ -751,6 +768,8 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                 break;
             case 'B':
                 try {
+                    if (settings.silentShutter)
+                        paramsModifier.setSilentShutterMode(settings.silentShutter);
                     paramsModifier.setDriveMode(CameraEx.ParametersModifier.DRIVE_MODE_BRACKET);
                     paramsModifier.setDriveMode(CameraEx.ParametersModifier.BRACKET_MODE_EXPOSURE);
                     //paramsModifier.setExposureBracketMode(CameraEx.ParametersModifier.EXPOSURE_BRACKET_MODE_SINGLE);
@@ -790,6 +809,8 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
             case 'S':
                 try {
                     log_debug("Setting DriveMode Single");
+                    if (settings.silentShutter)
+                        paramsModifier.setSilentShutterMode(settings.silentShutter);
                     paramsModifier.setDriveMode(CameraEx.ParametersModifier.DRIVE_MODE_SINGLE);
                     cameraEx.getNormalCamera().setParameters(params);
                 } catch (Exception ignored) {
