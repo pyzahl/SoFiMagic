@@ -49,7 +49,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
     private long remainingTimeToContactPhase = 0;
     private long remainingTimeThisPhase = 0;
-    private long remainingTimeNextExposureSet= 0;
+    private long remainingTimeNextExposureSet = 0;
 
     private long endBurstShooting = 0;
 
@@ -111,7 +111,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
 
     private long shootTime;
     private long shootEndTime;
-    private long shutterDuration=0;
+    private long shutterDuration = 0;
     private long shootStartTime;
 
     private Display display;
@@ -123,6 +123,26 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
             return 3;
         }
         return 1;
+    }
+
+    void wait_for_next_exposure() {
+        // ...wait for Contact Start Time
+        log_debug("shootRunnable: waiting... " + getHMSMSfromMS(remainingTimeNextExposureSet));
+        if (remainingTimeNextExposureSet > 3000) {
+            display.on();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    update_info();
+                }
+            });
+            shootRunnableHandler.postDelayed(shootRunnable, 1000); // wait a second and check again, update screen
+        } else {
+            if (remainingTimeNextExposureSet > 500)
+                shootRunnableHandler.postDelayed(shootRunnable, remainingTimeNextExposureSet - 300); // wait a little and check again
+            else
+                shootRunnableHandler.postDelayed(shootRunnable, 150); // wait a little and check again
+        }
     }
 
     private Handler shootRunnableHandler = new Handler();
@@ -153,16 +173,13 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
             // Check in MagicPhase, adjust if needed:
             // if aborted, it will continue at the right phase automatically and skips forward as required!
             do {
-                remainingTimeToContactPhase = settings.magic_program[MagicPhase].get_remainingTimeToStart(now);
-                remainingTimeThisPhase = settings.magic_program[MagicPhase].get_remainingTime(now);
-                if (settings.magic_program[MagicPhase].number_shots > 0)
-                    remainingTimeNextExposureSet = settings.magic_program[MagicPhase].get_remainingTimeToNext(repeatCount+1, now);
-                else
-                    remainingTimeNextExposureSet = 0;
+                remainingTimeToContactPhase = settings.magic_program[MagicPhase].get_remainingTimeToStart(now); // ms
+                remainingTimeThisPhase = settings.magic_program[MagicPhase].get_remainingTime(now); // mm
+                remainingTimeNextExposureSet = settings.magic_program[MagicPhase].get_remainingTimeToNext(repeatCount+1, now);
 
-                if ((remainingTimeToContactPhase > 0 && remainingTimeToContactPhase < 60) || (remainingTimeToContactPhase%60) == 0)
-                    log_progress("shootRunnable: remaining time to MagicPhase " + settings.magic_program[MagicPhase].name + " @" + getHMSMSfromMS((long) settings.magic_program[MagicPhase].get_start_time() * 1000) + " #" + Integer.toString(MagicPhase) + " start in: " + getHMSfromMS(remainingTimeToContactPhase));
-                else if (remainingTimeToContactPhase <= 0 && settings.magic_program[MagicPhase].ISOs[exposureCount] > 0 && remainingTimeNextExposureSet < 4000)
+                if (remainingTimeToContactPhase > 0 && ((remainingTimeToContactPhase/1000)%60) == 0)
+                        log_progress("shootRunnable: remaining time to MagicPhase " + settings.magic_program[MagicPhase].name + " @" + getHMSMSfromMS((long) settings.magic_program[MagicPhase].get_start_time() * 1000) + " #" + Integer.toString(MagicPhase) + " start in: " + getHMSfromMS(remainingTimeToContactPhase));
+                if (remainingTimeToContactPhase < 2000 && settings.magic_program[MagicPhase].ISOs[exposureCount] > 0)
                     log_info("shootRunnable " + getHMSMSfromMS(now) + " MagicPhase[" + Integer.toString(MagicPhase) + "]" + settings.magic_program[MagicPhase].name
                             + " SC:" + Integer.toString(shotCount) + " EC:" + Integer.toString(exposureCount) + " RC:" + Integer.toString(repeatCount) + " BC: " + Integer.toString(burstCount)
                             + " ** CF=" + settings.magic_program[MagicPhase].CameraFlags[exposureCount] + settings.magic_program[MagicPhase].BurstDurations[exposureCount]
@@ -171,15 +188,22 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                             + " @ISO " + Integer.toString(settings.magic_program[MagicPhase].ISOs[exposureCount])
                             + " Next set in " + getHMSMSfromMS(remainingTimeNextExposureSet)
                     );
-                if (remainingTimeThisPhase <= 0) { // this time is up!
+                if (remainingTimeThisPhase <= 250) { // this time is up!
                     log_info("shootRunnable: skipping to next phase...");
                     if (settings.magic_program[MagicPhase].number_shots != 0) {
                         MagicPhase++;
                         exposureCount = 0;
+                        burstCount = 0;
+                        burstShooting = false;
                         repeatCount = 0;
                     }
                 }
-            } while (remainingTimeThisPhase <= 0 && settings.magic_program[MagicPhase].number_shots != 0); // skip forward if past this phase
+            } while (remainingTimeThisPhase <= 250 && settings.magic_program[MagicPhase].number_shots != 0); // skip forward if past this phase
+
+            if (remainingTimeNextExposureSet > 250) {
+                wait_for_next_exposure();
+                return;
+            }
 
             // check if we need to skip forward (in timed series)
             if (settings.magic_program[MagicPhase].number_shots > 0) {
@@ -190,14 +214,15 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                         exposureCount = 0;
                         repeatCount++; // skip
                     }
-                } while (remainingTimeNextExposureSet< 0 && settings.magic_program[MagicPhase].ISOs[exposureCount] != 0);
-            }
+                } while (remainingTimeNextExposureSet < 0 && settings.magic_program[MagicPhase].ISOs[exposureCount] != 0);
+            } else
+                remainingTimeNextExposureSet = 0; // no interval, keep shooting
 
             // CHECK FOR NOT END OF ECLIPSE TO PROCEED
             if (settings.magic_program[MagicPhase].number_shots != 0) {
 
                 // Check: Contineous Drive ? (Burst Operation)
-                if (remainingTimeToContactPhase < 150
+                if (remainingTimeNextExposureSet < 150
                         && (settings.magic_program[MagicPhase].CameraFlags[exposureCount]=='C' // Burst Modes, (Contineous Shooting) High
                             || settings.magic_program[MagicPhase].CameraFlags[exposureCount]=='L' // Burst Modes, (Contineous Shooting) Low
                             || settings.magic_program[MagicPhase].CameraFlags[exposureCount]=='M') // Burst Modes, (Contineous Shooting) Medium
@@ -236,8 +261,6 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                     }
                 }
 
-                if (settings.magic_program[MagicPhase].number_shots == -1)
-                    remainingTimeNextExposureSet= 0;
 
                 // keep working on exposure list in intervall mode or end of exposure list and distributed shots -- else keep going and repeat exposure block
                 if (remainingTimeNextExposureSet > 150
@@ -306,23 +329,9 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                         }
                     } else {
                         // ...wait for Contact Start Time
-                        if (remainingTimeToContactPhase <= 0) // omit this log when waiting for phase start
+                        if (remainingTimeNextExposureSet <= 0) // omit this log when waiting for phase start
                             log_debug("shootRunnable: waiting for next exposue block...");
-                        if (remainingTimeNextExposureSet > 3000) {
-                            display.on();
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    update_info();
-                                }
-                            });
-                            shootRunnableHandler.postDelayed(this, 1000); // wait a second and check again, update screen
-                        } else {
-                            if (remainingTimeNextExposureSet > 500)
-                                shootRunnableHandler.postDelayed(this, remainingTimeNextExposureSet - 300); // getting close, wait a little and check again
-                            else
-                                shootRunnableHandler.postDelayed(this, 150); // getting close, wait a little and check again
-                        }
+                        wait_for_next_exposure();
                     }
                     return; // DONE
 
@@ -356,21 +365,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                     } else {
                         // ...wait for Contact Start Time
                         log_debug("shootRunnable: waiting...");
-                        if (remainingTimeToContactPhase > 3000) {
-                            display.on();
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    update_info();
-                                }
-                            });
-                            shootRunnableHandler.postDelayed(this, 1000); // wait a second and check again, update screen
-                        } else {
-                            if (remainingTimeToContactPhase > 500)
-                                shootRunnableHandler.postDelayed(this, remainingTimeToContactPhase - 300); // wait a little and check again
-                            else
-                                shootRunnableHandler.postDelayed(this, 150); // wait a little and check again
-                        }
+                        wait_for_next_exposure();
                         return; // DONE
                     }
 
