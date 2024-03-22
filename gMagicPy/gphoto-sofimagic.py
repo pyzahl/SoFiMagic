@@ -189,8 +189,8 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
     
     while now < phase.get_start_time()*1000:
         now =  get_milliseconds_of_day() #datetime.now() #time.monotonic()*1000
-        print ('\rremaining time to ', phase.name, ': ', get_hmsms_from_ms(phase.get_remainingTimeToStart(now)), end='')
-        time.sleep(1)
+        print ('\r',get_hmsms_from_ms(now),' ** remaining time to ', phase.name, ': ', get_hmsms_from_ms(phase.get_remainingTimeToStart(now)), end='')
+        time.sleep(0.1)
 
     print ('** STARTING **')
     num = phase.number_shots
