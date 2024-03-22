@@ -115,7 +115,7 @@ def get_datetime(config, model):
                 print('Camera clock is ahead by',)
             else:
                 lead_lag = 'behind'
-            print('Camera clock is %s by %d days and %d seconds' % (
+            print('Camera cqqlock is %s by %d days and %d seconds' % (
                 lead_lag, err.days, err.seconds))
             break
     else:
@@ -343,7 +343,7 @@ def main():
         # print possible settings
         for n in range(gp.check_result(gp.gp_widget_count_choices(capture_target))):
             choice = gp.check_result(gp.gp_widget_get_choice(capture_target, n))
-            print('Choice:', n, choice)
+            #print('Choice:', n, choice)
             
 
         shutter_speed2 = gp.check_result(
@@ -355,7 +355,7 @@ def main():
         shutter_speed_options = []
         for n in range(gp.check_result(gp.gp_widget_count_choices(shutter_speed2))):
             choice = gp.check_result(gp.gp_widget_get_choice(shutter_speed2, n))
-            print('Choice:', n, choice)
+            #print('Choice:', n, choice)
             shutter_speed_options.append((n,choice))
             
 
@@ -368,7 +368,7 @@ def main():
         f_number_options = []
         for n in range(gp.check_result(gp.gp_widget_count_choices(f_number))):
             choice = gp.check_result(gp.gp_widget_get_choice(f_number, n))
-            print('Choice:', n, choice)
+            #print('Choice:', n, choice)
             f_number_options.append((n,choice))
 
         iso_setting = gp.check_result(
@@ -380,12 +380,12 @@ def main():
         iso_options = []
         for n in range(gp.check_result(gp.gp_widget_count_choices(iso_setting))):
             choice = gp.check_result(gp.gp_widget_get_choice(iso_setting, n))
-            print('Choice:', n, choice)
+            #print('Choice:', n, choice)
             iso_options.append((n,choice))
 
-        print (shutter_speed_options)
-        print (f_number_options)
-        print (iso_options)
+        print ('Shutter Speeds: ', shutter_speed_options)
+        print ('f-numbers: ', f_number_options)
+        print ('ISOs: ', iso_options)
             
         shutterspeed_config = config.get_child_by_name('shutterspeed2')
         shutterspeed = shutterspeed_config.get_value()
