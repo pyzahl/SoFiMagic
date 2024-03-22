@@ -187,7 +187,7 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
         print ('***')
         return;
     
-    while now < phase.get_start_time()*1000:
+    while now < (phase.get_start_time()*1000-100):
         now =  get_milliseconds_of_day() #datetime.now() #time.monotonic()*1000
         print ('\r',get_hmsms_from_ms(now),' ** remaining time to ', phase.name, ': ', get_hmsms_from_ms(phase.get_remainingTimeToStart(now)), end='')
         time.sleep(0.1)
@@ -199,7 +199,7 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
         print ('Timed Interval Exposure Blocks for ', phase.name)
         while num > 0:
             i = phase.number_shots-num
-            while phase.get_remainingTimeToNext(i,get_milliseconds_of_day()) < 0:
+            while phase.get_remainingTimeToNext(i,get_milliseconds_of_day()) < -500:
                 print ('\r E#', i, ': skipping', end='')
                 num=num-1
                 i = phase.number_shots-num
