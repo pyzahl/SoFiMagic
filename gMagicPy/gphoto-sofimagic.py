@@ -192,7 +192,7 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
         print ('\r',get_hmsms_from_ms(now),' ** remaining time to ', phase.name, ': ', get_hmsms_from_ms(phase.get_remainingTimeToStart(now)), end='')
         time.sleep(0.1)
 
-    print ('** STARTING **')
+    print ('\r\r** STARTING **')
     num = phase.number_shots
 
     if num > 0:
@@ -204,7 +204,7 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
                 num=num-1
                 i = phase.number_shots-num
                 
-            while phase.get_remainingTimeToNext(i,get_milliseconds_of_day()) > 0:
+            while phase.get_remainingTimeToNext(i,get_milliseconds_of_day()) > 150:
                 print ('\rremaining time to next '+phase.name+' shot #',i, ' in ', get_hmsms_from_ms(phase.get_remainingTimeToNext(i, get_milliseconds_of_day())), end='')
                 time.sleep(0.1)
             print ('')
@@ -221,7 +221,7 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
                     time.sleep(0.2)
                     if simulate:
                         #print (get_hmsms_from_ms(get_milliseconds_of_day())+'SIM Sap Photo for ', phase.name, ' @ ', sss, fns, iss)
-                        Logger.shootdata(phase.name, ' SIM Snap @{} {} {} '.format(sss, fns, iss))
+                        Logger.shootdata(phase.name, ' SIM Snap #{} for {} {}/{} @{} {} {} '.format(count, phase.name, i, phase.number_shots, sss, fns, iss))
                     else:
                         if trigger_only:
                             #print (get_hmsms_from_ms(get_milliseconds_of_day())+' Snap Photo for ', phase.name, ' @ ', sss, fns, iss)
