@@ -16,10 +16,10 @@ F_LIST: Aperture setting, 0: ignored. MUST be a valid Aperture.
 SHUTTER_SPEED_LIST: Shutter Speed to be set. MUST be a valid shutter speed.</COMMENT>
   </VALID_SOFI_PROGRAM>
   <ECLIPSE_REF_CONTACT_TIMES>
-    <C1>00:05:24</C1>
-    <C2>01:10:44</C2>
-    <C3>01:14:10</C3>
-    <C4>02:55:12</C4>
+    <C1>19:05:24</C1>
+    <C2>20:10:44</C2>
+    <C3>20:14:10</C3>
+    <C4>21:55:12</C4>
     <COMMENT1>C0 is MAX = (TC2+TC3)/2=12:33:57</COMMENT1>
     <COMMENT2>REF_CONTACT = 0 is MAX computed from (TC2+TC3)/2. PHASE START, END times in sec relative to REF_CONTACT_START,_END index=1,2,0,3,4</COMMENT2>
   </ECLIPSE_REF_CONTACT_TIMES>
