@@ -129,14 +129,15 @@ def auto_update_system_time(camera_datetime):
     
     if not clock_is_synced:
         try:
+            print ('Attempting to adjust system time... (needs root)')
             camera_dtime=float(camera_datetime.strftime('%s.%f'))
             clk_id = time.CLOCK_REALTIME
             time.clock_settime(clk_id, camera_dtime) # THIS REQUIRES ROOT
-            print ('Time Sync from Camera. DateTime=', time.clock_gettime())
+            print ('Synced System Time from Camera. DateTime=', time.clock_gettime())
             return 0, clock_is_synced
         except:
             camera_dtime=float(camera_datetime.strftime('%s.%f'))
-            print ('Can not adjust system time, need to run this as root. Evaluating time difference for correction.')
+            print ('Can not adjust system time, need to run this as root.\nEvaluating time difference for correction.')
             system_sec = time.clock_gettime(clk_id)
             print ('System UNIX DateTime = ', system_sec)
             print ('Camera UNIX DateTime = ', camera_dtime)
