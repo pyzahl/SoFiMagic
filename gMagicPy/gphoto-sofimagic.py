@@ -238,7 +238,7 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
                     sss='{}/{}'.format(sn,sd)
                     if sd > 1:
                         shutterspeed_config.set_value('{}/{}'.format(sn,sd))
-                    else
+                    else:
                         shutterspeed_config.set_value('{}'.format(sn)) # seconds only
                     fns='f/{:.1f}'.format(f)
                     if f>0:
@@ -279,7 +279,7 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
                     sss='{}/{}'.format(sn,sd)
                     if sd > 1:
                         shutterspeed_config.set_value('{}/{}'.format(sn,sd))
-                    else
+                    else:
                         shutterspeed_config.set_value('{}'.format(sn)) # seconds only
                     fns='f/{:.1f}'.format(f)
                     if f>0:
