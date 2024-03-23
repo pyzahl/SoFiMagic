@@ -123,8 +123,9 @@ def auto_update_system_time(camera_datetime):
     clk_id = time.CLOCK_REALTIME
     print ('System UNIX DateTime = ', time.clock_gettime(clk_id))
     #print ('System NOW', float(datetime.now().strftime('%s.%f')))
-    clock_is_synced = lines[4].split(': ')[1] == 'yes'
-    print (clock_is_synced)
+    synced = lines[4].split(':')[1].lstrip().rstrip().lower()
+    clock_is_synced = synced == 'yes'
+    print ('System Time correct? : ', synced, ' => ', clock_is_synced)
     
     if not clock_is_synced:
         try:
