@@ -127,15 +127,25 @@ def auto_update_system_time(camera_datetime):
     print (clock_is_synced)
     
     if not clock_is_synced:
-        camera_dtime=float(camera_datetime.strftime('%s.%f'))
-        clk_id = time.CLOCK_REALTIME
-        float(time.clock_settime(clk_id, camera_dtime))
-        print ('Time Sync from Camera. DateTime=', time.clock_gettime())
-        
+        try:
+            camera_dtime=float(camera_datetime.strftime('%s.%f'))
+            clk_id = time.CLOCK_REALTIME
+            time.clock_settime(clk_id, camera_dtime) # THIS REQUIRES ROOT
+            print ('Time Sync from Camera. DateTime=', time.clock_gettime())
+            return 0, clock_is_synced
+        except:
+            camera_dtime=float(camera_datetime.strftime('%s.%f'))
+            print ('Can not adjust system time, need to run this as root. Evaluating time difference for correction.')
+            system_sec = time.clock_gettime(clk_id)
+            print ('System UNIX DateTime = ', system_sec)
+            print ('Camera UNIX DateTime = ', camera_dtime)
+            print ('System is ', camera_dtime-system_sec, 's behind.')
+            return camera_dtime-system_sec, clock_is_synced
     print ('*** TIME CHECKED ***')
+    return 0, clock_is_synced
 
     
-def set_datetime(config, model):
+def set_camera_datetime(config, model):
     if model == 'Canon EOS 100D':
         OK, date_config = gp.gp_widget_get_child_by_name(config, 'datetimeutc')
         if OK >= gp.GP_OK:
@@ -177,8 +187,8 @@ def wait_busy (camera):
             break
             
 
-def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_config, trigger_only, simulate):
-    now =  get_milliseconds_of_day() #datetime.now() #time.monotonic()*1000
+def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_config, trigger_only, simulate, system_time_correct):
+    now =  get_milliseconds_of_day() + 1000*system_time_correct
     print ('CHECKING PHASE: ', phase.name)
     print ('TIME NOW......: ', get_hmsms_from_ms(now))
     print ('PHASE START...: ', get_hmsms_from_ms(phase.get_start_time()*1000), ' remaining time: ', get_hmsms_from_ms(phase.get_remainingTimeToStart(now)))
@@ -201,7 +211,7 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
         return;
     
     while now < (phase.get_start_time()*1000-100):
-        now =  get_milliseconds_of_day() #datetime.now() #time.monotonic()*1000
+        now =  get_milliseconds_of_day() + 1000*system_time_correct
         print ('\r',get_hmsms_from_ms(now),' ** remaining time to ', phase.name, ': ', get_hmsms_from_ms(phase.get_remainingTimeToStart(now)), end='')
         time.sleep(0.1)
 
@@ -337,15 +347,17 @@ def main():
         # check camera time
         dt = get_datetime(config, abilities.model)
 
-        auto_update_system_time(dt)
+        system_delta_sec, sync = auto_update_system_time(dt)
         
         # sync camera time to computer
         # find the date/time setting config item and set it
-        if set_datetime(config, abilities.model):
-            # apply the changed config
-            camera.set_config(config)
-        else:
-            print('Could not set date & time')
+        if sync:
+            print ('*** Trying tyo sync Camera Date Time to System ***')
+            if set_camera_datetime(config, abilities.model):
+                # apply the changed config
+                camera.set_config(config)
+            else:
+                print('Could not set date & time')
 
 
         # find the capture target config item
@@ -446,7 +458,7 @@ def main():
             program = Settings()
             for ph in program.magic_program:
                 if ph.name != 'END':
-                    exec_phase (ph, camera, config, shutterspeed_config, fnumber_config, iso_config, trigger_only, False)
+                    exec_phase (ph, camera, config, shutterspeed_config, fnumber_config, iso_config, trigger_only, False, system_delta_sec)
                 else:
                     break
 
