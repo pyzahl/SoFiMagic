@@ -9,6 +9,7 @@ import sys
 import time
 from datetime import datetime
 import subprocess
+import re
 
 import logger
 from settings import *
@@ -58,22 +59,7 @@ def cb_progress_stop(context, id_, data):
 # gphoto2 context is no longer required. This example uses every
 # available callback. You probably don't need all of them.
 
-@contextmanager
-def context_with_callbacks():
-    context = gp.Context()
-    callbacks = []
-    callbacks.append(context.set_idle_func(cb_idle, 'A'))
-    callbacks.append(context.set_error_func(cb_error, 'B'))
-    callbacks.append(context.set_status_func(cb_status, 'C'))
-    callbacks.append(context.set_message_func(cb_message, 'D'))
-    callbacks.append(context.set_question_func(cb_question, 'E'))
-    callbacks.append(context.set_cancel_func(cb_cancel, 'F'))
-    callbacks.append(context.set_progress_funcs(
-        cb_progress_start, cb_progress_update, cb_progress_stop, 'G'))
-    try:
-        yield context
-    finally:
-        del callbacks
+
 
 def list_files(camera, context, path='/'):
     result = []
@@ -92,6 +78,7 @@ def list_files(camera, context, path='/'):
 
 def get_datetime(config, model):
     # CAMERA TIME
+    print ('*** Checking Camera Clock ***')
     for name, fmt in (('datetime', '%Y-%m-%d %H:%M:%S'),
                       ('d034',     None)):
         now = datetime.now()
@@ -117,11 +104,37 @@ def get_datetime(config, model):
                 lead_lag = 'behind'
             print('Camera cqqlock is %s by %d days and %d seconds' % (
                 lead_lag, err.days, err.seconds))
-            break
+            print ('Camera UNIX DateTime = ', camera_time, camera_time.strftime('%s.%f'))
+            return camera_time
+            #break
     else:
         print('Unknown date/time config item')
+        return 0
 
+def auto_update_system_time(camera_datetime):
 
+    print ('*** Checking for NTP Service ***')
+    process = subprocess.Popen(['timedatectl'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = process.communicate()
+    #print(out)
+    lines = str(out).split('\\n')
+    #print (lines)
+    print (lines[4])
+    clk_id = time.CLOCK_REALTIME
+    print ('System UNIX DateTime = ', time.clock_gettime(clk_id))
+    #print ('System NOW', float(datetime.now().strftime('%s.%f')))
+    clock_is_synced = lines[4].split(': ')[1] == 'yes'
+    print (clock_is_synced)
+    
+    if not clock_is_synced:
+        camera_dtime=float(camera_datetime.strftime('%s.%f'))
+        clk_id = time.CLOCK_REALTIME
+        float(time.clock_settime(clk_id, camera_dtime))
+        print ('Time Sync from Camera. DateTime=', time.clock_gettime())
+        
+    print ('*** TIME CHECKED ***')
+
+    
 def set_datetime(config, model):
     if model == 'Canon EOS 100D':
         OK, date_config = gp.gp_widget_get_child_by_name(config, 'datetimeutc')
@@ -228,7 +241,6 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
                             Logger.shootdata(phase.name, ' @{} {} {} '.format(sss, fns, iss))
                             camera.trigger_capture()
                             #wait_busy (camera)
-                            time.sleep(0.2)
                             print (get_hmsms_from_ms(get_milliseconds_of_day())+' Completed')
                         else:
                             #print ('Snap Photo+download for ', phase.name, ' @ ', sss, fns, iss)
@@ -266,7 +278,6 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
                             #print ('Snap Photo for ', phase.name, ' @ ', sss, fns, iss)
                             Logger.shootdata(phase.name, ' @{} {} {} '.format(sss, fns, iss))
                             camera.trigger_capture()
-                            time.sleep(0.2)
                             #wait_busy (camera)
                         else:
                             #print ('Snap Photo for ', phase.name, ' @ ', sss, fns, iss)
@@ -324,8 +335,10 @@ def main():
         config = camera.get_config()
 
         # check camera time
-        get_datetime(config, abilities.model)
+        dt = get_datetime(config, abilities.model)
 
+        auto_update_system_time(dt)
+        
         # sync camera time to computer
         # find the date/time setting config item and set it
         if set_datetime(config, abilities.model):
@@ -384,9 +397,9 @@ def main():
             #print('Choice:', n, choice)
             iso_options.append((n,choice))
 
-        print ('Shutter Speeds: ', shutter_speed_options)
-        print ('f-numbers: ', f_number_options)
-        print ('ISOs: ', iso_options)
+        #print ('Shutter Speeds: ', shutter_speed_options)
+        #print ('f-numbers: ', f_number_options)
+        #print ('ISOs: ', iso_options)
             
         shutterspeed_config = config.get_child_by_name('shutterspeed2')
         shutterspeed = shutterspeed_config.get_value()
@@ -428,13 +441,14 @@ def main():
         print (iso)
 
 
-        # process program
-        program = Settings()
-        for ph in program.magic_program:
-            if ph.name != 'END':
-                exec_phase (ph, camera, config, shutterspeed_config, fnumber_config, iso_config, trigger_only, False)
-            else:
-                break
+        if True:
+            # process program
+            program = Settings()
+            for ph in program.magic_program:
+                if ph.name != 'END':
+                    exec_phase (ph, camera, config, shutterspeed_config, fnumber_config, iso_config, trigger_only, False)
+                else:
+                    break
 
         
         camera.exit()
