@@ -235,7 +235,10 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
             for cf,bd,iso,f,sn,sd in zip(phase.CameraFlags, phase.BurstDurations, phase.ISOs, phase.Fs, phase.ShutterSpeedsN, phase.ShutterSpeedsD):
                 if iso > 0:
                     sss='{}/{}'.format(sn,sd)
-                    shutterspeed_config.set_value('{}/{}'.format(sn,sd))
+                    if sd > 1:
+                        shutterspeed_config.set_value('{}/{}'.format(sn,sd))
+                    else
+                        shutterspeed_config.set_value('{}'.format(sn)) # seconds only
                     fns='f/{:.1f}'.format(f)
                     if f>0:
                         fnumber_config.set_value('f/{:.1f}'.format(f))
@@ -273,7 +276,10 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
             if iso > 0:
                 if iso > 0:
                     sss='{}/{}'.format(sn,sd)
-                    shutterspeed_config.set_value('{}/{}'.format(sn,sd))
+                    if sd > 1:
+                        shutterspeed_config.set_value('{}/{}'.format(sn,sd))
+                    else
+                        shutterspeed_config.set_value('{}'.format(sn)) # seconds only
                     fns='f/{:.1f}'.format(f)
                     if f>0:
                         fnumber_config.set_value('f/{:.1f}'.format(f))
