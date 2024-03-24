@@ -14,7 +14,7 @@ class Logger:
     def log_time_ms(msg):
         try:
             # Assuming BaseActivity.getHMSMSfromMS(BaseActivity.getMilliSecondsOfDay()) is replaced with a Python equivalent
-            date = get_hmsms_from_ms(get_milliseconds_of_day(system_time_offset))  #    datetime.now().strftime("%H:%M:%S.%f")[:-3]
+            date = get_hmsms_from_ms(get_milliseconds_of_day(Logger.system_time_offset))  #    datetime.now().strftime("%H:%M:%S.%f")[:-3]
             os.makedirs(os.path.dirname(Logger.get_file()), exist_ok=True)
             print(f"{date} {msg}\n")
             with open(Logger.get_file(), "a") as writer:
@@ -25,7 +25,7 @@ class Logger:
     @staticmethod
     def log(msg):
         try:
-            date=get_hmsms_from_ms(get_milliseconds_of_day(system_time_offset))  # date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            date=get_hmsms_from_ms(get_milliseconds_of_day(Logger.system_time_offset))  # date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             #ms = datetime.now().microsecond // 1000
             os.makedirs(os.path.dirname(Logger.get_file()), exist_ok=True)
             #print(f"{date}.{ms:03d} {msg}\n")
