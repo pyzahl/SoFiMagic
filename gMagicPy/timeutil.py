@@ -11,14 +11,14 @@ def get_seconds_of_day():
     s = now.second
     return h*3600 + m*60 + s
 
-def get_milliseconds_of_day():
+def get_milliseconds_of_day(system_time_offset):
     now = datetime.now()
     tz_offset = now.utcoffset().total_seconds() if now.utcoffset() else 0
     h = now.hour - int(tz_offset // 3600)
     m = now.minute
     s = now.second
     ms = now.microsecond // 1000
-    return round((h*3600 + m*60 + s)*1000 + ms)
+    return round((h*3600 + m*60 + s + system_time_offset)*1000 + ms)
 
 def get_hmsms_from_ms(ms):
     abs_ms = int(abs(ms))

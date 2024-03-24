@@ -13,7 +13,6 @@ import re
 
 import logger
 from settings import *
-
 from timeutil import *
 
 #       gphoto2 --capture-image
@@ -190,7 +189,9 @@ def wait_busy (camera):
             
 
 def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_config, trigger_only, simulate, system_time_correct):
-    now =  get_milliseconds_of_day() + 1000*system_time_correct
+    Logger.set_system_time_offset(system_time_correct)
+
+    now =  get_milliseconds_of_day(system_time_correct)
     print ('CHECKING PHASE: ', phase.name)
     print ('TIME NOW......: ', get_hmsms_from_ms(now))
     print ('PHASE START...: ', get_hmsms_from_ms(phase.get_start_time()*1000), ' remaining time: ', get_hmsms_from_ms(phase.get_remainingTimeToStart(now)))
@@ -213,7 +214,7 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
         return;
     
     while now < (phase.get_start_time()*1000-100):
-        now =  get_milliseconds_of_day() + 1000*system_time_correct
+        now =  get_milliseconds_of_day(system_time_correct)
         print ('\r',get_hmsms_from_ms(now),' ** remaining time to ', phase.name, ': ', get_hmsms_from_ms(phase.get_remainingTimeToStart(now)), end='')
         time.sleep(0.1)
 
@@ -224,13 +225,13 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
         print ('Timed Interval Exposure Blocks for ', phase.name)
         while num > 0:
             i = phase.number_shots-num
-            while phase.get_remainingTimeToNext(i,get_milliseconds_of_day()) < -500:
+            while phase.get_remainingTimeToNext(i,get_milliseconds_of_day(system_time_correct)) < -500:
                 print ('\r E#', i, ': skipping', end='')
                 num=num-1
                 i = phase.number_shots-num
                 
-            while phase.get_remainingTimeToNext(i,get_milliseconds_of_day()) > 150:
-                print ('\rremaining time to next '+phase.name+' shot #',i, ' in ', get_hmsms_from_ms(phase.get_remainingTimeToNext(i, get_milliseconds_of_day())), end='')
+            while phase.get_remainingTimeToNext(i,get_milliseconds_of_day(system_time_correct)) > 150:
+                print ('\rremaining time to next '+phase.name+' shot #',i, ' in ', get_hmsms_from_ms(phase.get_remainingTimeToNext(i, get_milliseconds_of_day(system_time_correct))), end='')
                 time.sleep(0.1)
             print ('')
             for cf,bd,iso,f,sn,sd in zip(phase.CameraFlags, phase.BurstDurations, phase.ISOs, phase.Fs, phase.ShutterSpeedsN, phase.ShutterSpeedsD):
@@ -248,15 +249,15 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
                     camera.set_config(config)
                     time.sleep(0.2)
                     if simulate:
-                        #print (get_hmsms_from_ms(get_milliseconds_of_day())+'SIM Sap Photo for ', phase.name, ' @ ', sss, fns, iss)
+                        #print (get_hmsms_from_ms(get_milliseconds_of_day(system_time_correct))+'SIM Sap Photo for ', phase.name, ' @ ', sss, fns, iss)
                         Logger.shootdata(phase.name, ' SIM Snap #{} for {} {}/{} @{} {} {} '.format(count, phase.name, i, phase.number_shots, sss, fns, iss))
                     else:
                         if trigger_only:
-                            #print (get_hmsms_from_ms(get_milliseconds_of_day())+' Snap Photo for ', phase.name, ' @ ', sss, fns, iss)
+                            #print (get_hmsms_from_ms(get_milliseconds_of_day(system_time_correct))+' Snap Photo for ', phase.name, ' @ ', sss, fns, iss)
                             Logger.shootdata(phase.name, ' @{} {} {} '.format(sss, fns, iss))
                             camera.trigger_capture()
                             #wait_busy (camera)
-                            print (get_hmsms_from_ms(get_milliseconds_of_day())+' Completed')
+                            print (get_hmsms_from_ms(get_milliseconds_of_day(system_time_correct))+' Completed')
                         else:
                             #print ('Snap Photo+download for ', phase.name, ' @ ', sss, fns, iss)
                             Logger.shootdata(phase.name, ' @{} {} {} '.format(sss, fns, iss))
@@ -289,7 +290,7 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
                     camera.set_config(config)
                     time.sleep(0.2)
                     if simulate:
-                        #print (get_hmsms_from_ms(get_milliseconds_of_day())+'SIM Sap Photo for ', phase.name, ' @ ', sss, fns, iss)
+                        #print (get_hmsms_from_ms(get_milliseconds_of_day(system_time_correct))+'SIM Sap Photo for ', phase.name, ' @ ', sss, fns, iss)
                         Logger.shootdata(phase.name, ' SIM Snap @{} {} {} '.format(sss, fns, iss))
                     else:
                         if trigger_only:
@@ -322,6 +323,7 @@ def main():
     camera = gp.Camera()
 
     print('Please connect and switch on your camera!')
+    i=1
     while True:
         try:
             camera.init()
@@ -329,8 +331,10 @@ def main():
             if ex.code == gp.GP_ERROR_MODEL_NOT_FOUND:
                 # no camera, try again in 2 seconds
                 time.sleep(2)
+                print('\rwaiting for camera to connect...',i,end='')
+                i=i+1
                 continue
-            # some other error we can't handle here
+            print('Error waiting for camera to connect.')
             raise
         # operation completed successfully so exit loop
         break

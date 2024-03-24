@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from timeutil import *
 
 class Logger:
     @staticmethod
@@ -7,12 +8,13 @@ class Logger:
         return os.path.join(".", "LOG.TXT")
 
     level = 2
-
+    system_time_offset = 0
+    
     @staticmethod
     def log_time_ms(msg):
         try:
             # Assuming BaseActivity.getHMSMSfromMS(BaseActivity.getMilliSecondsOfDay()) is replaced with a Python equivalent
-            date = datetime.now().strftime("%H:%M:%S.%f")[:-3]
+            date = get_hmsms_from_ms(get_milliseconds_of_day(system_time_offset))  #    datetime.now().strftime("%H:%M:%S.%f")[:-3]
             os.makedirs(os.path.dirname(Logger.get_file()), exist_ok=True)
             print(f"{date} {msg}\n")
             with open(Logger.get_file(), "a") as writer:
@@ -23,14 +25,20 @@ class Logger:
     @staticmethod
     def log(msg):
         try:
-            date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            ms = datetime.now().microsecond // 1000
+            date=get_hmsms_from_ms(get_milliseconds_of_day(system_time_offset))  # date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            #ms = datetime.now().microsecond // 1000
             os.makedirs(os.path.dirname(Logger.get_file()), exist_ok=True)
-            print(f"{date}.{ms:03d} {msg}\n")
+            #print(f"{date}.{ms:03d} {msg}\n")
+            print(f"{date} {msg}\n")
             with open(Logger.get_file(), "a") as writer:
-                writer.write(f"{date}.{ms:03d} {msg}\n")
+                #writer.write(f"{date}.{ms:03d} {msg}\n")
+                writer.write(f"{date} {msg}\n")
         except IOError:
             pass
+
+    @staticmethod
+    def set_system_time_offset(dt):
+        Logger.sysetm_time_offset = dt
 
     @staticmethod
     def set_verbose_level(l):
