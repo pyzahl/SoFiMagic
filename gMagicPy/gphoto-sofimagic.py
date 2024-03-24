@@ -231,12 +231,12 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
     print ('')
     while phase.get_remainingTime(get_milliseconds_of_day(system_time_correct)) > 0:
         if intervall_shoot:
+            i = phase.number_shots-num
             print ('Timed Interval Exposure Block ', i, '/', phase.number_shots, ' for ', phase.name)
 
             # wait until next intervall?
-            i = phase.number_shots-num
             while phase.get_remainingTimeToNext(i,get_milliseconds_of_day(system_time_correct)) > 150:
-                print ('\rremaining time to next '+phase.name+' shot #',i, ' in ', get_hmsms_from_ms(phase.get_remainingTimeToNext(i, get_milliseconds_of_day(system_time_correct))), end='')
+                print ('\r',get_hmsms_from_ms(get_milliseconds_of_day(system_time_correct)), ' ** remaining time to next '+phase.name+' shot #',i, ' in ', get_hmsms_from_ms(phase.get_remainingTimeToNext(i, get_milliseconds_of_day(system_time_correct))), end='')
                 time.sleep(0.1)
             num = num-1
             print ('')
