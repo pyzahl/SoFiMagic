@@ -222,13 +222,11 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
     print ('')
     intervall_shoot = phase.number_shots > 0
     num = phase.number_shots
-    i=0
-    while num > 0:
+    i = phase.number_shots-num
+    while phase.get_remainingTimeToNext(i,get_milliseconds_of_day(system_time_correct)) < -500:
+        print ('\r Exposure#', i, '/', phase.number_shots, ': skipping', end='')
+        num=num-1
         i = phase.number_shots-num
-        while phase.get_remainingTimeToNext(i,get_milliseconds_of_day(system_time_correct)) < -500:
-            print ('\r Exposure#', i, '/', phase.number_shots, ': skipping', end='')
-            num=num-1
-            i = phase.number_shots-num
 
     print ('')
     while get_remainingTime(get_milliseconds_of_day(system_time_correct)) > 0:
