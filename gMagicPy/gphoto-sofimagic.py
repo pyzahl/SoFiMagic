@@ -1,4 +1,10 @@
 #!/bin/python3
+
+# ------------------------------------------------------------
+# SoFiMagic for Python + GPhoto2
+# (C) by PyZahl 2024 * https://github.com/pyzahl/SoFiMagic
+# ------------------------------------------------------------
+
 from contextlib import contextmanager
 import logging
 import gphoto2 as gp
@@ -266,8 +272,7 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
                     camera.set_config(config)
                 except:
                     print (sss, '=> ', shutters, iss, fns)
-                    print ('Set camera error')
-                    print ('Ignoreing...')
+                    print ('Set camera shooting parameters error, ignoring. Check for settings supported by camera.')
                 time.sleep(0.2)
 
                 # ToDo for CFlags=C,..: gphoto2 --set-config viewfinder=1 --set-config capturemode='Burst' --set-config burstnumber=5 --set-config capturetarget=1 --capture-image-and-download --force-overwrite
@@ -300,6 +305,7 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
             else:
                 break
 
+        print ("End of Phase ", phase.name)
             
 def main():
      
@@ -428,7 +434,10 @@ def main():
         imgtarget = imgtarget_config.get_value()
         print (imgtarget)
 
-        trigger_only = True
+        ### Options
+        trigger_only = True ## True: Save to Camera SD Card, else auto download
+        simulate_program = False ## True, no photo capture, but attemptto control camera
+        ###
         
         if trigger_only:
             imgtarget_config.set_value('Memory card')
@@ -457,10 +466,11 @@ def main():
             program = Settings()
             for ph in program.magic_program:
                 if ph.name != 'END':
-                    exec_phase (ph, camera, config, shutterspeed_config, fnumber_config, iso_config, trigger_only, False, system_delta_sec)
+                    exec_phase (ph, camera, config, shutterspeed_config, fnumber_config, iso_config, trigger_only, simulate_program, system_delta_sec)
                 else:
                     break
 
+        print ("END of Shooting Program")
         
         camera.exit()
 
