@@ -219,18 +219,21 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
         time.sleep(0.1)
 
     print ('\r\r** STARTING **')
+    print ('')
+    intervall_shoot = phase.number_shots > 0
     num = phase.number_shots
+    i=0
     while num > 0:
         i = phase.number_shots-num
         while phase.get_remainingTimeToNext(i,get_milliseconds_of_day(system_time_correct)) < -500:
-            print ('\r E#', i, ': skipping', end='')
+            print ('\r Exposure#', i, '/', phase.number_shots, ': skipping', end='')
             num=num-1
             i = phase.number_shots-num
 
-    intervall_shoot = num > 0
+    print ('')
     while get_remainingTime(get_milliseconds_of_day(system_time_correct)) > 0:
         if intervall_shoot:
-            print ('Timed Interval Exposure Blocks for ', phase.name)
+            print ('Timed Interval Exposure Block ', i, '/', phase.number_shots, ' for ', phase.name)
 
             # wait until next intervall?
             while phase.get_remainingTimeToNext(i,get_milliseconds_of_day(system_time_correct)) > 150:
@@ -240,7 +243,7 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
             print ('')
 
         else:
-            print ('Continous Exposure Blocks for ', phase.name)
+            print ('Continous Exposure Blocks Shooting for ', phase.name)
 
         for cf,bd,iso,f,sn,sd in zip(phase.CameraFlags, phase.BurstDurations, phase.ISOs, phase.Fs, phase.ShutterSpeedsN, phase.ShutterSpeedsD):
             if iso > 0:
