@@ -229,7 +229,7 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
         i = phase.number_shots-num
 
     print ('')
-    while get_remainingTime(get_milliseconds_of_day(system_time_correct)) > 0:
+    while phase.get_remainingTime(get_milliseconds_of_day(system_time_correct)) > 0:
         if intervall_shoot:
             print ('Timed Interval Exposure Block ', i, '/', phase.number_shots, ' for ', phase.name)
 
