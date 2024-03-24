@@ -220,100 +220,74 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
 
     print ('\r\r** STARTING **')
     num = phase.number_shots
-
-    if num > 0:
-        print ('Timed Interval Exposure Blocks for ', phase.name)
-        while num > 0:
+    while num > 0:
+        i = phase.number_shots-num
+        while phase.get_remainingTimeToNext(i,get_milliseconds_of_day(system_time_correct)) < -500:
+            print ('\r E#', i, ': skipping', end='')
+            num=num-1
             i = phase.number_shots-num
-            while phase.get_remainingTimeToNext(i,get_milliseconds_of_day(system_time_correct)) < -500:
-                print ('\r E#', i, ': skipping', end='')
-                num=num-1
-                i = phase.number_shots-num
-                
+
+    intervall_shoot = num > 0
+    while get_remainingTime(get_milliseconds_of_day(system_time_correct)) > 0:
+        if intervall_shoot:
+            print ('Timed Interval Exposure Blocks for ', phase.name)
+
+            # wait until next intervall?
             while phase.get_remainingTimeToNext(i,get_milliseconds_of_day(system_time_correct)) > 150:
                 print ('\rremaining time to next '+phase.name+' shot #',i, ' in ', get_hmsms_from_ms(phase.get_remainingTimeToNext(i, get_milliseconds_of_day(system_time_correct))), end='')
                 time.sleep(0.1)
-            print ('')
-            for cf,bd,iso,f,sn,sd in zip(phase.CameraFlags, phase.BurstDurations, phase.ISOs, phase.Fs, phase.ShutterSpeedsN, phase.ShutterSpeedsD):
-                if iso > 0:
-                    sss='{}/{}'.format(sn,sd)
-                    if sd > 1:
-                        shutterspeed_config.set_value('{}/{}'.format(sn,sd))
-                    else:
-                        shutterspeed_config.set_value('{}'.format(sn)) # seconds only
-                    fns='f/{:.1f}'.format(f)
-                    if f>0:
-                        fnumber_config.set_value('f/{:.1f}'.format(f))
-                    iss='{}'.format(iso)
-                    iso_config.set_value('{}'.format(iso))
-                    camera.set_config(config)
-                    time.sleep(0.2)
-                    if simulate:
-                        #print (get_hmsms_from_ms(get_milliseconds_of_day(system_time_correct))+'SIM Sap Photo for ', phase.name, ' @ ', sss, fns, iss)
-                        Logger.shootdata(phase.name, ' SIM Snap #{} for {} {}/{} @{} {} {} '.format(count, phase.name, i, phase.number_shots, sss, fns, iss))
-                    else:
-                        if trigger_only:
-                            #print (get_hmsms_from_ms(get_milliseconds_of_day(system_time_correct))+' Snap Photo for ', phase.name, ' @ ', sss, fns, iss)
-                            Logger.shootdata(phase.name, ' @{} {} {} '.format(sss, fns, iss))
-                            camera.trigger_capture()
-                            #wait_busy (camera)
-                            print (get_hmsms_from_ms(get_milliseconds_of_day(system_time_correct))+' Completed')
-                        else:
-                            #print ('Snap Photo+download for ', phase.name, ' @ ', sss, fns, iss)
-                            Logger.shootdata(phase.name, ' @{} {} {} '.format(sss, fns, iss))
-                            path = camera.capture(gp.GP_CAPTURE_IMAGE)
-                            print('capture', path.folder + path.name)
-                            camera_file = camera.file_get(
-                                path.folder, path.name, gp.GP_FILE_TYPE_NORMAL)
-                            camera_file.save(template % count)
-                            camera.file_delete(path.folder, path.name)
-                            #time.sleep(1)
-                    count = count + 1
-                else:
-                    break
             num = num-1
-    else:
-        print ('Continous Exposure Blocks for ', phase.name)
+            print ('')
+
+        else:
+            print ('Continous Exposure Blocks for ', phase.name)
+
         for cf,bd,iso,f,sn,sd in zip(phase.CameraFlags, phase.BurstDurations, phase.ISOs, phase.Fs, phase.ShutterSpeedsN, phase.ShutterSpeedsD):
             if iso > 0:
-                if iso > 0:
-                    sss='{}/{}'.format(sn,sd)
-                    if sd > 1:
-                        shutterspeed_config.set_value('{}/{}'.format(sn,sd))
-                    else:
-                        shutterspeed_config.set_value('{}'.format(sn)) # seconds only
-                    fns='f/{:.1f}'.format(f)
-                    if f>0:
-                        fnumber_config.set_value('f/{:.1f}'.format(f))
-                    iss='{}'.format(iso)
-                    iso_config.set_value('{}'.format(iso))
+                sss='{}/{}'.format(sn,sd)
+                if sd > 1:
+                    shutters = '{}/{}'.format(sn,sd)
+                else:
+                    shutters = '{}'.format(sn) # seconds only
+                shutterspeed_config.set_value(shutters);
+                fns='f/{:.1f}'.format(f)
+                if f>0:
+                    fnumber_config.set_value('f/{:.1f}'.format(f))
+                iss='{}'.format(iso)
+                iso_config.set_value(iss)
+                try:
                     camera.set_config(config)
-                    time.sleep(0.2)
-                    if simulate:
-                        #print (get_hmsms_from_ms(get_milliseconds_of_day(system_time_correct))+'SIM Sap Photo for ', phase.name, ' @ ', sss, fns, iss)
-                        Logger.shootdata(phase.name, ' SIM Snap @{} {} {} '.format(sss, fns, iss))
+                except:
+                    print (sss, '=> ', shutters, iss, fns)
+                    print ('Set camera error')
+                    print ('Ignoreing...')
+                time.sleep(0.2)
+                if simulate:
+                    #print (get_hmsms_from_ms(get_milliseconds_of_day(system_time_correct))+'SIM Sap Photo for ', phase.name, ' @ ', sss, fns, iss)
+                    Logger.shootdata(phase.name, ' SIM Snap #{} for {} {}/{} @{} {} {} '.format(count, phase.name, i, phase.number_shots, sss, fns, iss))
+                else:
+                    if trigger_only:
+                        #print (get_hmsms_from_ms(get_milliseconds_of_day(system_time_correct))+' Snap Photo for ', phase.name, ' @ ', sss, fns, iss)
+                        Logger.shootdata(phase.name, ' @{} {} {} '.format(sss, fns, iss))
+                        camera.trigger_capture()
+                        #wait_busy (camera)
+                        print (get_hmsms_from_ms(get_milliseconds_of_day(system_time_correct))+' Completed')
                     else:
-                        if trigger_only:
-                            #print ('Snap Photo for ', phase.name, ' @ ', sss, fns, iss)
-                            Logger.shootdata(phase.name, ' @{} {} {} '.format(sss, fns, iss))
-                            camera.trigger_capture()
-                            #wait_busy (camera)
-                        else:
-                            #print ('Snap Photo for ', phase.name, ' @ ', sss, fns, iss)
-                            Logger.shootdata(phase.name, ' @{} {} {} '.format(sss, fns, iss))
-                            path = camera.capture(gp.GP_CAPTURE_IMAGE)
-                            print('capture', path.folder + path.name)
-                            camera_file = camera.file_get(
-                                path.folder, path.name, gp.GP_FILE_TYPE_NORMAL)
-                            camera_file.save(template % count)
-                            camera.file_delete(path.folder, path.name)
-                            time.sleep(1)
-                    count = count + 1
+                        #print ('Snap Photo+download for ', phase.name, ' @ ', sss, fns, iss)
+                        Logger.shootdata(phase.name, ' @{} {} {} '.format(sss, fns, iss))
+                        path = camera.capture(gp.GP_CAPTURE_IMAGE)
+                        print('capture', path.folder + path.name)
+                        #wait_busy (camera)
+                        camera_file = camera.file_get(
+                            path.folder, path.name, gp.GP_FILE_TYPE_NORMAL)
+                        camera_file.save(template % count)
+                        camera.file_delete(path.folder, path.name)
+                        #time.sleep(1)
+                count = count + 1
             else:
                 break
-            
-    print ('')
 
+            
 def main():
      
     locale.setlocale(locale.LC_ALL, '')
