@@ -1,9 +1,9 @@
-# SoFiMagic -- Sony App to fully automated shoot a Eclipse or similar task
+# SoFiMagic -- Sony App and optional platform/camera independend python script to fully automated shoot a Eclipse or similar task
 
 ![App Icon](app/src/main/res/drawable/icon.png)
 
 Mainly for SONY -- but wait, there is now also a generic platform independent (requires only python3+gphoto2) alternative gphoto based python command line tool / script what does make use of the exacte same XML shooting program as used for the Sony app! I needed this to get my old Nikon going -- via armbian radxa or raspberrypi or such....
-See Sony unrelated gMagicPy folder. Almost excatly same: please remove the xmlns=... url part form the global tag <sofimagic xmlns="com.github.pyzahl"> so it does only start with the plain <sofimagic> tag. See example xml fiel in this folder!
+See Sony unrelated gMagicPy folder. Almost excatly same: please remove the xmlns=... url part from the global tag <sofimagic xmlns="com.github.pyzahl"> so it does only start with the plain <sofimagic> tag. See example xml fiel in this folder!
 
 SoFiMagic (Automated Solar Eclipe Shooting) app for Sony Alpha cameras using the [OpenMemories: Framework](https://github.com/ma1co/OpenMemories-Framework).
 Based in TimeLapse app, based on Focus app.
