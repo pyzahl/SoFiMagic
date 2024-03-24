@@ -38,7 +38,7 @@ class Logger:
 
     @staticmethod
     def set_system_time_offset(dt):
-        Logger.sysetm_time_offset = dt
+        Logger.system_time_offset = dt
 
     @staticmethod
     def set_verbose_level(l):
