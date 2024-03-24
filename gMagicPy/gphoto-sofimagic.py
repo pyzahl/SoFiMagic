@@ -261,6 +261,7 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
                     fnumber_config.set_value('f/{:.1f}'.format(f))
                 iss='{}'.format(iso)
                 iso_config.set_value(iss)
+                time.sleep(0.2)
                 try:
                     camera.set_config(config)
                 except:
@@ -268,6 +269,9 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
                     print ('Set camera error')
                     print ('Ignoreing...')
                 time.sleep(0.2)
+
+                # ToDo for CFlags=C,..: gphoto2 --set-config viewfinder=1 --set-config capturemode='Burst' --set-config burstnumber=5 --set-config capturetarget=1 --capture-image-and-download --force-overwrite
+
                 if simulate:
                     #print (get_hmsms_from_ms(get_milliseconds_of_day(system_time_correct))+'SIM Sap Photo for ', phase.name, ' @ ', sss, fns, iss)
                     sleep(float(sn)/sd+0.1)

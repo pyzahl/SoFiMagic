@@ -5,8 +5,8 @@ SD=SD
 exiftool $SD/*.NEF  | grep "Create Date" | awk '(NR%2) {print $5}' > T
 exiftool $SD/*.NEF | grep "ISO Setting  " | awk '{print $4}' > ISO
 exiftool $SD/*.NEF  | grep "^Exposure Time   " | awk '{print $4}' > E
+exiftool $SD/*.NEF  | grep "^F Number" | awk '{print $4}' > F
 
 grep PHOTO LOG.TXT > PHOTO
 
-paste T ISO E PHOTO > verify.txt
 less verify.txt
