@@ -603,9 +603,15 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
     @Override
     protected boolean onPlayKeyDown() {
         display.on();
-        //if (settings.displayOff) {
+        settings.displayOff = true;
         display.turnAutoOff(5000);
-        //}
+        return true;
+    }
+
+    @Override
+    protected boolean onFnKeyDown() {
+        display.on();
+        settings.displayOff = false;
         return true;
     }
 

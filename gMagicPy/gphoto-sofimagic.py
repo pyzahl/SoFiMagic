@@ -21,6 +21,9 @@ import logger
 from settings import *
 from timeutil import *
 
+#import beepy as beepy
+#beepy.beep(sound=5)
+
 #       gphoto2 --capture-image
 #	gphoto2 --set-config /main/capturesettings/shutterspeed2="1/60"
 #	gphoto2 --set-config /main/capturesettings/f-number="f/5.6"

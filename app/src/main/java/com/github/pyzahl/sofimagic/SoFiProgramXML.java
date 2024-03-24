@@ -55,10 +55,11 @@ public class SoFiProgramXML {
             if (nListCheck.getLength() > 0) {
                 Logger.log("XMLPRG: valid SOFI XML Program Mark found, parsing...");
 
-                Node node_loglevel = nListCheck.item(0);
-                if (node_loglevel.getNodeType() == Node.ELEMENT_NODE){
-                    Element level = (Element) node_loglevel;
-                    Settings.setVerboseLevel (getValue("LOGGING_LEVEL", level));
+                Node node_valid = nListCheck.item(0);
+                if (node_valid.getNodeType() == Node.ELEMENT_NODE){
+                    Element valid = (Element) node_valid;
+                    Settings.setVerboseLevel (getValue("LOGGING_LEVEL", valid));
+                    Settings.program_name = getValue("PROGRAM_NAME", valid);
                 }
 
                 NodeList nListTC = doc.getElementsByTagName("ECLIPSE_REF_CONTACT_TIMES");
@@ -125,6 +126,7 @@ public class SoFiProgramXML {
             Element elementV = doc.createElement("VALID_SOFI_PROGRAM");
             appendElement(elementV, "STATUS", "VALID");
             appendElement(elementV, "LOGGING_LEVEL", Integer.toString(Logger.get_verbose_level()));
+            appendElement(elementV, "PROGRAM_NAME", Settings.program_name);
             appendElement(elementV, "COMMENT", "Eclipse Program: may edit this file or use App.\n" +
                     "NAME: Name of Shooting Phase. There may be more or any names used than default. PHASES must be listed in actual shooting order i.e. with ascending START times.\n" +
                     "PHASE Start/End time is relative to C0, C1..C4 as defined by REF_CONTACT_START/END plus a offset START and END in seconds.\n" +

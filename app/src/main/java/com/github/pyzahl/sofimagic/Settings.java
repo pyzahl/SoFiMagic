@@ -22,6 +22,8 @@ class Settings {
     private static final String EXTRA_BRS = "com.github.pyzahl.sofimagic.BRS";
     private static final String EXTRA_MF = "com.github.pyzahl.sofimagic.MF";
 
+    static String program_name = "Camera One";
+
     static int tc1=12*3600;  // Time C1 in Seconds from 00h00m00s of day
     static int tc2=tc1+3600; // Time C2 in Seconds from 00h00m00s of day
     static int tc3=tc2+4*60; // Time C3 in Seconds from 00h00m00s of day

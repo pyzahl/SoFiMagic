@@ -19,6 +19,9 @@ import android.text.TextWatcher;
 
 import com.github.ma1co.pmcademo.app.BaseActivity;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 public class SettingsActivity extends BaseActivity
 {
     private SettingsActivity that = this;
@@ -41,6 +44,9 @@ public class SettingsActivity extends BaseActivity
     private TextView tvPhaseIndex;
 
     private int phase_loaded=-1;
+
+    private TextView lvProgramName;
+    private TextView lvClock;
 
     private TextView lvdbg;
     private TextView tvPhaseName;
@@ -85,6 +91,8 @@ public class SettingsActivity extends BaseActivity
         bnClose = (Button) findViewById(R.id.bnClose);
         bnClose.setOnClickListener(bnCloseOnClickListener);
 
+        lvProgramName = (TextView) findViewById(R.id.tvProgramName);
+        lvClock = (TextView) findViewById(R.id.tvClock);
         lvdbg = (TextView) findViewById(R.id.tvVersionDbg);
 
         edTC1 = (HHMMSSEntry) findViewById(R.id.editTextTimeC1);
@@ -282,6 +290,12 @@ public class SettingsActivity extends BaseActivity
 
             if (phase_loaded >= 0)
                 getPhase(phase_loaded);
+
+            lvProgramName.setText(settings.program_name);
+
+            Calendar calendar = getDateTime().getCurrentTime();
+            String dt = new SimpleDateFormat("HH:mm:ss").format(calendar.getTime());
+            lvClock.setText(dt);
 
             tvPhaseName.setText(settings.magic_program[phase].name);
 

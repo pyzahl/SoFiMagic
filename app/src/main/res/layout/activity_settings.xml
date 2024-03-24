@@ -23,12 +23,36 @@
                 android:layout_alignParentBottom="true">
 
                 <TableRow>
-
+                    <TextView
+                        android:id="@+id/lblLabID"
+                        android:layout_width="50dp"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center_vertical"
+                        android:text="PrgID:"
+                        android:textSize="18sp" />
+                    <TextView
+                        android:id="@+id/tvProgramName"
+                        android:text="Camera One"
+                        android:textSize="18sp" />
+                    <TextView
+                        android:id="@+id/tvLabNow"
+                        android:gravity="center_horizontal"
+                        android:text="Time:"
+                        android:textSize="16sp" />
+                    <TextView
+                        android:id="@+id/tvClock"
+                        android:gravity="center_horizontal"
+                        android:text="HH:MM:SS"
+                        android:textSize="16sp" />
                     <TextView
                         android:id="@+id/tvVersionDbg"
+                        android:gravity="center_horizontal"
                         android:text="V1.0.4"
                         android:textSize="16sp" />
-
+                </TableRow>
+                <TableRow>
                     <TextView
                         android:id="@+id/lblC1"
                         android:layout_width="25dp"
