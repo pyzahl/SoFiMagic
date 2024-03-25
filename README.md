@@ -53,6 +53,8 @@ Settings:
 - "Fn" Button takes a exact Camera time reading when pressed and that time is shown/updated with ms precision on top of the settings screen.
 - Camera/Program-ID or Nick Name is displayed on top of settings screen. Can only be set via XML file.
 
+Bracketing CameraFlags are experimental, may not work -- TDB. Stick with S (Single Shot) and program the series required for now!
+
 While running:
 - "Play" Button will turn on the display, and activates timeout to display off (5s)
 - "Fn" Button turn on display for infinite time. To turn off auto again press "Play".
