@@ -28,7 +28,14 @@ And final thanks to [jonasjuffinger](https://github.com/jonasjuffinger/TimeLapse
 Load project into Android Studio...
 
 ## Usage ##
-Start App, configure. Review XML file on CF card in SOFIMAGI folder created by App itself at first start. Edit XML file... see below for example. (On Camera GUI is pending completion).
+Start App, configure. Review XML file on CF card in SOFIMAGI folder created by App itself at first start. Edit XML file... see below for example.
+Global options: 
+
+- Use Silent Shutter (SS) mode -- will automatically disabled for Burts/Cont Hi/Low shooting and enabled again!
+- Manual Focus (MF) -- very recommened for most cases! Focus before. Also set Aperture if any! (F-Settings do not yet work correctly -- need help here!! Try various...)
+- Display Off (DOFF) -- when running, can be turned back on/off while running (Fn, Play Buttons), see below.
+- Start via Start button on display or Camera Play Button
+
 Start App again.
 Finally click the start button and wait.
 
