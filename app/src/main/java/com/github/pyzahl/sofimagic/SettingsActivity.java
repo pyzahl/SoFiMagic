@@ -384,4 +384,24 @@ public class SettingsActivity extends BaseActivity
         onBackPressed();
         return true;
     }
+
+
+    @Override
+    protected boolean onPlayKeyDown() {
+        update_and_store_xml();
+        settings.save(that);
+        Intent intent = new Intent(that, ShootActivity.class);
+        settings.putInIntent(intent);
+        startActivity(intent);
+        return true;
+    }
+
+    @Override
+    protected boolean onFnKeyDown() {
+        lvClock.setText(getHMSMSfromMS(getMilliSecondsOfDay()));
+        return true;
+    }
+
+
+
 }
