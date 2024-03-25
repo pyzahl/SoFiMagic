@@ -50,6 +50,11 @@ While running:
 - "Play" Button will turn on the display, and activates timeout to display off (5s)
 - "Fn" Button turn on display for infinite time. To turn off auto again press "Play".
 - "Menu"/"Trash" Button stop / interrupt the progam, back to settings plage. Can start over at any time!
+  
+![Screenshot from 2024-03-25 12-03-01](https://github.com/pyzahl/SoFiMagic/assets/22110415/c4343c0a-c5c5-4bfb-adc3-a63160e4f5ff)
+
+
+## Settings: ##
 
 ![Screenshot from 2024-03-09 23-00-18](https://github.com/pyzahl/SoFiMagic/assets/22110415/eceec0ad-1528-4fc9-a48c-fd51befa8e62)
 See at the bottom for all configuration screens.
