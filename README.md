@@ -28,7 +28,14 @@ And final thanks to [jonasjuffinger](https://github.com/jonasjuffinger/TimeLapse
 Load project into Android Studio...
 
 ## Usage ##
-Start App, configure. Review XML file on CF card in SOFIMAGI folder created by App itself at first start. Edit XML file... see below for example. (On Camera GUI is pending completion).
+Start App, configure. Review XML file on CF card in SOFIMAGI folder created by App itself at first start. Edit XML file... see below for example.
+Global options: 
+
+- Use Silent Shutter (SS) mode -- will automatically disabled for Burts/Cont Hi/Low shooting and enabled again!
+- Manual Focus (MF) -- very recommened for most cases! Focus before. Also set Aperture if any! (F-Settings do not yet work correctly -- need help here!! Try various...)
+- Display Off (DOFF) -- when running, can be turned back on/off while running (Fn, Play Buttons), see below.
+- Start via Start button on display or Camera Play Button
+
 Start App again.
 Finally click the start button and wait.
 
@@ -38,6 +45,25 @@ IMPORTANT NOTE: PLEASE DO NOT START THIS APP WITH CAMERA BEEN IN DRIVE MODE USIN
 SET TO SINGLE DRIVE MODE, NO TIMER.
 
 The settings screens. Start button at the bottom, scroll down.
+
+## Updates/new: ##
+Settings:
+
+- "Play" button now also starts the job from settings menu.
+- "Fn" Button takes a exact Camera time reading when pressed and that time is shown/updated with ms precision on top of the settings screen.
+- Camera/Program-ID or Nick Name is displayed on top of settings screen. Can only be set via XML file.
+
+Bracketing CameraFlags are experimental, may not work -- TDB. Stick with S (Single Shot) and program the series required for now!
+
+While running:
+- "Play" Button will turn on the display, and activates timeout to display off (5s)
+- "Fn" Button turn on display for infinite time. To turn off auto again press "Play".
+- "Menu"/"Trash" Button stop / interrupt the progam, back to settings plage. Can start over at any time!
+  
+![Screenshot from 2024-03-25 12-03-01](https://github.com/pyzahl/SoFiMagic/assets/22110415/c4343c0a-c5c5-4bfb-adc3-a63160e4f5ff)
+
+
+## Settings: ##
 
 ![Screenshot from 2024-03-09 23-00-18](https://github.com/pyzahl/SoFiMagic/assets/22110415/eceec0ad-1528-4fc9-a48c-fd51befa8e62)
 See at the bottom for all configuration screens.
