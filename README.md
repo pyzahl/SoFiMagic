@@ -62,6 +62,7 @@ While running:
   
 ![Screenshot from 2024-03-25 12-03-01](https://github.com/pyzahl/SoFiMagic/assets/22110415/c4343c0a-c5c5-4bfb-adc3-a63160e4f5ff)
 
+IMPORTANT: Bracketing and Aperture settings are still experimental and may casue issues/not work. DO NOT USE WITHOUT EXTENSIVE TESTING. MAY FAIL IN CERTAIN SITUATIONS.
 
 ## Settings: ##
 
@@ -102,10 +103,10 @@ For each Eclipse Phase "NAME" a exposure program is to be configured.
             Number Shots set to 0 mean END of Lists!
 	    
             For each interval the Exposure Lists are executed once.
-            CF:  CAMERA_FLAG_LIST: Drive Modes are S: Single Photo, C: Continuous High, M: Continuous Medium, L: Continuous Low, B: Bracketing (new/experimental)
+            CF:  CAMERA_FLAG_LIST: Drive Modes are S: Single Photo, C: Continuous High, M: Continuous Medium, L: Continuous Low, B: Bracketing (experimental, may not work right)
             BT:  BURST_DURATION_LIST: Defines Burst Duration if in C,M or L Drive Mode. In Bracketing Mode (CF=B), see list of BT values below.
             ISO: ISO_LIST: ISO to be set. Must be a valid ISO number. ISO=0 MUST terminate the list (internally)
-            F:   F_LIST: Aperture setting, 0: ignored. MUST be a valid Aperture.
+            F:   F_LIST: Aperture setting, 0: ignored. MUST be a valid Aperture. [expeimental, may not work right yet]
             t:   SHUTTER_SPEED_LIST: Shutter Speed to be set. MUST be a valid shutter speed.
 
         Bracketing Options:
@@ -134,6 +135,7 @@ Note: if you wish you can edit the created XML file on SD card. The app stores (
 ## SS (Silent Shutter) ##
 The silent shutter option is functionless on cameras without silent shutter mode.
 WARNING: Burst/Continuous Shooting may not be available or work depending on Camera model. TEST IT! If in doubt, do not use.
+Now camera is set to shutter use for busting automatically.
 
 ## MF (Manual Focus) ##
 This sets focus mode to manual. Be sure to have focused before starting the app!
