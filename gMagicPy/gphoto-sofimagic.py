@@ -265,9 +265,9 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
                 else:
                     shutters = '{}'.format(sn) # seconds only
                 shutterspeed_config.set_value(shutters);
-                fns='f/{:.1f}'.format(f)
+                fns='f/{:g}'.format(f)
                 if f>0:
-                    fnumber_config.set_value('f/{:g}'.format(f))
+                    fnumber_config.set_value(fns)
                 iss='{}'.format(iso)
                 iso_config.set_value(iss)
                 time.sleep(0.2)
