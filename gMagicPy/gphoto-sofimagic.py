@@ -282,24 +282,30 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
 
                 if simulate:
                     #print (get_hmsms_from_ms(get_milliseconds_of_day(system_time_correct))+'SIM Sap Photo for ', phase.name, ' @ ', sss, fns, iss)
-                    if float(sn)/sd > 10: # some how missing next shot, wait longer after long exposure
-                        sleep(float(sn)/sd+2)
+                    if float(sn)/sd > 2: # some how missing next shot, wait longer after long exposure
+                        time.sleep(float(sn)/sd+2)
                     else:
-                        sleep(float(sn)/sd+0.1)
+                        time.sleep(float(sn)/sd+0.1)
                     Logger.shootdata(phase.name, ' SIM Snap #{} for {} {}/{} @{} {} {} '.format(count, phase.name, i, phase.number_shots, sss, fns, iss))
                 else:
                     if trigger_only:
                         #print (get_hmsms_from_ms(get_milliseconds_of_day(system_time_correct))+' Snap Photo for ', phase.name, ' @ ', sss, fns, iss)
                         Logger.shootdata(phase.name, ' @{} {} {} '.format(sss, fns, iss))
                         camera.trigger_capture()
-                        time.sleep(float(sn)/sd+0.5)
+                        if float(sn)/sd > 2: # some how missing next shot, wait longer after long exposure
+                            time.sleep(float(sn)/sd+2)
+                        else:
+                            time.sleep(float(sn)/sd+0.5)
                         #wait_busy (camera)
                         print (get_hmsms_from_ms(get_milliseconds_of_day(system_time_correct))+' Completed')
                     else:
                         #print ('Snap Photo+download for ', phase.name, ' @ ', sss, fns, iss)
                         Logger.shootdata(phase.name, ' @{} {} {} '.format(sss, fns, iss))
                         path = camera.capture(gp.GP_CAPTURE_IMAGE)
-                        time.sleep(float(sn)/sd+0.5)
+                        if float(sn)/sd > 2: # some how missing next shot, wait longer after long exposure
+                            time.sleep(float(sn)/sd+2)
+                        else:
+                            time.sleep(float(sn)/sd+0.5)
                         print('capture', path.folder + path.name)
                         #wait_busy (camera)
                         camera_file = camera.file_get(
