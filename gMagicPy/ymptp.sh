@@ -8,5 +8,6 @@ exiftool $SD/*.NEF  | grep "^Exposure Time   " | awk '{print $4}' > E
 exiftool $SD/*.NEF  | grep "^F Number" | awk '{print $4}' > F
 
 grep PHOTO LOG.TXT > PHOTO
+paste T ISO E F PHOTO > verify.txt
 
 less verify.txt
