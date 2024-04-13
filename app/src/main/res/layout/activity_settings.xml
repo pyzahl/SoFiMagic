@@ -54,6 +54,15 @@
                 </TableRow>
                 <TableRow>
                     <TextView
+                        android:id="@+id/lblCTime"
+                        android:layout_width="50dp"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center_vertical"
+                        android:text="ref"
+                        android:textSize="20sp" />
+                    <TextView
                         android:id="@+id/lblC1"
                         android:layout_width="25dp"
                         android:layout_height="wrap_content"
