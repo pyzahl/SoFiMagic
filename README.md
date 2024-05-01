@@ -297,3 +297,10 @@ All settings screenshots:
 ![Screenshot from 2024-03-09 23-01-19](https://github.com/pyzahl/SoFiMagic/assets/22110415/7481e86b-ad25-44c4-8c74-47c74098a75b)
 ![Screenshot from 2024-03-09 23-01-28](https://github.com/pyzahl/SoFiMagic/assets/22110415/e6a0a5c4-d426-4f60-b792-300c64a2f7e5)
 
+![Screenshot from 2024-05-01 10-18-37](https://github.com/pyzahl/SoFiMagic/assets/22110415/c536942b-8c5a-4da4-b846-f6887ddcf0da)
+
+From the 2024 Eclipse:
+
+https://youtube.com/shorts/pBB1ybe05FY?si=PzH9lR0DDI_xz8Ey
+
+
