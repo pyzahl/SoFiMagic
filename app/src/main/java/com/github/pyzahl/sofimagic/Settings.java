@@ -189,13 +189,47 @@ class Settings {
         }
     }
 
+    // Midnight handling: contact times are stored as time of day (0..24h). For all timing they are placed
+    // on one continuous time line centered on C2 (+/-12h), so a program crossing midnight works normally.
+    // Times on this line may be < 0 (before midnight of C2's day) or >= 24h (after it).
+    static final int DAY_SEC = 86400;
+    static final long DAY_MS = 86400000L;
+
+    static int unwrap_sec(int t) { // time of day (s) -> eclipse time line (s)
+        int d = t - tc2;
+        if (d >  DAY_SEC/2) return t - DAY_SEC;
+        if (d < -DAY_SEC/2) return t + DAY_SEC;
+        return t;
+    }
+
+    // "now" is taken as up to 20h before C2 or up to 4h after C2 (a program never runs longer than ~3h past C2),
+    // so starting the app early (even the evening before) still waits for the eclipse instead of skipping it.
+    static final long NOW_BEFORE_C2_MS = 20L*3600000L;
+    static final long NOW_AFTER_C2_MS  = DAY_MS - NOW_BEFORE_C2_MS;
+
+    static public long eclipse_ms(long ms_of_day) { // clock time of day (ms) -> eclipse time line (ms)
+        long t = ((ms_of_day % DAY_MS) + DAY_MS) % DAY_MS;
+        long d = t - (long)tc2 * 1000L;
+        if (d >= NOW_AFTER_C2_MS)   return t - DAY_MS;
+        if (d < -NOW_BEFORE_C2_MS)  return t + DAY_MS;
+        return t;
+    }
+
+    static public long wall_ms(long eclipse_ms) { // eclipse time line (ms) -> clock time of day (ms), for display
+        return ((eclipse_ms % DAY_MS) + DAY_MS) % DAY_MS;
+    }
+
+    static public int wall_sec(int eclipse_s) { // eclipse time line (s) -> clock time of day (s), for display/storage
+        return ((eclipse_s % DAY_SEC) + DAY_SEC) % DAY_SEC;
+    }
+
     static public int get_TC(int i) {
         switch (i) {
-            case 0: return (tc2+tc3)/2;
-            case 1: return tc1;
+            case 0: return (tc2+unwrap_sec(tc3))/2;
+            case 1: return unwrap_sec(tc1);
             case 2: return tc2;
-            case 3: return tc3;
-            case 4: return tc4;
+            case 3: return unwrap_sec(tc3);
+            case 4: return unwrap_sec(tc4);
         }
         return -1;
     }

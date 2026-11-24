@@ -181,7 +181,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
             boolean shooting = false;
 
             // Get Time
-            long now = getMilliSecondsOfDay();
+            long now = Settings.eclipse_ms(getMilliSecondsOfDay()); // continuous across midnight
 
             if (settings.magic_program[MagicPhase].ISOs[exposureCount] == 0) {
                 if (exposureCount > 0)
@@ -198,7 +198,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
                 remainingTimeNextExposureSet = settings.magic_program[MagicPhase].get_remainingTimeToNext(repeatCount+1, now);
 
                 if (remainingTimeToContactPhase > 0 && ((remainingTimeToContactPhase/1000)%60) == 0)
-                        log_progress("shootRunnable: remaining time to MagicPhase " + settings.magic_program[MagicPhase].name + " @" + getHMSMSfromMS((long) settings.magic_program[MagicPhase].get_start_time() * 1000) + " #" + Integer.toString(MagicPhase) + " start in: " + getHMSfromMS(remainingTimeToContactPhase));
+                        log_progress("shootRunnable: remaining time to MagicPhase " + settings.magic_program[MagicPhase].name + " @" + getHMSMSfromMS(Settings.wall_ms((long) settings.magic_program[MagicPhase].get_start_time() * 1000)) + " #" + Integer.toString(MagicPhase) + " start in: " + getHMSfromMS(remainingTimeToContactPhase));
                 if (remainingTimeToContactPhase < 2000 && settings.magic_program[MagicPhase].ISOs[exposureCount] > 0)
                     log_info("shootRunnable " + getHMSMSfromMS(now) + " MagicPhase[" + Integer.toString(MagicPhase) + "]" + settings.magic_program[MagicPhase].name
                             + " SC:" + Integer.toString(shotCount) + " EC:" + Integer.toString(exposureCount) + " RC:" + Integer.toString(repeatCount) + " BC: " + Integer.toString(burstCount)
@@ -981,7 +981,7 @@ public class ShootActivity extends BaseActivity implements SurfaceHolder.Callbac
         // end of exposure series?
         if (settings.magic_program[MagicPhase].number_shots > 0 && settings.magic_program[MagicPhase].ISOs[exposureCount] == 0) {
             int time_of_next_burst = settings.magic_program[MagicPhase].get_TimeOfNext(repeatCount + 1);
-            long now = getMilliSecondsOfDay();
+            long now = Settings.eclipse_ms(getMilliSecondsOfDay()); // continuous across midnight
             // remaining time to the next shot
             long remainingTime = settings.magic_program[MagicPhase].get_remainingTimeToNext(repeatCount + 1, now);
 

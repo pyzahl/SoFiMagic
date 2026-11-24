@@ -168,18 +168,56 @@ class Settings:
         def get_remainingTimeToNext(self, count, as_of_ms):
             return round(self.get_TimeOfNext(count) * 1000.0 - as_of_ms)
 
+    # Midnight handling: contact times are stored as time of day (0..24h). For all timing they are placed
+    # on one continuous time line centered on C2 (+/-12h), so a program crossing midnight works normally.
+    # Times on this line may be < 0 (before midnight of C2's day) or >= 24h (after it).
+    DAY_SEC = 86400
+    DAY_MS = 86400000
+
+    @staticmethod
+    def unwrap_sec(t):  # time of day (s) -> eclipse time line (s)
+        d = t - Settings.tc2
+        if d > Settings.DAY_SEC//2:
+            return t - Settings.DAY_SEC
+        if d < -Settings.DAY_SEC//2:
+            return t + Settings.DAY_SEC
+        return t
+
+    # "now" is taken as up to 20h before C2 or up to 4h after C2 (a program never runs longer than ~3h past C2),
+    # so starting the program early (even the evening before) still waits for the eclipse instead of skipping it.
+    NOW_BEFORE_C2_MS = 20*3600000
+    NOW_AFTER_C2_MS = DAY_MS - NOW_BEFORE_C2_MS
+
+    @staticmethod
+    def eclipse_ms(ms_of_day):  # clock time of day (ms) -> eclipse time line (ms)
+        t = ms_of_day % Settings.DAY_MS
+        d = t - Settings.tc2*1000
+        if d >= Settings.NOW_AFTER_C2_MS:
+            return t - Settings.DAY_MS
+        if d < -Settings.NOW_BEFORE_C2_MS:
+            return t + Settings.DAY_MS
+        return t
+
+    @staticmethod
+    def wall_ms(eclipse_ms):  # eclipse time line (ms) -> clock time of day (ms), for display
+        return eclipse_ms % Settings.DAY_MS
+
+    @staticmethod
+    def wall_sec(eclipse_s):  # eclipse time line (s) -> clock time of day (s), for display/storage
+        return eclipse_s % Settings.DAY_SEC
+
     @staticmethod
     def get_TC(i):
         if i == 0:
-            return (Settings.tc2+Settings.tc3)//2
+            return (Settings.tc2+Settings.unwrap_sec(Settings.tc3))//2
         elif i == 1:
-            return Settings.tc1
+            return Settings.unwrap_sec(Settings.tc1)
         elif i == 2:
             return Settings.tc2
         elif i == 3:
-            return Settings.tc3
+            return Settings.unwrap_sec(Settings.tc3)
         elif i == 4:
-            return Settings.tc4
+            return Settings.unwrap_sec(Settings.tc4)
         return -1
 
     magic_program = [None] * 17

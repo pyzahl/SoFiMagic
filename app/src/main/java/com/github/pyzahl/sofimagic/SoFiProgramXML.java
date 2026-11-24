@@ -145,7 +145,7 @@ public class SoFiProgramXML {
             appendElement(elementTC, "C2", getHMSfromS(Settings.tc2));
             appendElement(elementTC, "C3", getHMSfromS(Settings.tc3));
             appendElement(elementTC, "C4", getHMSfromS(Settings.tc4));
-            appendElement(elementTC, "COMMENT1", "C0 is MAX = (TC2+TC3)/2="+getHMSfromS((Settings.tc2+Settings.tc3)/2));
+            appendElement(elementTC, "COMMENT1", "C0 is MAX = (TC2+TC3)/2="+getHMSfromS(Settings.wall_sec(Settings.get_TC(0))));
             appendElement(elementTC, "COMMENT2", "REF_CONTACT = 0 is MAX computed from (TC2+TC3)/2. PHASE START, END times in sec relative to REF_CONTACT_START,_END index=1,2,0,3,4");
             root.appendChild(elementTC);
 

@@ -260,7 +260,8 @@ public class BaseActivity extends Activity {
         int m = calendar.get(Calendar.MINUTE);
         int s = calendar.get(Calendar.SECOND);
         //int ms = calendar.get(Calendar.MILLISECOND);
-        return h*3600+m*60+s;
+        int sec = h*3600+m*60+s;
+        return ((sec % 86400) + 86400) % 86400; // wrap into 0..24h (UTC shift can leave the day)
     }
 
     static public long getMilliSecondsOfDay() {
@@ -270,7 +271,8 @@ public class BaseActivity extends Activity {
         int m = calendar.get(Calendar.MINUTE);
         int s = calendar.get(Calendar.SECOND);
         int ms = calendar.get(Calendar.MILLISECOND);
-        return Math.round((h*3600.0+m*60.0+s)*1000.0 + ms);
+        long msec = Math.round((h*3600.0+m*60.0+s)*1000.0 + ms);
+        return ((msec % 86400000L) + 86400000L) % 86400000L; // wrap into 0..24h (UTC shift can leave the day)
     }
 
     static public String getHMSMSfromMS(long ms) {

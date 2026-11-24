@@ -119,31 +119,45 @@ def get_datetime(config, model):
         print('Unknown date/time config item')
         return 0
 
+def get_ntp_synchronized():
+    # Returns 'yes' / 'no' (or 'unknown'), independent of timedatectl output layout and locale.
+    try:
+        out = subprocess.run(['timedatectl', 'show', '-p', 'NTPSynchronized', '--value'],
+                             capture_output=True, text=True, timeout=5).stdout.strip().lower()
+        if out in ('yes', 'no'):
+            return out
+    except (OSError, subprocess.SubprocessError):
+        pass
+    # Fallback for older systemd without 'show': search the human readable output for the "synchronized" line
+    try:
+        out = subprocess.run(['timedatectl'], capture_output=True, text=True, timeout=5,
+                             env=dict(os.environ, LC_ALL='C')).stdout
+        for line in out.splitlines():
+            if 'synchronized' in line.lower() and ':' in line:
+                return line.split(':', 1)[1].strip().lower()
+    except (OSError, subprocess.SubprocessError):
+        pass
+    print ('Could not determine NTP sync state from timedatectl.')
+    return 'unknown'
+
 def auto_update_system_time(camera_datetime):
 
     print ('*** Checking for NTP Service ***')
-    process = subprocess.Popen(['timedatectl'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = process.communicate()
-    #print(out)
-    lines = str(out).split('\\n')
-    #print (lines)
-    print (lines[4])
+    synced = get_ntp_synchronized()
     clk_id = time.CLOCK_REALTIME
     print ('System UNIX DateTime = ', time.clock_gettime(clk_id))
     #print ('System NOW', float(datetime.now().strftime('%s.%f')))
-    synced = lines[4].split(':')[1].lstrip().rstrip().lower()
     clock_is_synced = synced == 'yes'
     print ('System Time correct? : ', synced, ' => ', clock_is_synced)
-    
+
     if not clock_is_synced:
         try:
             print ('Attempting to adjust system time... (needs root)')
             camera_dtime=float(camera_datetime.strftime('%s.%f'))
-            clk_id = time.CLOCK_REALTIME
             time.clock_settime(clk_id, camera_dtime) # THIS REQUIRES ROOT
-            print ('Synced System Time from Camera. DateTime=', time.clock_gettime())
+            print ('Synced System Time from Camera. DateTime=', time.clock_gettime(clk_id))
             return 0, clock_is_synced
-        except:
+        except OSError: # PermissionError when not root
             camera_dtime=float(camera_datetime.strftime('%s.%f'))
             print ('Can not adjust system time, need to run this as root.\nEvaluating time difference for correction.')
             system_sec = time.clock_gettime(clk_id)
@@ -197,15 +211,31 @@ def wait_busy (camera):
             break
             
 
+def camera_call_with_retry(func, phase_name, what, retries=1, retry_delay=0.3):
+    # A transient gphoto error (camera busy, I/O in progress, ...) must not end the program mid-eclipse:
+    # log it, retry once after a short pause, then give up on this exposure and carry on with the program.
+    for attempt in range(retries+1):
+        try:
+            return func()
+        except Exception as ex:
+            Logger.error('{}: {} failed (attempt {}/{}): {}'.format(phase_name, what, attempt+1, retries+1, ex))
+            if attempt < retries:
+                time.sleep(retry_delay)
+    Logger.error('{}: {} skipped for this exposure, continuing program.'.format(phase_name, what))
+    return None
+
 def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_config, trigger_only, simulate, system_time_correct):
     Logger.set_system_time_offset(system_time_correct)
 
-    now =  get_milliseconds_of_day(system_time_correct)
+    def now_ms(): # program time on the continuous eclipse time line (works across midnight)
+        return Settings.eclipse_ms(get_milliseconds_of_day(system_time_correct))
+
+    now =  now_ms()
     print ('CHECKING PHASE: ', phase.name)
-    print ('TIME NOW......: ', get_hmsms_from_ms(now))
-    print ('PHASE START...: ', get_hmsms_from_ms(phase.get_start_time()*1000), ' remaining time: ', get_hmsms_from_ms(phase.get_remainingTimeToStart(now)))
-    print ('PHASE END.....: ', get_hmsms_from_ms(phase.get_end_time()*1000),   ' remaining time: ', get_hmsms_from_ms(phase.get_remainingTime(now)))
-    print ('FIRST SHOT IN.: ', get_hmsms_from_ms(phase.get_TimeOfNext(0)))
+    print ('TIME NOW......: ', get_hmsms_from_ms(Settings.wall_ms(now)))
+    print ('PHASE START...: ', get_hmsms_from_ms(Settings.wall_ms(phase.get_start_time()*1000)), ' remaining time: ', get_hmsms_from_ms(phase.get_remainingTimeToStart(now)))
+    print ('PHASE END.....: ', get_hmsms_from_ms(Settings.wall_ms(phase.get_end_time()*1000)),   ' remaining time: ', get_hmsms_from_ms(phase.get_remainingTime(now)))
+    print ('FIRST SHOT AT.: ', get_hmsms_from_ms(Settings.wall_ms(phase.get_TimeOfNext(0)*1000)))
     print ('SECOND SHOT IN: ', get_hmsms_from_ms(phase.get_remainingTimeToNext(1,now)))
     print ('INTERVAL TIME.: ', get_hmsms_from_ms(1000.*(phase.get_end_time()-phase.get_start_time())/(phase.number_shots-1)))
 
@@ -223,8 +253,8 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
         return;
     
     while now < (phase.get_start_time()*1000-100):
-        now =  get_milliseconds_of_day(system_time_correct)
-        print ('\r',get_hmsms_from_ms(now),' ** remaining time to ', phase.name, ': ', get_hmsms_from_ms(phase.get_remainingTimeToStart(now)), end='')
+        now =  now_ms()
+        print ('\r',get_hmsms_from_ms(Settings.wall_ms(now)),' ** remaining time to ', phase.name, ': ', get_hmsms_from_ms(phase.get_remainingTimeToStart(now)), end='')
         time.sleep(0.1)
 
     print ('\r\r** STARTING **')
@@ -233,7 +263,7 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
     num = phase.number_shots
     i = phase.number_shots-num
     if intervall_shoot:
-        while phase.get_remainingTimeToNext(i,get_milliseconds_of_day(system_time_correct)) < -500:
+        while phase.get_remainingTimeToNext(i,now_ms()) < -500:
             print ('\r Exposure#', i, '/', phase.number_shots, ': skipping', end='')
             num=num-1
             i = phase.number_shots-num
@@ -241,14 +271,14 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
         i=0
             
     print ('')
-    while phase.get_remainingTime(get_milliseconds_of_day(system_time_correct)) > 0:
+    while phase.get_remainingTime(now_ms()) > 0:
         if intervall_shoot:
             i = phase.number_shots-num
             print ('Timed Interval Exposure Block ', i, '/', phase.number_shots, ' for ', phase.name)
 
             # wait until next intervall?
-            while phase.get_remainingTimeToNext(i,get_milliseconds_of_day(system_time_correct)) > 150:
-                print ('\r',get_hmsms_from_ms(get_milliseconds_of_day(system_time_correct)), ' ** remaining time to next '+phase.name+' shot #',i, ' in ', get_hmsms_from_ms(phase.get_remainingTimeToNext(i, get_milliseconds_of_day(system_time_correct))), end='')
+            while phase.get_remainingTimeToNext(i,now_ms()) > 150:
+                print ('\r',get_hmsms_from_ms(get_milliseconds_of_day(system_time_correct)), ' ** remaining time to next '+phase.name+' shot #',i, ' in ', get_hmsms_from_ms(phase.get_remainingTimeToNext(i, now_ms())), end='')
                 time.sleep(0.1)
             num = num-1
             print ('')
@@ -258,6 +288,12 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
             i=i+1
 
         for cf,bd,iso,f,sn,sd in zip(phase.CameraFlags, phase.BurstDurations, phase.ISOs, phase.Fs, phase.ShutterSpeedsN, phase.ShutterSpeedsD):
+            # Continuous phases: stop mid-list once the phase time is up, so a long
+            # exposure list cannot run into the next phase (e.g. TotalityB -> Contact3).
+            # Interval phases always finish their (short) block, even for the last shot at phase end.
+            if not intervall_shoot and phase.get_remainingTime(now_ms()) <= 0:
+                print ('Phase time up, aborting exposure list for ', phase.name)
+                break
             if iso > 0:
                 sss='{}/{}'.format(sn,sd)
                 if sd > 1:
@@ -291,7 +327,7 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
                     if trigger_only:
                         #print (get_hmsms_from_ms(get_milliseconds_of_day(system_time_correct))+' Snap Photo for ', phase.name, ' @ ', sss, fns, iss)
                         Logger.shootdata(phase.name, ' @{} {} {} '.format(sss, fns, iss))
-                        camera.trigger_capture()
+                        camera_call_with_retry(camera.trigger_capture, phase.name, 'trigger_capture')
                         if float(sn)/sd > 2: # some how missing next shot, wait longer after long exposure
                             time.sleep(float(sn)/sd+2)
                         else:
@@ -301,17 +337,21 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
                     else:
                         #print ('Snap Photo+download for ', phase.name, ' @ ', sss, fns, iss)
                         Logger.shootdata(phase.name, ' @{} {} {} '.format(sss, fns, iss))
-                        path = camera.capture(gp.GP_CAPTURE_IMAGE)
+                        path = camera_call_with_retry(lambda: camera.capture(gp.GP_CAPTURE_IMAGE), phase.name, 'capture')
                         if float(sn)/sd > 2: # some how missing next shot, wait longer after long exposure
                             time.sleep(float(sn)/sd+2)
                         else:
                             time.sleep(float(sn)/sd+0.5)
-                        print('capture', path.folder + path.name)
-                        #wait_busy (camera)
-                        camera_file = camera.file_get(
-                            path.folder, path.name, gp.GP_FILE_TYPE_NORMAL)
-                        camera_file.save(template % count)
-                        camera.file_delete(path.folder, path.name)
+                        if path is not None:
+                            print('capture', path.folder + path.name)
+                            #wait_busy (camera)
+                            try:
+                                camera_file = camera.file_get(
+                                    path.folder, path.name, gp.GP_FILE_TYPE_NORMAL)
+                                camera_file.save(template % count)
+                                camera.file_delete(path.folder, path.name)
+                            except Exception as ex:
+                                Logger.error('{}: download of {}{} failed, continuing: {}'.format(phase.name, path.folder, path.name, ex))
                         #time.sleep(1)
                 count = count + 1
             else:
@@ -320,7 +360,13 @@ def exec_phase (phase, camera, config, shutterspeed_config, fnumber_config, iso_
         print ("End of Phase ", phase.name)
             
 def main():
-     
+
+    ### Time base option -- set before anything is logged or timed
+    use_utc = False ## False: local system time (default), True: UTC -- contact times in the XML must then be UTC (as in the Sony app)
+    ###
+    set_use_utc(use_utc)
+    print ('*** Time base for contact times and log:', 'UTC' if get_use_utc() else 'local system time', '***')
+
     locale.setlocale(locale.LC_ALL, '')
     logging.basicConfig(
         format='%(levelname)s: %(name)s: %(message)s', level=logging.WARNING)
