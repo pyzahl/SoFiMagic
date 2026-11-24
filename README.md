@@ -25,7 +25,32 @@ Thanks to [ma1co](https://github.com/ma1co) for creating this amazing framework 
 And final thanks to [jonasjuffinger](https://github.com/jonasjuffinger/TimeLapse) for creating TimeLapse I used as template to start SoFiMagic. 
 
 ## Building ##
-Load project into Android Studio...
+The project is deliberately kept on its original legacy toolchain, matching the old Sony PlayMemories camera platform (Android 2.3):
+Gradle 7.5, Android Gradle Plugin 7.4.2, compile/min/target SDK 10, Java source/target 1.7.
+**Do not upgrade Gradle, the plugin or the SDK levels.** Only the JDK used to *run* Gradle matters:
+
+- Gradle 7.5 does not run on Java 21+ ("Unsupported class file major version ..."). Use **JDK 17**.
+- Command line:
+  ```
+  JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 sh ./gradlew assembleDebug
+  ```
+- Android Studio: load the project, set *Settings → Build, Execution, Deployment → Build Tools → Gradle → Gradle JDK* to 17.
+- The first build needs to be online (plugin and OpenMemories framework/stubs from google/jitpack).
+- Output: `app/build/outputs/apk/debug/SoFiMagic-debug-<version>.apk`
+
+## Installing on the camera (Sony-PMCA-RE) ##
+1. Get [Sony-PMCA-RE](https://github.com/ma1co/Sony-PMCA-RE) and install its Python requirements, ideally in a venv:
+   ```
+   git clone https://github.com/ma1co/Sony-PMCA-RE && cd Sony-PMCA-RE
+   python3 -m venv ../venv && ../venv/bin/pip install -r requirements.txt
+   ```
+2. Camera: set USB connection mode to **MTP** and connect it.
+3. Install the APK:
+   ```
+   ../venv/bin/python -W ignore pmca-console.py install -f <path>/SoFiMagic-debug-<version>.apk
+   ```
+4. If you get `USBError: [Errno 16] Resource busy`: the desktop (gvfs) has claimed the camera. Eject/unmount the camera
+   in the file manager, keep it connected, and run the install again.
 
 ## Usage ##
 Start App, configure. Review XML file on CF card in SOFIMAGI folder created by App itself at first start. Edit XML file... see below for example.
