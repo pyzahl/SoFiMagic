@@ -328,4 +328,9 @@ From the 2024 Eclipse:
 
 https://youtube.com/shorts/pBB1ybe05FY?si=PzH9lR0DDI_xz8Ey
 
+Final HDR rendering with annotations
+
+<img width="3200" height="2137" alt="corona_gm_v3c_moon_full_annotated_pyz" src="https://github.com/user-attachments/assets/8775a731-058f-43ea-823b-c3b370852c28" />
+
+
 
